@@ -2662,7 +2662,10 @@ blockquote {
   overflow: auto;
   z-index: 20;
   transition: transform .25s ease-in-out;
-  -webkit-transition: -webkit-transform .25s ease-in-out; }
+  -webkit-transition: -webkit-transform .25s ease-in-out; 
+  background: url('/assets/images/cover.jpg') no-repeat center center;
+  background-size: cover;
+}
   #sidebar .sidebar-profile {
     color: #ebebeb;
     text-align: center;

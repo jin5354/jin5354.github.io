@@ -1,0 +1,540 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+    
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="404Forest">
+    <title>深入探究 eventloop 与浏览器渲染的时序问题 - 404Forest</title>
+    <meta name="author" content="Jin">
+    
+        <link rel="icon" href="/assets/images/favicon.ico">
+    
+    
+    <meta name="description" content="在上篇文章《现代前端科技解析 —— 数据响应式系统 (Data Reactivity System)》中我们用到了 nextTick 函数，该函数使用 MutationObserver 实现了『异步』更新。我们工作中也常用 setTimeout(fn, 0) 来实现任务的『延迟』执行。本文以次为引，结合浏览器渲染，全面解析一轮 eventloop(事件循环) 各步骤的执行时序问题。">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="深入探究 eventloop 与浏览器渲染的时序问题">
+<meta property="og:url" content="http://www.404forest.com/2017/07/18/how-javascript-actually-works-eventloop-and-uirendering/index.html">
+<meta property="og:site_name" content="404Forest">
+<meta property="og:description" content="在上篇文章《现代前端科技解析 —— 数据响应式系统 (Data Reactivity System)》中我们用到了 nextTick 函数，该函数使用 MutationObserver 实现了『异步』更新。我们工作中也常用 setTimeout(fn, 0) 来实现任务的『延迟』执行。本文以次为引，结合浏览器渲染，全面解析一轮 eventloop(事件循环) 各步骤的执行时序问题。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/eventloop-1.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/eventloop-2.jpg">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/eventloop-7.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/eventloop-3.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/eventloop-4.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/eventloop-5.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/eventloop-6.png">
+<meta property="article:published_time" content="2017-07-18T17:38:11.000Z">
+<meta property="article:modified_time" content="2025-02-04T23:02:44.256Z">
+<meta property="article:author" content="Jin">
+<meta property="article:tag" content="how-javascript-actually-works">
+<meta property="article:tag" content="eventloop">
+<meta property="article:tag" content="requestAnimationFrame">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://www.404forest.com/imgs/blog/eventloop-1.png">
+<meta name="twitter:creator" content="@jin5354">
+    
+    
+    
+        <meta property="og:image" content="/assets/images/ava.png"/>
+    
+    
+    
+    
+    <!--STYLES-->
+    
+<link rel="stylesheet" href="/assets/css/style.min.css">
+
+    <!--STYLES END-->
+    
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-66492678-1']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+
+</head>
+
+    <body>
+        <div id="blog">
+            <header id="header" data-behavior="3">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <h1 class="header-title">
+        <a class="header-title-link" href="/%20">404Forest</a>
+    </h1>
+    
+        <a class="header-right-picture" href="/#about">
+            <img class="header-picture" src="/assets/images/ava.png"/>
+        </a>
+    
+</header>
+            <nav id="sidebar" data-behavior="3">
+    
+        <div class="sidebar-profile">
+            <a href="/#about">
+                
+                    <img class="sidebar-profile-picture" src="/assets/images/ava.png"/>
+                
+            </a>
+            <span class="sidebar-profile-name">Jin</span>
+        </div>
+    
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/%20"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+                    <span class="sidebar-button-desc">Home</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-archives"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+                    <span class="sidebar-button-desc">Archive</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-categories"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+                    <span class="sidebar-button-desc">Categories</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-tags"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+                    <span class="sidebar-button-desc">Tags</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link st-search-show-outputs"
+                         href="#search"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-search"></i>
+                    <span class="sidebar-button-desc">Search</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="#about"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+                    <span class="sidebar-button-desc">About</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="https://github.com/jin5354" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+                    <span class="sidebar-button-desc">GitHub</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="mailto:xiaoyanjinx@gmail.com" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-envelope-o"></i>
+                    <span class="sidebar-button-desc">Mail</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+    <div style="margin-left: 27px;">
+        <a target="_blank" rel="noopener" href="https://github.com/jin5354/404forest"><img src="https://img.shields.io/github/stars/jin5354/404forest.svg?style=social&label=Stars"></a>
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="3"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title" itemprop="headline">
+            深入探究 eventloop 与浏览器渲染的时序问题
+        </h1>
+    
+    <div class="post-meta">
+    <time itemprop="datePublished" content="Tue Jul 18 2017 10:38:11 GMT-0700">
+	
+		    7月 18, 2017
+    	
+    </time>
+    
+        <span>in </span>
+        
+    <a class="category-link" href="/categories/Code/">Code</a>
+
+
+    
+</div>
+</div>
+    
+    <div class="main-content-wrap" style="margin-top: 60px;">索引</div>
+    <ol class="main-content-wrap toc-article"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#1-%E5%BC%95%E5%AD%90%EF%BC%9A%E9%82%A3%E4%BA%9B%E3%80%8E%E5%BB%B6%E8%BF%9F%E3%80%8F%E6%89%A7%E8%A1%8C%E7%9A%84%E5%87%BD%E6%95%B0%E4%BB%AC"><span class="main-content-wrap toc-article-text">1. 引子：那些『延迟』执行的函数们</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#2-%E6%8C%96%E6%8E%98-eventloop-%E8%A7%84%E8%8C%83"><span class="main-content-wrap toc-article-text">2. 挖掘 eventloop 规范</span></a><ol class="main-content-wrap toc-article-child"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#2-1-task-macrotask"><span class="main-content-wrap toc-article-text">2.1 task(macrotask)</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#2-2-microtask"><span class="main-content-wrap toc-article-text">2.2 microtask</span></a></li></ol></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#3-microtask-%E7%9A%84%E6%89%A7%E8%A1%8C%E6%97%B6%E6%9C%BA"><span class="main-content-wrap toc-article-text">3. microtask 的执行时机</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#4-requestAnimationFrame-callback-%E7%9A%84%E6%89%A7%E8%A1%8C%E6%97%B6%E6%9C%BA"><span class="main-content-wrap toc-article-text">4. requestAnimationFrame callback 的执行时机</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#5-%E6%80%BB%E7%BB%93"><span class="main-content-wrap toc-article-text">5. 总结</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#6-%E9%97%B2%E8%B0%88-whatwg-%E4%B8%8E-w3c"><span class="main-content-wrap toc-article-text">6. 闲谈 whatwg 与 w3c</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#7-%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="main-content-wrap toc-article-text">7. 参考资料</span></a></li></ol>
+    <div class="post-content markdown" itemprop="articleBody">
+        <div class="main-content-wrap">
+            <p>在上篇文章<a href="https://www.404forest.com/2017/06/28/modern-web-development-tech-analysis-data-reactivity-system/">《现代前端科技解析 —— 数据响应式系统 (Data Reactivity System)》</a>中我们用到了 <code>nextTick</code> 函数，该函数使用 <code>MutationObserver</code> 实现了『异步』更新。我们工作中也常用 <code>setTimeout(fn, 0)</code> 来实现任务的『延迟』执行。本文以次为引，结合浏览器渲染，全面解析一轮 <code>eventloop(事件循环)</code> 各步骤的执行时序问题。</p>
+<a id="more"></a>
+<blockquote>
+<p>原始链接: <a href="https://www.404forest.com/2017/07/18/how-javascript-actually-works-eventloop-and-uirendering/">https://www.404forest.com/2017/07/18/how-javascript-actually-works-eventloop-and-uirendering/</a><br>文章备份: <a href="https://github.com/jin5354/404forest/issues/61" target="_blank" rel="external">https://github.com/jin5354/404forest/issues/61</a></p>
+</blockquote>
+<h1 id="1-引子：那些『延迟』执行的函数们"><a href="#1-引子：那些『延迟』执行的函数们" class="headerlink" title="1. 引子：那些『延迟』执行的函数们"></a>1. 引子：那些『延迟』执行的函数们</h1><p>先列举几个会『延迟』执行的函数：</p>
+<ul>
+<li>setTimeout(callback, 0)           // 延迟时间为 0 的定时器</li>
+<li>Promise.resolve().then(callback)  // 立刻决议的 Promise</li>
+<li>requestAnimationFrame(callback)   // 下次重绘时执行</li>
+</ul>
+<p>如果这些函数一起使用，你能猜出结果吗？</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// requestAnimationFrame 是个非常麻烦的主，我们一会儿再讨论</span></div><div class="line"></div><div class="line"><span class="built_in">console</span>.log(<span class="string">'A'</span>)</div><div class="line"></div><div class="line">setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">  <span class="built_in">console</span>.log(<span class="string">'B'</span>)</div><div class="line">&#125;, <span class="number">0</span>)</div><div class="line"></div><div class="line"><span class="built_in">Promise</span>.resolve().then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">  <span class="built_in">console</span>.log(<span class="string">'C'</span>)</div><div class="line">&#125;).then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">  <span class="built_in">console</span>.log(<span class="string">'D'</span>)</div><div class="line">&#125;)</div><div class="line"></div><div class="line"><span class="built_in">console</span>.log(<span class="string">'E'</span>)</div></pre></td></tr></table></figure>
+<p>结果是：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">A</div><div class="line">E</div><div class="line">C</div><div class="line">D</div><div class="line">B</div></pre></td></tr></table></figure></p>
+<p><a href="https://jsfiddle.net/jin5354/1psfcazk/" target="_blank" rel="external">在线示例</a></p>
+<h1 id="2-挖掘-eventloop-规范"><a href="#2-挖掘-eventloop-规范" class="headerlink" title="2. 挖掘 eventloop 规范"></a>2. 挖掘 eventloop 规范</h1><p>为了协调事件、用户交互、脚本、UI 渲染、网络请求，用户代理必须使用 eventloop。我们在 HTML5 规范中找到 <a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop-processing-model" target="_blank" rel="external">eventloop 相关章节</a>，查看每轮 eventloop 是如何执行的。</p>
+<p>将关键点翻译成中文：</p>
+<blockquote>
+<p>An event loop must continually run through the following steps for as long as it exists:</p>
+<ol>
+<li>Let oldestTask be the oldest task on one of the event loop’s task queues, if any, ignoring, in the case of a browsing context event loop, tasks whose associated Documents are not fully active. The user agent may pick any task queue. If there is no task to select, then jump to the microtasks step below.</li>
+<li>Set the event loop’s currently running task to oldestTask.</li>
+<li>Run oldestTask.</li>
+<li>Set the event loop’s currently running task back to null.</li>
+<li>Remove oldestTask from its task queue.</li>
+</ol>
+</blockquote>
+<p>1-5. 从 task 队列（一个或多个）中选出最老的一个 task，执行它。</p>
+<blockquote>
+<p>6. Microtasks: Perform a microtask checkpoint.</p>
+</blockquote>
+<p>6. 执行 microtask 检查点。简单说，会执行 microtask 队列中的所有 microtask，直到队列为空。如果 microtask 中又添加了新的 microtask，直接放进本队列末尾。</p>
+<blockquote>
+<p>7. Update the rendering: If this event loop is a browsing context event loop (as opposed to a worker event loop), then run the following substeps.</p>
+<ol>
+<li>Let now be the value that would be returned by the Performance object’s now() method. [HRT]</li>
+<li>Let docs be the list of Document objects associated with the event loop in question, sorted arbitrarily except that the following conditions must be met:</li>
+<li>If there are top-level browsing contexts B that the user agent believes would not benefit from having their rendering updated at this time, then remove from docs all Document objects whose browsing context’s top-level browsing context is in B.</li>
+<li>If there are a nested browsing contexts B that the user agent believes would not benefit from having their rendering updated at this time, then remove from docs all Document objects whose browsing context is in B.</li>
+<li>For each fully active Document in docs, run the resize steps for that Document, passing in now as the timestamp. [CSSOMVIEW]</li>
+<li>For each fully active Document in docs, run the scroll steps for that Document, passing in now as the timestamp. [CSSOMVIEW]</li>
+<li>For each fully active Document in docs, evaluate media queries and report changes for that Document, passing in now as the timestamp. [CSSOMVIEW]</li>
+<li>For each fully active Document in docs, run CSS animations and send events for that Document, passing in now as the timestamp. [CSSANIMATIONS]</li>
+<li>For each fully active Document in docs, run the fullscreen steps for that Document, passing in now as the timestamp. [FULLSCREEN]</li>
+<li>For each fully active Document in docs, run the animation frame callbacks for that Document, passing in now as the timestamp.</li>
+<li>For each fully active Document in docs, run the update intersection observations steps for that Document, passing in now as the timestamp. [INTERSECTIONOBSERVER]</li>
+<li>For each fully active Document in docs, update the rendering or user interface of that Document and its browsing context to reflect the current state.</li>
+</ol>
+</blockquote>
+<p>7. 执行 UI render 操作：<br>7.1-7.4. 判断 document 在此时间点渲染是否会『获益』。浏览器只需保证 60Hz 的刷新率即可（在机器负荷重时还会降低刷新率），若 eventloop 频率过高，即使渲染了浏览器也无法及时展示。所以<strong>并不是每轮 eventloop 都会执行 UI Render</strong>。<br>7.5-7.9. 执行各种渲染所需工作，如 触发 resize、scroll 事件、建立媒体查询、运行 CSS 动画等等<br><strong>7.10. 执行 animation frame callbacks</strong><br>7.11. 执行 IntersectionObserver callback<br>7.12. 渲染 UI</p>
+<p>用一张图来概括整体流程：</p>
+<p><img src="/imgs/blog/eventloop-1.png" alt="eventloop-1"></p>
+<h2 id="2-1-task-macrotask"><a href="#2-1-task-macrotask" class="headerlink" title="2.1 task(macrotask)"></a>2.1 task(macrotask)</h2><p>何为 task？task 又称 macrotask。我们查看 HTML 规范中 task 的有关章节 <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" target="_blank" rel="external">webappapis.html#concept-task</a>。</p>
+<blockquote>
+<p>一个 eventloop 有一或多个 task 队列。每个 task 由一个确定的 task 源提供。从不同 task 源而来的 task 可能会放到不同的 task 队列中。例如，浏览器可能单独为鼠标键盘事件维护一个 task 队列，所有其他 task 都放到另一个 task 队列。通过区分 task 队列的优先级，使高优先级的 task 优先执行，保证更好的交互体验。</p>
+</blockquote>
+<p>task 源包括：（<a href="https://html.spec.whatwg.org/multipage/webappapis.html#generic-task-sources" target="_blank" rel="external">webappapis.html#generic-task-sources</a>）</p>
+<ul>
+<li>DOM 操作任务源：如元素以非阻塞方式插入文档</li>
+<li>用户交互任务源：如鼠标键盘事件。用户输入事件（如 click） 必须使用 task 队列</li>
+<li>网络任务源：如 XHR 回调</li>
+<li>history 回溯任务源：使用 history.back() 或者类似 API</li>
+</ul>
+<p>此外 setTimeout、setInterval、IndexDB 数据库操作等也是任务源。总结来说，常见的 task 任务有：</p>
+<ul>
+<li>事件回调</li>
+<li>XHR 回调</li>
+<li>IndexDB 数据库操作等 I/O</li>
+<li>setTimeout / setInterval</li>
+<li>history.back</li>
+</ul>
+<h2 id="2-2-microtask"><a href="#2-2-microtask" class="headerlink" title="2.2 microtask"></a>2.2 microtask</h2><p>看规范 <a href="https://html.spec.whatwg.org/multipage/webappapis.html#microtask" target="_blank" rel="external">webappapis.html#microtask</a>：每一个 eventloop 都有一个 microtask 队列。microtask 会排在 microtask 队列而非 task 队列中。</p>
+<p>一般来说，microtask 包括：</p>
+<ul>
+<li>Promise.then<blockquote>
+<p><a href="https://promisesaplus.com/#notes" target="_blank" rel="external">Promise 规范</a>中提及 Promise.then 的具体实现由平台把握，可以是 microtask 或 task。当前的共识是使用 microtask 实现。</p>
+</blockquote>
+</li>
+<li>MutationObserver</li>
+<li>Object.observe</li>
+</ul>
+<p>现在再来看前面的例子，就很清晰了：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//步骤1： 开始执行首个 eventloop 的 task 阶段</span></div><div class="line"><span class="built_in">console</span>.log(<span class="string">'A'</span>) <span class="comment">// 步骤2：**输出 A**</span></div><div class="line"></div><div class="line">setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;  <span class="comment">// 步骤3：立刻将 callback（B） 放入 task 队列中</span></div><div class="line">  <span class="built_in">console</span>.log(<span class="string">'B'</span>)</div><div class="line">&#125;, <span class="number">0</span>)</div><div class="line"></div><div class="line"><span class="built_in">Promise</span>.resolve().then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;  <span class="comment">// 步骤4：立刻将 callback（C） 放入 microtask 队列中</span></div><div class="line">  <span class="built_in">console</span>.log(<span class="string">'C'</span>)</div><div class="line">&#125;).then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">  <span class="built_in">console</span>.log(<span class="string">'D'</span>)</div><div class="line">&#125;)</div><div class="line"></div><div class="line"><span class="built_in">console</span>.log(<span class="string">'E'</span>) <span class="comment">// 步骤5：**输出 E**</span></div><div class="line"></div><div class="line"><span class="comment">// 步骤6：首个 eventloop 的 task 阶段执行完毕，开始执行 microtask，发现有一个 callback（C），执行之，**输出 C**，同时又将 callback（D）放入 microtask 队列中</span></div><div class="line"><span class="comment">// 步骤7：发现 microtask 队列不为空，执行 callback（D），**输出 D**</span></div><div class="line"><span class="comment">// 步骤8：microtask 队列为空，执行 UI render，（根据机器负荷等环境影响，综合浏览器策略，此步骤可能执行也可能不执行）</span></div><div class="line"><span class="comment">// 步骤9：首次 eventloop 结束。执行第二轮 eventloop，取出一个 task callback（B），执行之，**输出 B**</span></div></pre></td></tr></table></figure>
+<h1 id="3-microtask-的执行时机"><a href="#3-microtask-的执行时机" class="headerlink" title="3. microtask 的执行时机"></a>3. microtask 的执行时机</h1><p>在一些文章中将 requestAnimationFrame 划分为 task，理由是假如你在 requestAnimationFrame 的 callback 中注册了 microtask 任务，你会发现该 microtask 任务会在 requestAnimationFrame 的 callback 结束后立刻执行。</p>
+<p><a href="https://jsfiddle.net/jin5354/z2wdvkmw/" target="_blank" rel="external">在线示例</a></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">  <span class="built_in">console</span>.log(<span class="string">'A'</span>)</div><div class="line">&#125;, <span class="number">0</span>)</div><div class="line">requestAnimationFrame(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">  <span class="built_in">console</span>.log(<span class="string">'B'</span>)</div><div class="line">  <span class="built_in">Promise</span>.resolve().then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="string">'C'</span>)</div><div class="line">  &#125;)</div><div class="line">&#125;)</div></pre></td></tr></table></figure>
+<p>结果：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">B</div><div class="line">C</div><div class="line">A</div><div class="line"><span class="comment">// 有可能出现 A B C 的情况，本节讨论的重点在于 B C 一定紧挨着输出</span></div></pre></td></tr></table></figure></p>
+<p>使用 devtool 查看运行情况：(本图引自<a href="#7-参考资料">资料3</a>)</p>
+<p><img src="/imgs/blog/eventloop-2.jpg" alt="eventloop-2"></p>
+<p>可以看到 requestAnimationFrame 中注册的 microtask 并没有在下一轮 eventloop 的 task 之后执行，而是直接在本轮 eventloop 中紧跟着 requestAnimationFrame 执行了。起初我认为规范明摆着表明 eventloop 由执行 task、执行 microtask、UI render 三部分构成，从属于 render 阶段的 requestAnimationFrame 说是 task 怎么不大合适。但是多检索了一下，发现 W3C 工作组在 2015 年 9 月 22 日的一篇工作笔记<a href="https://www.w3.org/TR/animation-timing/" target="_blank" rel="external">《Timing control for script-based animations》</a> 中提到了 <code>animation task source</code> 这一概念，在该文中，确实将 animation frame request callback list 中的 callback 作为 task 处理。另外，在 <a href="https://github.com/angular/zone.js/blob/e9f68bedcba044cb0be1a4fbf41fb35b62ca9f25/STANDARD-APIS.md" target="_blank" rel="external">zone.js 中也将 requestAnimationFrame 划进 macrotask 分类中</a>。但 whatwg 规范中对 requestAnimationFrame callback 未明确出现任何 task 相关字眼，由于 whatwg 和 w3c 的分歧，我对 requestAnimationFrame 是否该划分为 task 存保留意见。</p>
+<p>我们再研究下 microtask 的执行时机。</p>
+<p>eventloop 规范的第 6 步直接表明，task 执行后执行 microtask。我们在 html 规范中进行检索，可以发现，在这些时刻都会 perform a microtask checkpoint：</p>
+<p><img src="/imgs/blog/eventloop-7.png" alt="eventloop-7"></p>
+<p>举例：</p>
+<ul>
+<li>Calling scripts - Clean up after running script (whatwg 规范)</li>
+<li>Calling scripts - clean up after running a callback (w3c 规范)</li>
+<li>Creating and inserting nodes</li>
+<li>Parsing XML documents</li>
+</ul>
+<p>在 <code>Calling scripts</code> 的清理阶段，如果 javascript 执行栈为空，也会 <code>perform a microtask checkpoint</code>，即执行 microtask。联系<a href="https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/" target="_blank" rel="external">《Tasks, microtasks, queues and schedules》</a>文中的解释：</p>
+<blockquote>
+<p>… The microtask queue is processed after callbacks as long as no other JavaScript is mid-execution, and at the end of each task.</p>
+</blockquote>
+<p>在 callback 执行完，若没有其他 javascript 正在执行中（javascript 执行栈为空），microtask 队列会被处理，与在 task 结束后一样。从这里可知，<strong>microtask 虽也是延迟任务，但是它的执行时机『见缝插针，尽可能早』——只要 javascript 执行栈为空，就会执行 microtask。eventloop 中的第 6 步只是这种策略的其中一种场景而已。</strong></p>
+<p>深入 requestAnimationFrame 的执行过程也能发现：<a href="https://html.spec.whatwg.org/multipage/imagebitmap-and-animations.html#animation-frames" target="_blank" rel="external">在执行 animation frame callbacks 时，会唤起 callback（invoke the callback）</a>，<a href="https://heycam.github.io/webidl/#invoke-a-callback-function" target="_blank" rel="external">在唤起 callback 的最后一步，会 clean up after running a callback</a>，此时若满足 javascript 执行栈为空的条件，则执行 microtask。</p>
+<p>也就是说一轮 eventloop 中有可能执行多次 microtask。</p>
+<p>有一个非常非常有趣的例子可以佐证这个观点，请务必看一下：</p>
+<p>我们构建一个嵌套 DOM。为这两个 DOM 绑定相同的 click 回调函数，我们点击内部 DOM 时，由于事件冒泡，内部和外部的 onClick 会依次触发。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"outer"</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"inner"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></div></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> $outer = <span class="built_in">document</span>.querySelector(<span class="string">'.outer'</span>)</div><div class="line"><span class="keyword">let</span> $inner = <span class="built_in">document</span>.querySelector(<span class="string">'.inner'</span>)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">onClick</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="built_in">console</span>.log(<span class="string">'click!'</span>)</div><div class="line">  setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="string">'setTimeout!'</span>)</div><div class="line">  &#125;, <span class="number">0</span>)</div><div class="line">  <span class="built_in">Promise</span>.resolve().then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="string">'Promise!'</span>)</div><div class="line">  &#125;)</div><div class="line">&#125;</div><div class="line"></div><div class="line">$outer.addEventListener(<span class="string">'click'</span>, onClick)</div><div class="line">$inner.addEventListener(<span class="string">'click'</span>, onClick)</div><div class="line"></div><div class="line"><span class="comment">//$inner.click() 在第二个测试中，我们通过 Javascript 触发 click 事件</span></div></pre></td></tr></table></figure>
+<p>在第一个测试中，我们通过点击内部 DOM，让浏览器去派发 click 事件。<br>在第二个测试中，我们通过 Javascript 触发 click 事件。猜猜输出结果有什么不同？</p>
+<p><img src="/imgs/blog/eventloop-3.png" alt="eventloop-3"></p>
+<p><a href="https://jsfiddle.net/jin5354/gbw2n8bs/" target="_blank" rel="external">在线示例A</a> <a href="https://jsfiddle.net/jin5354/t86cxb29/" target="_blank" rel="external">在线示例B</a></p>
+<p>第一个测试的结果：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">click!</div><div class="line"><span class="built_in">Promise</span>!</div><div class="line">click!</div><div class="line"><span class="built_in">Promise</span>!</div><div class="line">setTimeout!</div><div class="line">setTimeout!</div></pre></td></tr></table></figure>
+<p>第二个测试的结果：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">click!</div><div class="line">click!</div><div class="line"><span class="built_in">Promise</span>!</div><div class="line"><span class="built_in">Promise</span>!</div><div class="line">setTimeout!</div><div class="line">setTimeout!</div></pre></td></tr></table></figure>
+<p>我简单的画下时序图：</p>
+<p>第一个测试：</p>
+<p><img src="/imgs/blog/eventloop-4.png" alt="eventloop-4"></p>
+<p>第二个测试：</p>
+<p><img src="/imgs/blog/eventloop-5.png" alt="eventloop-5"></p>
+<p>测试结果很有趣的佐证了『只要 javascript 执行栈为空，就会执行 microtask』的观点。</p>
+<h1 id="4-requestAnimationFrame-callback-的执行时机"><a href="#4-requestAnimationFrame-callback-的执行时机" class="headerlink" title="4. requestAnimationFrame callback 的执行时机"></a>4. requestAnimationFrame callback 的执行时机</h1><p>执行 requestAnimationFrame callback 是 UI Render 的其中一步。上文已经提到过并不是每轮 eventloop 都会执行 UI Render。我们仔细看文档：</p>
+<blockquote>
+<p>For example, if the browser is attempting to achieve a 60Hz refresh rate, then these steps are only necessary every 60th of a second (about 16.7ms). If the browser finds that a top-level browsing context is not able to sustain this rate, it might drop to a more sustainable 30Hz for that set of Documents, rather than occasionally dropping frames. (This specification does not mandate any particular model for when to update the rendering.) Similarly, if a top-level browsing context is in the background, the user agent might decide to drop that page to a much slower 4Hz, or even less.</p>
+</blockquote>
+<p>如果浏览器试图实现 60Hz 的刷新率，那么 UI Render 只需要每秒执行 60 次（每 16.7 ms）。如果浏览器发现『顶层浏览器上下文』无法维持住这个频率，可能会下调到可维持的 30Hz，而不是掉帧。（本规范并不对何时进行 render 做任何规定。）类似的，如果一个顶层浏览器上下文在后台运行，用户代理可能决定将该页面的刷新率降到 4Hz，甚至更低。</p>
+<p>由于规范没有做约定，所以浏览器在 render 策略上有充分的自主性。既有可能出现每一轮 eventloop 后都 render 的现象，也有可能出现几十轮 eventloop 都不 render 的情况。</p>
+<p>我写了一个简单的测试，<a href="https://jsfiddle.net/jin5354/3d99fmr6/" target="_blank" rel="external">在线测试</a></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> startingTimePoint = <span class="built_in">Date</span>.now()</div><div class="line"></div><div class="line"><span class="built_in">console</span>.log(<span class="built_in">Date</span>.now() - startingTimePoint, <span class="string">'A console'</span>)</div><div class="line"></div><div class="line">setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">  <span class="built_in">console</span>.log(<span class="built_in">Date</span>.now() - startingTimePoint, <span class="string">'B setTimeout'</span>)</div><div class="line">&#125;, <span class="number">0</span>)</div><div class="line">setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">  <span class="built_in">console</span>.log(<span class="built_in">Date</span>.now() - startingTimePoint, <span class="string">'F setTimeout'</span>)</div><div class="line">&#125;, <span class="number">0</span>)</div><div class="line"></div><div class="line"><span class="built_in">Promise</span>.resolve().then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">  <span class="built_in">console</span>.log(<span class="built_in">Date</span>.now() - startingTimePoint, <span class="string">'C promise'</span>)</div><div class="line">&#125;)</div><div class="line"></div><div class="line">requestAnimationFrame(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">  <span class="built_in">console</span>.log(<span class="built_in">Date</span>.now() - startingTimePoint, <span class="string">'D raf'</span>)</div><div class="line">&#125;)</div><div class="line"></div><div class="line"><span class="built_in">console</span>.log(<span class="built_in">Date</span>.now() - startingTimePoint, <span class="string">'E console'</span>)</div><div class="line"></div><div class="line">block(<span class="number">200</span>)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">block</span>(<span class="params">time</span>)</span>&#123;  <span class="comment">//假装我是一个耗时任务</span></div><div class="line">  <span class="keyword">const</span> now = <span class="built_in">Date</span>.now()</div><div class="line">  <span class="keyword">while</span>(<span class="built_in">Date</span>.now() - now &lt; time) &#123;&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><img src="/imgs/blog/eventloop-6.png" alt="eventloop-6"></p>
+<p>在 chrome 下比较稳定，requestAnimationFrame callback 始终在第一个 eventloop 时执行，而在 Firefox 下结果就是可变的，多刷新几次会得到不同的结果。这也表明了不同浏览器的 render 策略是不同的。</p>
+<h1 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h1><ol>
+<li>每个 eventloop 由三个阶段构成：执行一个 task，执行 microtask 队列，可选的 ui render 阶段，requestAnimationFrame callback 在 render 阶段执行。我们平时写的逻辑代码会被分类为不同的 task 和 microtask。</li>
+<li>microtask 中注册的 microtask 事件会直接加入到当前 microtask 队列。</li>
+<li>microtask 执行时机『尽可能早』，只要 javascript 执行栈为空，就会执行。一轮 eventloop 中，可能执行多次 microtask。</li>
+<li>requestAnimationFrame callback 的执行时机与浏览器的 render 策略有关，是黑箱的。</li>
+</ol>
+<h1 id="6-闲谈-whatwg-与-w3c"><a href="#6-闲谈-whatwg-与-w3c" class="headerlink" title="6. 闲谈 whatwg 与 w3c"></a>6. 闲谈 whatwg 与 w3c</h1><p>你可能发现文中的规范引用多数来自 whatwg，少数来自 w3c。html 规范目前由两个工作组 whatwg 和 w3c 制定，whatwg 制定的叫『HTML Living Standard』，背后是 Opera、Mozilla、Chrome、Safari 等大佬。 w3c 制定的叫『HTML5』，其为经典的万维网联盟，背靠微软，曾在 html 标准制定上拥有绝对话语权二十余年（目前正惨遭 whatwg 嫌弃）。二者时而分歧，时而合作，搞出了两套 HTML 规范。我们在挖掘规范时，需要综合的来看待。</p>
+<p>（本文的论点主要依赖于 whatwg 规范）</p>
+<h1 id="7-参考资料"><a href="#7-参考资料" class="headerlink" title="7. 参考资料"></a>7. 参考资料</h1><ol>
+<li><a href="https://www.youtube.com/watch?v=8aGhZQkoFbQ&amp;t=3s" target="_blank" rel="external">Philip Roberts: What the heck is the event loop anyway? | JSConf EU 2014</a></li>
+<li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop-processing-model" target="_blank" rel="external">event-loop-processing-model</a></li>
+<li><a href="https://github.com/aooy/blog/issues/5" target="_blank" rel="external">从event loop规范探究javaScript异步及浏览器更新渲染时机</a></li>
+<li><a href="https://promisesaplus.com/#notes" target="_blank" rel="external">Promises/A+</a></li>
+<li><a href="https://juejin.im/entry/590801780ce46300617c89b8" target="_blank" rel="external">浏览器渲染详细过程：重绘、重排和 composite 只是冰山一角</a></li>
+<li><a href="https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/" target="_blank" rel="external">Tasks, microtasks, queues and schedules</a></li>
+<li><a href="https://github.com/creeperyang/blog/issues/21" target="_blank" rel="external">从Promise来看JavaScript中的Event Loop、Tasks和Microtasks</a></li>
+<li><a href="https://github.com/whatwg/html/issues/2637" target="_blank" rel="external">Timing of microtask triggered from requestAnimationFrame</a></li>
+<li><a href="https://stackoverflow.com/questions/43050448/when-will-requestanimationframe-be-executed" target="_blank" rel="external">When will requestAnimationFrame be executed?</a></li>
+<li><a href="http://qiita.com/Quramy/items/83f4fbc6755309f78ad2" target="_blank" rel="external">Angular 2とZone.jsとテストの話</a></li>
+<li><a href="https://github.com/angular/zone.js/blob/e9f68bedcba044cb0be1a4fbf41fb35b62ca9f25/STANDARD-APIS.md" target="_blank" rel="external">Zone.js’s support for standard apis</a></li>
+<li><a href="https://blog.risingstack.com/writing-a-javascript-framework-execution-timing-beyond-settimeout/" target="_blank" rel="external">Writing a JavaScript framework - Execution timing, beyond setTimeout</a></li>
+<li><a href="http://www.10tiao.com/html/216/201412/202402284/5.html" target="_blank" rel="external">揭开HTML 5制定者的面纱：多方利益的“缠斗体”W3C</a></li>
+</ol>
+
+            
+                
+
+            
+        </div>
+    </div>
+    <div class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">TAGGED IN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-none-link" href="/tags/eventloop/" rel="tag">eventloop</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/how-javascript-actually-works/" rel="tag">how-javascript-actually-works</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/requestAnimationFrame/" rel="tag">requestAnimationFrame</a>
+
+            </div>
+        
+        <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2017/08/08/learning-threejs-mindmap/"  data-tooltip="《Three.js 开发指南》脑图">
+                
+                    <i class="fa fa-angle-left"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">PREVIOUS</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2017/06/28/modern-web-development-tech-analysis-data-reactivity-system/" data-tooltip="现代前端科技解析 —— 数据响应式系统 (Data Reactivity System)">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">NEXT</span>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions"  href="#btn-open-shareoptions">
+                <i class="fa fa-share-alt"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://www.404forest.com/2017/07/18/how-javascript-actually-works-eventloop-and-uirendering/">
+                <i class="fa fa-google-plus"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://www.404forest.com/2017/07/18/how-javascript-actually-works-eventloop-and-uirendering/">
+                <i class="fa fa-facebook-official"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://www.404forest.com/2017/07/18/how-javascript-actually-works-eventloop-and-uirendering/">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </li>
+        
+            <li class="post-action">
+                <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                    <i class="fa fa-comment-o"></i>
+                </a>
+            </li>
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#">
+            
+                <i class="fa fa-list"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+            <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2025 Jin. All Rights Reserved.
+    </span>
+    <a class="copyrights" target="_blank" rel="noopener" href="http://www.beian.miit.gov.cn/">
+        浙ICP备18012561号
+    </a>
+</footer>
+
+            </div>
+        </div>
+        <div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-remove"></i>
+        </div>
+        
+            <img id="about-card-picture" src="/assets/images/ava.png"/>
+        
+            <h4 id="about-card-name">Jin</h4>
+        
+            <h5 id="about-card-bio">Interested in Web Development/Typography/Japanese.</h5>
+        
+        
+            <h5 id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                WebDeveloper
+            </h5>
+        
+        
+            <h5 id="about-card-location">
+                <i class="fa fa-map-marker"></i>
+                <br/>
+                Beijing
+            </h5>
+        
+    </div>
+</div>
+
+        <div id="cover" style="background-image:url('/assets/images/bg4.jpg');"></div>
+    </body>
+    <!--SCRIPTS-->
+
+<script src="/assets/js/script.min.js"></script>
+
+<!--SCRIPTS END-->
+
+    <script type="text/javascript">
+        var disqus_shortname = '404forest';
+        (function() {
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+
+
+    <script type="text/javascript">
+        (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+                (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+            e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+        })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+        _st('install','ZkJM8hxyxxLens-VGG__','2.0.0');
+    </script>
+
+
+</html>

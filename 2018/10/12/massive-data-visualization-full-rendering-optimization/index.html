@@ -1,0 +1,536 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+    
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="404Forest">
+    <title>万级节点可视化全量渲染优化探究 - 404Forest</title>
+    <meta name="author" content="Jin">
+    
+        <link rel="icon" href="/assets/images/favicon.ico">
+    
+    
+    <meta name="description" content="最近接了需求，10w 条社交分享数据做一张社交关系图，为了能宏观分析要全量渲染。本文探讨万级节点流畅渲染的优化手段。">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="万级节点可视化全量渲染优化探究">
+<meta property="og:url" content="http://www.404forest.com/2018/10/12/massive-data-visualization-full-rendering-optimization/index.html">
+<meta property="og:site_name" content="404Forest">
+<meta property="og:description" content="最近接了需求，10w 条社交分享数据做一张社交关系图，为了能宏观分析要全量渲染。本文探讨万级节点流畅渲染的优化手段。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/pathTracker-gif1.gif">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/pathTracker-gif2.gif">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/pathTracker-15.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/pathTracker-17.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/pathTracker-4.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/pathTracker-5.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/pathTracker-3.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/pathTracker-13.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/pathTracker-7.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/pathTracker-8.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/pathTracker-6.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/pathTracker-9.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/pathTracker-10.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/pathTracker-11.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/pathTracker-12.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/pathTracker-18.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/pathTracker-14.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/pathTracker-16.png">
+<meta property="article:published_time" content="2018-10-12T21:11:08.000Z">
+<meta property="article:modified_time" content="2025-02-04T23:02:44.257Z">
+<meta property="article:author" content="Jin">
+<meta property="article:tag" content="three.js">
+<meta property="article:tag" content="webgl">
+<meta property="article:tag" content="optimization">
+<meta property="article:tag" content="d3">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://www.404forest.com/imgs/blog/pathTracker-gif1.gif">
+<meta name="twitter:creator" content="@jin5354">
+    
+    
+    
+        <meta property="og:image" content="/assets/images/ava.png"/>
+    
+    
+    
+    
+    <!--STYLES-->
+    
+<link rel="stylesheet" href="/assets/css/style.min.css">
+
+    <!--STYLES END-->
+    
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-66492678-1']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+
+</head>
+
+    <body>
+        <div id="blog">
+            <header id="header" data-behavior="3">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <h1 class="header-title">
+        <a class="header-title-link" href="/%20">404Forest</a>
+    </h1>
+    
+        <a class="header-right-picture" href="/#about">
+            <img class="header-picture" src="/assets/images/ava.png"/>
+        </a>
+    
+</header>
+            <nav id="sidebar" data-behavior="3">
+    
+        <div class="sidebar-profile">
+            <a href="/#about">
+                
+                    <img class="sidebar-profile-picture" src="/assets/images/ava.png"/>
+                
+            </a>
+            <span class="sidebar-profile-name">Jin</span>
+        </div>
+    
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/%20"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+                    <span class="sidebar-button-desc">Home</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-archives"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+                    <span class="sidebar-button-desc">Archive</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-categories"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+                    <span class="sidebar-button-desc">Categories</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-tags"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+                    <span class="sidebar-button-desc">Tags</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link st-search-show-outputs"
+                         href="#search"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-search"></i>
+                    <span class="sidebar-button-desc">Search</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="#about"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+                    <span class="sidebar-button-desc">About</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="https://github.com/jin5354" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+                    <span class="sidebar-button-desc">GitHub</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="mailto:xiaoyanjinx@gmail.com" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-envelope-o"></i>
+                    <span class="sidebar-button-desc">Mail</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+    <div style="margin-left: 27px;">
+        <a target="_blank" rel="noopener" href="https://github.com/jin5354/404forest"><img src="https://img.shields.io/github/stars/jin5354/404forest.svg?style=social&label=Stars"></a>
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="3"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title" itemprop="headline">
+            万级节点可视化全量渲染优化探究
+        </h1>
+    
+    <div class="post-meta">
+    <time itemprop="datePublished" content="Fri Oct 12 2018 14:11:08 GMT-0700">
+	
+		    10月 12, 2018
+    	
+    </time>
+    
+        <span>in </span>
+        
+    <a class="category-link" href="/categories/Code/">Code</a>
+
+
+    
+</div>
+</div>
+    
+    <div class="main-content-wrap" style="margin-top: 60px;">索引</div>
+    <ol class="main-content-wrap toc-article"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#1-%E5%9B%BE%E5%BD%A2%E6%B8%B2%E6%9F%93"><span class="main-content-wrap toc-article-text">1. 图形渲染</span></a><ol class="main-content-wrap toc-article-child"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#1-1-%E9%80%89%E5%9E%8B%EF%BC%9Ad3-force-%E5%8A%9B%E5%AF%BC%E5%90%91%E5%9B%BE%E5%B8%83%E5%B1%80-webgl-%E6%B8%B2%E6%9F%93"><span class="main-content-wrap toc-article-text">1.1 选型：d3-force 力导向图布局 + webgl 渲染</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#1-2-%E7%B2%92%E5%AD%90%E7%B3%BB%E7%BB%9F-LineSegments-BufferGeometry"><span class="main-content-wrap toc-article-text">1.2 粒子系统 + LineSegments + BufferGeometry</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#1-3-%E4%BD%BF%E7%94%A8-web-worker-%E9%81%BF%E5%85%8D%E4%B8%BB%E7%BA%BF%E7%A8%8B%E9%98%BB%E5%A1%9E"><span class="main-content-wrap toc-article-text">1.3 使用 web worker 避免主线程阻塞</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#1-4-%E8%A1%A5%E9%97%B4%E5%8A%A8%E7%94%BB"><span class="main-content-wrap toc-article-text">1.4 补间动画</span></a></li></ol></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#2-%E6%95%B0%E6%8D%AE-I-O"><span class="main-content-wrap toc-article-text">2. 数据 I&#x2F;O</span></a><ol class="main-content-wrap toc-article-child"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#2-1-%E8%BF%9B%E5%BA%A6%E6%9D%A1"><span class="main-content-wrap toc-article-text">2.1 进度条</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#2-2-Transferable-ArrayBuffer"><span class="main-content-wrap toc-article-text">2.2 Transferable ArrayBuffer</span></a></li></ol></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#3-%E6%95%B0%E6%8D%AE%E8%AE%A1%E7%AE%97"><span class="main-content-wrap toc-article-text">3. 数据计算</span></a><ol class="main-content-wrap toc-article-child"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#3-1-%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96"><span class="main-content-wrap toc-article-text">3.1 复杂度优化</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#3-2-%E5%A4%9A-web-worker-%E6%8B%86%E5%88%86"><span class="main-content-wrap toc-article-text">3.2 多 web worker 拆分</span></a></li></ol></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#4-%E7%BB%86%E8%8A%82"><span class="main-content-wrap toc-article-text">4. 细节</span></a><ol class="main-content-wrap toc-article-child"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#4-1-%E9%81%BF%E5%85%8D-Vue-%E7%9A%84-Observe"><span class="main-content-wrap toc-article-text">4.1 避免 Vue 的 Observe</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#4-2-%E8%8A%82%E8%83%BD"><span class="main-content-wrap toc-article-text">4.2 节能</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#4-3-%E8%8A%82%E6%B5%81"><span class="main-content-wrap toc-article-text">4.3 节流</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#4-4-GPU-%E5%8A%A0%E9%80%9F"><span class="main-content-wrap toc-article-text">4.4 GPU 加速</span></a></li></ol></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#5-%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="main-content-wrap toc-article-text">5. 参考资料</span></a></li></ol>
+    <div class="post-content markdown" itemprop="articleBody">
+        <div class="main-content-wrap">
+            <p>最近接了需求，10w 条社交分享数据做一张社交关系图，为了能宏观分析要全量渲染。本文探讨万级节点流畅渲染的优化手段。</p>
+<a id="more"></a>
+<blockquote>
+<p>注：<br>原始链接: <a href="https://www.404forest.com/2018/10/12/massive-data-visualization-full-rendering-optimization/">https://www.404forest.com/2018/10/12/massive-data-visualization-full-rendering-optimization/</a><br>文章备份: <a href="https://github.com/jin5354/404forest/issues/69" target="_blank" rel="external">https://github.com/jin5354/404forest/issues/69</a></p>
+</blockquote>
+<p>本文代码已封装为组件 <code>D3-Force-Graph</code>，仓库地址 <a href="https://github.com/jin5354/d3-force-graph" target="_blank" rel="external">https://github.com/jin5354/d3-force-graph</a>。</p>
+<p>渲染效果：</p>
+<p><img src="/imgs/blog/pathTracker-gif1.gif" alt="pathTracker-gif1"><br><img src="/imgs/blog/pathTracker-gif2.gif" alt="pathTracker-gif2"></p>
+<center>GIF</center>
+
+<p><br></p>
+<p><img src="/imgs/blog/pathTracker-15.png" alt="pathTracker-15"></p>
+<center>局部关系</center>
+
+<p><br></p>
+<p><img src="/imgs/blog/pathTracker-17.png" alt="pathTracker-17"></p>
+<center>自定义头像、大小等</center>
+
+<p><br></p>
+<p><iframe height="350" scrolling="no" title="D3-Force-Graph Basic Demo" src="//webgl.404forest.com/embed/BkNKwElT7?lazyload=true" frameborder="no" allowtransparency="true" allowfullscreen="true" style="width: 100%;"></iframe></p>
+
+<center>小 Demo</center>
+
+<p><br></p>
+<p>在浏览器端实时渲染一张大数据量的社交关系图并保证流畅体验需要多方面的优化，下面从图形渲染、数据 I/O、数据计算、细节等方面分享一些实战经验。</p>
+<h2 id="1-图形渲染"><a href="#1-图形渲染" class="headerlink" title="1. 图形渲染"></a>1. 图形渲染</h2><p>社交分享原始数据格式如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  <span class="attr">"source"</span>: <span class="string">"sourceNodeName"</span>,</div><div class="line">  <span class="attr">"target"</span>: <span class="string">"targetNodeName"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>10w 条原始数据，经过去重、去无效点、预加工之后可得约 5w 个节点，以及 4w 多条连线。这些数据保存在一个 Object 里，数据格式如下，约占用 10M 内存。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  <span class="attr">"nodes"</span>: [<span class="string">"A"</span>, <span class="string">"B"</span>, <span class="string">"C"</span>, ...],</div><div class="line">  <span class="attr">"links"</span>: [&#123;</div><div class="line">    <span class="attr">"source"</span>: <span class="string">"A"</span>,</div><div class="line">    <span class="attr">"target"</span>: <span class="string">"B"</span></div><div class="line">  &#125;, &#123;</div><div class="line">    <span class="attr">"source"</span>: <span class="string">"C"</span>,</div><div class="line">    <span class="attr">"target"</span>: <span class="string">"D"</span></div><div class="line">  &#125;, ...]</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="1-1-选型：d3-force-力导向图布局-webgl-渲染"><a href="#1-1-选型：d3-force-力导向图布局-webgl-渲染" class="headerlink" title="1.1 选型：d3-force 力导向图布局 + webgl 渲染"></a>1.1 选型：d3-force 力导向图布局 + webgl 渲染</h3><p>如何将这么多的点分布在画布上，并且疏密有致，最好还能安排大型结构体放在中央，散户放外围？力导向算法是一种图布局算法，它可以让点线关系以一种清晰又优美的姿态呈现。这种算法建立在粒子物理学的基础上，将每个节点模拟成原子，在每一帧都通过原子间的斥力（与线的束缚）产生节点的速度与加速度，生成新的位置。经过多次迭代之后，最终得到一个低能量的稳定布局。关于更多力导向算法的知识，可以查阅<a href="https://github.com/d3/d3-force" target="_blank" rel="external">d3-force</a>。</p>
+<p>有了每个节点的位置，如何绘制点和线？我用 SVG 写了一个 <a href="https://webgl.404forest.com/list/H1eLdNjqX" target="_blank" rel="external">demo</a>，在我的机器上用 SVG 画 5000 个点就已经降到 10fps 了。可见不依赖硬件加速是无法实现万级节点绘制的。笔者对 three.js 还算熟悉，于是选择 webgl（three.js） 进行渲染。</p>
+<p><iframe height="300" scrolling="no" title="5k svg circles - WebGL Run" src="//webgl.404forest.com/embed/S1HRDVj9m?lazyload=true" frameborder="no" allowtransparency="true" allowfullscreen="true" style="width: 100%;"></iframe></p>
+
+<center>渲染 5k svg circle 示例，很卡</center>
+
+<p><br></p>
+<h3 id="1-2-粒子系统-LineSegments-BufferGeometry"><a href="#1-2-粒子系统-LineSegments-BufferGeometry" class="headerlink" title="1.2 粒子系统 + LineSegments + BufferGeometry"></a>1.2 粒子系统 + LineSegments + BufferGeometry</h3><p>在 Three.js 中构造物体时，最常使用 <code>THREE.Geometry</code> 构造几何体。<code>Geometry</code> 是 Three.js 中的一种数据结构，其包含了几何体的顶点位置、颜色等等信息，储存信息时使用了 <code>THREE.Vector3</code>, <code>THREE.Color</code> 等数据结构，读写非常直观方便，但是性能一般。按照最寻常的思路，对于每个节点，我们需要使用 <code>THREE.CircleGeometry</code> 构造一个圆，对于每条线，我们需要使用 <code>THREE.Line</code> 构造一条线。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 最初版本</span></div><div class="line"><span class="comment">// 每个节点绘制一个圆</span></div><div class="line"><span class="keyword">this</span>.paintData.nodes.forEach(<span class="function">(<span class="params">node</span>) =&gt;</span> &#123;</div><div class="line">  node.geometry = <span class="keyword">new</span> THREE.CircleGeometry(<span class="number">5</span>, <span class="number">12</span>)</div><div class="line">  node.material = <span class="keyword">new</span> THREE.MeshBasicMaterial(&#123;<span class="attr">color</span>: <span class="number">0xAAAAAA</span>&#125;)</div><div class="line">  node.circle = <span class="keyword">new</span> THREE.Mesh(node.geometry, node.material)</div><div class="line">  <span class="keyword">this</span>.scene.add(node.circle)</div><div class="line">&#125;)</div><div class="line"></div><div class="line"><span class="comment">// 每条线绘制一个线段</span></div><div class="line"><span class="keyword">this</span>.paintData.links.forEach(<span class="function">(<span class="params">link</span>) =&gt;</span> &#123;</div><div class="line">  link.lineMaterial = <span class="keyword">new</span> THREE.LineBasicMaterial(&#123;<span class="attr">color</span>: <span class="number">0xAAAAAA</span>&#125;)</div><div class="line">  link.lineGeometry = <span class="keyword">new</span> THREE.Geometry()</div><div class="line">  link.line = <span class="keyword">new</span> THREE.Line(link.lineGeometry, link.lineMaterial)</div><div class="line">  link.line.frustumCulled = <span class="literal">false</span></div><div class="line">  <span class="keyword">this</span>.scene.add(link.line)</div><div class="line">&#125;)</div></pre></td></tr></table></figure>
+<p>然而实测发现，这样绘制在 5K 节点时系统也会渲染的很吃力。如果要 three.js 绘制 5w 个 circle 对象，4w 多个 line 对象，每个 circle 对象又有 13 个顶点，总计要绘制 70 多 w 的顶点数。想要做优化，必须从减少顶点数，以及减少对象数等方面来着手。</p>
+<p>对于区别不大的大量物体，使用<a href="https://threejs.org/docs/#api/en/objects/Points" target="_blank" rel="external">粒子系统</a>是一个好选择。在粒子系统里，每个节点只需一个顶点，上面贴一张圆形图案纹理即可。并且使用粒子系统后，可将数万个 circle 对象缩减为 1 个粒子系统对象，极大降低复杂度。</p>
+<p><iframe height="300" scrolling="no" title="three.js points 100k nodes" src="//webgl.404forest.com/embed/Hk7mY9T9Q?lazyload=true" frameborder="no" allowtransparency="true" allowfullscreen="true" style="width: 100%;"></iframe></p>
+
+<center>粒子系统渲染 100k 节点，毫无压力</center>
+
+<p><br></p>
+<p>对于大量的直线段（无转折），可以使用 <a href="https://threejs.org/docs/#api/en/objects/LineSegments" target="_blank" rel="external"><code>THREE.LineSegments</code></a>。<code>THREE.LineSegments</code> 使用 <code>gl.LINES</code>，可以传入一组顶点，每一对构成一条线段。这样就可以把数万个 line 对象缩减为 1 个 LineSegments 对象，极大降低复杂度。</p>
+<p>粒子系统及 LineSegments 的缺点是，假如之后要调整<strong>个别</strong>粒子的颜色或大小，必须手写 GLSL Shaders。</p>
+<blockquote>
+<p><a href="https://github.com/jin5354/d3-force-graph" target="_blank" rel="external">D3-Force-Graph</a> 支持自定义节点和线条的样式，比如调整<a href="https://github.com/jin5354/d3-force-graph/blob/master/src/shaders/nodes.vs#L7" target="_blank" rel="external">大小</a>、<a href="https://github.com/jin5354/d3-force-graph/blob/master/src/shaders/lines.fs#L4" target="_blank" rel="external">颜色</a>等，使用 GLSL 语言简单的编写了着色器。受限于篇幅本文不介绍 GLSL，有兴趣的同学可以<a href="https://github.com/jin5354/d3-force-graph/tree/master/src/shaders" target="_blank" rel="external">查看源码</a>了解。也可以看下笔者在学习 WebGL 时留下的一系列 Demo: <a href="https://webgl.404forest.com/list/H1BtgzNy8" target="_blank" rel="external">WebGL tutorial</a>。</p>
+</blockquote>
+<p><code>BufferGeometry</code> 是与 <code>Geometry</code> 相似的用来描述几何体的数据结构，其使用二进制数组来存储顶点位置、颜色等信息。Javascript 与显卡进行数据交换时必须使用二进制数据，若是传统文本格式则需要进行格式转化，非常耗时。<code>BufferGeometry</code> 可以将二进制数据原封不动送入显卡，显著提高脚本性能。在本文的场景下，万级节点的位置数组，颜色数组均有数M大小，使用 <code>BufferGeometry</code> 替换 <code>Geometry</code> 是必须的。</p>
+<p>使用二进制数组降低了代码的可读性，但显著提升了性能。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 这是绘制节点的部分代码</span></div><div class="line"><span class="comment">// 预准备节点，使用BufferGeometry，位置先统一定到 (-9999, -9999, 0)</span></div><div class="line">point.geometry = <span class="keyword">new</span> THREE.BufferGeometry()</div><div class="line"><span class="comment">// 使用二进制数组，每个节点需要 x,y,z 三个坐标确定位置，所以数组长度分配为 节点数 * 3</span></div><div class="line">point.positions = <span class="keyword">new</span> <span class="built_in">Float32Array</span>(paintData.nodes.length * <span class="number">3</span>)</div><div class="line"><span class="comment">// 使用粒子系统，不再用几何体画圆，而是使用一张带透明背景的圆形图案 png</span></div><div class="line"><span class="comment">// 后期为了更高的灵活度，会将各种物体的 material 都替换为 ShaderMaterial</span></div><div class="line">point.material = <span class="keyword">new</span> THREE.PointsMaterial(&#123;</div><div class="line">  <span class="attr">size</span>: <span class="number">10</span>,</div><div class="line">  <span class="attr">map</span>: texture,</div><div class="line">  <span class="attr">transparent</span>: <span class="literal">true</span></div><div class="line">&#125;)</div><div class="line"></div><div class="line"><span class="comment">// 填充位置的二进制数组，可读性有所下降，只能用下标+1,+2来找x,y,z了</span></div><div class="line">paintData.nodes.forEach(<span class="function">(<span class="params">e, i</span>) =&gt;</span> &#123;</div><div class="line">  point.positions[i * <span class="number">3</span>] = <span class="number">-9999</span></div><div class="line">  point.positions[i * <span class="number">3</span> + <span class="number">1</span>] = <span class="number">-9999</span></div><div class="line">  point.positions[i * <span class="number">3</span> + <span class="number">2</span>] = <span class="number">0</span></div><div class="line">&#125;)</div><div class="line"></div><div class="line">...</div><div class="line"><span class="comment">// 绑定位置二进制数组</span></div><div class="line">point.geometry.addAttribute(<span class="string">'position'</span>, <span class="keyword">new</span> THREE.BufferAttribute(point.positions, <span class="number">3</span>))</div><div class="line">point.geometry.computeBoundingSphere()</div><div class="line"></div><div class="line"><span class="keyword">let</span> points = <span class="keyword">new</span> THREE.Points(point.geometry, point.material)</div><div class="line"><span class="comment">// 节点加入场景</span></div><div class="line">scene.add(points)</div><div class="line"></div><div class="line"><span class="comment">// 绘制线段</span></div><div class="line">line.geometry = <span class="keyword">new</span> THREE.BufferGeometry()</div><div class="line">line.positions = <span class="keyword">new</span> <span class="built_in">Float32Array</span>(paintData.links.length * <span class="number">6</span>) <span class="comment">//线段有起点终点，共6个位置</span></div><div class="line">line.material = <span class="keyword">new</span> THREE.LineBasicMaterial(&#123;</div><div class="line">  <span class="attr">vertexColors</span>: THREE.VertexColors</div><div class="line">&#125;)</div><div class="line"></div><div class="line"><span class="comment">// 所有点初始位置 (-9999, -9999, -0.1)</span></div><div class="line">paintData.links.forEach(<span class="function">(<span class="params">e, i</span>) =&gt;</span> &#123;</div><div class="line">  line.positions[i * <span class="number">6</span>] = <span class="number">-9999</span></div><div class="line">  line.positions[i * <span class="number">6</span> + <span class="number">1</span>] = <span class="number">-9999</span></div><div class="line">  line.positions[i * <span class="number">6</span> + <span class="number">2</span>] = <span class="number">-0.1</span></div><div class="line">  line.positions[i * <span class="number">6</span> + <span class="number">3</span>] = <span class="number">-9999</span></div><div class="line">  line.positions[i * <span class="number">6</span> + <span class="number">4</span>] = <span class="number">-9999</span></div><div class="line">  line.positions[i * <span class="number">6</span> + <span class="number">5</span>] = <span class="number">-0.1</span></div><div class="line">&#125;)</div><div class="line"></div><div class="line">line.geometry.addAttribute(<span class="string">'position'</span>, <span class="keyword">new</span> THREE.BufferAttribute(line.positions, <span class="number">3</span>))</div><div class="line">line.geometry.computeBoundingSphere()</div><div class="line"></div><div class="line">line.lines = <span class="keyword">new</span> THREE.LineSegments(line.geometry, line.material)</div><div class="line">scene.add(line.lines)</div></pre></td></tr></table></figure>
+<p>还有一个小技巧是：既然要用二进制数组，那么从逻辑最开始就一直使用二进制数组比较好，比如上段代码的 <code>Float32Array</code>。虽然你可以在业务中一直使用普通数组（普通数组比二进制数组多一些 api，还是更方便一点的），直到要将数据传入 three.js 时才调用 <code>THREE.Float32BufferAttribute</code> 将其转换，但这对于万级的数据量已经带来了严重的性能损耗。</p>
+<p><img src="/imgs/blog/pathTracker-4.png" alt="pathTracker-4"></p>
+<center>调用 Float32BufferAttribute 转换普通数组</center>
+
+<p><br></p>
+<p><img src="/imgs/blog/pathTracker-5.png" alt="pathTracker-5"></p>
+<center>直接使用二进制数组</center>
+
+<p><br></p>
+<p>经过这样一番优化之后，绘制一帧耗时已经降到了 50ms 以下，全力绘制可以保证 15 ~ 30fps 的帧率，基本流畅。在布局结束之后，使用 Three.js 的控制插件进行拖拽、平移、缩放等查看操作时，稳定 60fps。</p>
+<h3 id="1-3-使用-web-worker-避免主线程阻塞"><a href="#1-3-使用-web-worker-避免主线程阻塞" class="headerlink" title="1.3 使用 web worker 避免主线程阻塞"></a>1.3 使用 web worker 避免主线程阻塞</h3><p>在本文的数据量下，<code>d3-force</code> 进行每一帧的迭代大概需要 2s。所以我们可以看到这样的效果：</p>
+<p><img src="/imgs/blog/pathTracker-3.png" alt="pathTracker-3"></p>
+<center>上图为 5k 节点布局截图，近 200ms 一帧，5w 节点近 2s</center>
+
+<p><br></p>
+<p>画面每 2s 动一次，看起来卡卡的，而且计算过程中主线程是阻塞的，UI 无反应，给人的体验非常差。我们可以将 d3-force 部分移入 worker 中，保证主线程的流畅。更详细的 demo 可见参考资料中的 <a href="https://bl.ocks.org/mbostock/01ab2e85e8727d6529d20391c0fd9a16" target="_blank" rel="external">Force-Directed Web Worker</a>。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// main</span></div><div class="line"><span class="keyword">this</span>.worker = <span class="keyword">new</span> Worker(<span class="string">'worker.js'</span>)</div><div class="line"></div><div class="line"><span class="comment">// 将节点与线的信息传入 worker</span></div><div class="line">worker.postMessage(&#123;</div><div class="line">  <span class="attr">nodes</span>: nodes,</div><div class="line">  <span class="attr">links</span>: links</div><div class="line">&#125;)</div><div class="line"></div><div class="line"><span class="comment">// d3-force 每迭代完一次，将位置信息传送回来，执行回调</span></div><div class="line">worker.onmessage = <span class="function"><span class="keyword">function</span>(<span class="params">event</span>) </span>&#123;</div><div class="line">  <span class="keyword">switch</span> (event.data.type) &#123;</div><div class="line">    <span class="keyword">case</span> <span class="string">'tick'</span>: <span class="keyword">return</span> ticked(event.data);</div><div class="line">    <span class="keyword">case</span> <span class="string">'end'</span>: <span class="keyword">return</span> ended(event.data);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// worker.js</span></div><div class="line"><span class="comment">// 调用 d3-force 进行布局迭代</span></div><div class="line">importScripts(<span class="string">"https://d3js.org/d3-collection.v1.min.js"</span>);</div><div class="line">importScripts(<span class="string">"https://d3js.org/d3-dispatch.v1.min.js"</span>);</div><div class="line">importScripts(<span class="string">"https://d3js.org/d3-quadtree.v1.min.js"</span>);</div><div class="line">importScripts(<span class="string">"https://d3js.org/d3-timer.v1.min.js"</span>);</div><div class="line">importScripts(<span class="string">"https://d3js.org/d3-force.v1.min.js"</span>);</div><div class="line"></div><div class="line">onmessage = <span class="function"><span class="keyword">function</span>(<span class="params">event</span>) </span>&#123;</div><div class="line">  <span class="keyword">var</span> nodes = event.data.nodes,</div><div class="line">      links = event.data.links;</div><div class="line"></div><div class="line">  <span class="keyword">var</span> simulation = d3.forceSimulation(nodes)</div><div class="line">      .force(<span class="string">"charge"</span>, d3.forceManyBody())</div><div class="line">      .force(<span class="string">"link"</span>, d3.forceLink(links).distance(<span class="number">20</span>).strength(<span class="number">1</span>))</div><div class="line">      .force(<span class="string">"x"</span>, d3.forceX())</div><div class="line">      .force(<span class="string">"y"</span>, d3.forceY())</div><div class="line">      .stop();</div><div class="line"></div><div class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>, n = <span class="built_in">Math</span>.ceil(<span class="built_in">Math</span>.log(simulation.alphaMin()) / <span class="built_in">Math</span>.log(<span class="number">1</span> - simulation.alphaDecay())); i &lt; n; ++i) &#123;</div><div class="line">    postMessage(&#123;<span class="attr">type</span>: <span class="string">"tick"</span>, <span class="attr">progress</span>: i / n&#125;);</div><div class="line">    simulation.tick();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  postMessage(&#123;<span class="attr">type</span>: <span class="string">"end"</span>, <span class="attr">nodes</span>: nodes, <span class="attr">links</span>: links&#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="1-4-补间动画"><a href="#1-4-补间动画" class="headerlink" title="1.4 补间动画"></a>1.4 补间动画</h3><p>将 <code>d3-force</code> 布局计算移动到 worker 之后，主线程不再阻塞，但是受限于布局速度，画面还是 2s 动一次。在这 2s 的间隔中，主线程处于空闲，所以我们可以主动加入过渡动画提高流畅度。</p>
+<p><img src="/imgs/blog/pathTracker-13.png" alt="pathTracker-13"></p>
+<center>每 2s 渲染一次，主线程大部分时间在空绘制</center>
+
+<p><br></p>
+<p><img src="/imgs/blog/pathTracker-7.png" alt="pathTracker-7"></p>
+<center>补间原理</center>
+
+<p><br></p>
+<p>举个例子，假如第 2000ms 时计算出了第一帧，位置 x = 5，4000ms 时计算出第二帧，位置 x = 10，我们就可以在 4000ms 时开始绘制，绘制的目标是：在 2000ms 的时间内 x 从 5 渐变到 10。那么调用执行 rAF 时，若当前时刻在 4400ms，那么当前位置应该在 (4400 - 4000) / 2000 * (10 - 5) + 5 = 6，即在此次执行时绘制 x = 6。由于 d3-force 每帧计算的时间比较稳定，而且越计算到后期速度稍微变快，所以补间策略可以略做调整，但大体思路是不变的。加入补间动画之后可以直接提升动画到 30fps 左右，体验大幅提升。</p>
+<h2 id="2-数据-I-O"><a href="#2-数据-I-O" class="headerlink" title="2. 数据 I/O"></a>2. 数据 I/O</h2><h3 id="2-1-进度条"><a href="#2-1-进度条" class="headerlink" title="2.1 进度条"></a>2.1 进度条</h3><p>由于数据量变大，很多之前无需注意的小地方也成为了瓶颈，比如 10w 条数据大概 10M 左右大小，拉接口，计算，布局都需要一定时间，那么之前无需做 UI 提醒的部分就可以加入进度条。比如布局，<code>d3-force</code> 默认会迭代 300 次左右达到稳定状态，在本场景下调整参数改为迭代 50 次即可结束，那也需要 1 ~ 2 分钟。加入进度条可以更友好的提示用户。</p>
+<p><img src="/imgs/blog/pathTracker-8.png" alt="pathTracker-8"></p>
+<h3 id="2-2-Transferable-ArrayBuffer"><a href="#2-2-Transferable-ArrayBuffer" class="headerlink" title="2.2 Transferable ArrayBuffer"></a>2.2 Transferable ArrayBuffer</h3><p>在将 <code>d3-force</code> 迁移到 worker 的过程中，我注意到了一个现象：</p>
+<p><img src="/imgs/blog/pathTracker-6.png" alt="pathTracker-6"></p>
+<center>调用 worker.postMessage 时，性能监控里有 100-200ms 的空白</center>
+
+<p><br></p>
+<p>此时没有在执行什么函数，直觉告诉我这部分应该是主线程和 worker 线程交换数据的 I/O 损耗。在 MDN 上查阅 <a href="https://developer.mozilla.org/en-US/docs/Web/API/Worker/postMessage" target="_blank" rel="external">postMessage 文档</a> 发现：<code>postMessage</code> 还接收第二个参数，而这个参数只允许是 <code>Transferable</code> 类型，包括 <code>ArrayBuffer</code>, <code>MessagePort</code> and <code>ImageBitmap</code>，使用这个参数可以直接将该 Transferable 变量的控制权从主线程移交到 worker 线程。结合 Google 文章 <a href="https://developers.google.com/web/updates/2011/09/Workers-ArrayBuffer" target="_blank" rel="external">Workers ♥ ArrayBuffer</a> 的介绍：使用 <code>ArrayBuffer</code> 可有非常 easy 的在主线程和 worker 线程间传递二进制数据。换用 <code>ArrayBuffer</code> 的性能对比已经有人做过了，借用 <a href="https://www.loxodrome.io/post/web-worker-performance/" target="_blank" rel="external">Examining Web Worker Performance</a> 的对比图：</p>
+<p><img src="/imgs/blog/pathTracker-9.png" alt="pathTracker-9"></p>
+<center>不使用 Transferable，传递 100000 keys 的 Object 需要 400ms</center>
+
+<p><br></p>
+<p><img src="/imgs/blog/pathTracker-10.png" alt="pathTracker-10"></p>
+<center>使用 Transferable，传递只需 10ms</center>
+
+<p><br></p>
+<p>于是将传递的数据进行改写，重构成 ArrayBuffer。这里同样牺牲了可读性（之前用对象描述，现在必须全平铺到数组里，并且 ArrayBuffer 传递字母和汉字很麻烦，最好映射成数字）换取性能。改为 ArrayBuffer 后的性能如下：</p>
+<p><img src="/imgs/blog/pathTracker-11.png" alt="pathTracker-11"></p>
+<center>和之前做下对比，I/O 时间基本可以忽略不计了</center>
+
+<p><br></p>
+<h2 id="3-数据计算"><a href="#3-数据计算" class="headerlink" title="3. 数据计算"></a>3. 数据计算</h2><h3 id="3-1-复杂度优化"><a href="#3-1-复杂度优化" class="headerlink" title="3.1 复杂度优化"></a>3.1 复杂度优化</h3><p>原始数据总是要预处理的，比如统计最有影响力的（分享数最多）的节点，筛掉没有分享关系的无用节点，进行数据剪裁等等。海量数据情况下，使用合适的算法就很重要了；初版写的很随意，遍历套遍历，复杂度较高，1w 数据还能接受，跑个几百 ms 出来了，10w 数据直接卡住六七秒。后来优化，多用 hashmap，空间换时间，改写了两三版，最终将计算耗时控制在 2s 以内，还算理想。</p>
+<h3 id="3-2-多-web-worker-拆分"><a href="#3-2-多-web-worker-拆分" class="headerlink" title="3.2 多 web worker 拆分"></a>3.2 多 web worker 拆分</h3><p>将计算过程迁移到 worker 中可以避免阻塞主线程，保证交互的流畅；然而为了最大化加速计算，我们可以拆分至多个 web worker 中，以此充分利用多核性能。<a href="http://pmav.eu/stuff/javascript-webworkers/" target="_blank" rel="external">Javascript Web Workers Test v1.4.0</a> 是一个 web worker 测试，测试可知在多核机器上，拆分确实可以显著缩短计算时间。借助浏览器接口 <a href="https://developer.mozilla.org/en-US/docs/Web/API/NavigatorConcurrentHardware/hardwareConcurrency" target="_blank" rel="external">navigator.hardwareConcurrency</a> 我们可以获得处理器核心数，然后就可以拆分，比如 8 核机器拆出 7 个 worker 线程可以实现最大化利用核心。计算逻辑的拆分和结果的合并都需要自行设计，本文仅作了调研，由于计算耗时已经较短没有再做拆分工作。</p>
+<h2 id="4-细节"><a href="#4-细节" class="headerlink" title="4. 细节"></a>4. 细节</h2><h3 id="4-1-避免-Vue-的-Observe"><a href="#4-1-避免-Vue-的-Observe" class="headerlink" title="4.1 避免 Vue 的 Observe"></a>4.1 避免 Vue 的 Observe</h3><p>我们知道 Vue 会对 data 下的数据进行 Observe，然而当数据量非常大时，Observe 的耗时也很长，见下图：</p>
+<p><img src="/imgs/blog/pathTracker-12.png" alt="pathTracker-12"></p>
+<center>Observe 一个数万元素的数组，花了 90ms</center>
+
+<p><br></p>
+<p>渲染时经常发生位置数组的赋值、变动等，如果每帧都触发这么个 90ms 的操作肯定是吃不消的，所以建议大数据量的数组和对象，尽量不要放在 data 下，避免 Observe 带来的耗时。</p>
+<h3 id="4-2-节能"><a href="#4-2-节能" class="headerlink" title="4.2 节能"></a>4.2 节能</h3><p>在布局结束后，持续渲染也是很吃性能的，机器风扇会一直转；我们可以让鼠标 hover 在 canvas 上时才开启绘制，鼠标 mouseleave 到其他区域时终止绘制，这样就可以在纯展示时避免消耗机器性能了。</p>
+<h3 id="4-3-节流"><a href="#4-3-节流" class="headerlink" title="4.3 节流"></a>4.3 节流</h3><p>在节点数量庞大时，节点头像的拉取和绘制会成为一个性能问题，一般来说当视野范围很大时，节点很小，图片无需加载，可以设置只有在经过缩放，节点大于一定程度（即场景相机 Z 坐标小于一定值）时才加载视口内头像。『判断视野内有哪些节点并加载』这个操作若在每帧都执行频率太高了，可以使用 throttle 技术限制到每秒执行一次；同时头像物体缓存起来，视野移动时进行动态卸载与加载，避免头像加载过多带来性能问题。</p>
+<h3 id="4-4-GPU-加速"><a href="#4-4-GPU-加速" class="headerlink" title="4.4 GPU 加速"></a>4.4 GPU 加速</h3><p>服务器上头像图片都是方形的，但是绘制时我们想要圆形图像，怎么处理出圆角效果呢？按通常思路，我们可以借助 canvas api，画个圆填充图片，最后导出新图片（见张鑫旭大大文章：<a href="https://www.zhangxinxu.com/wordpress/2014/06/svg-canvas-image-border-radius/" target="_blank" rel="external">小tip: SVG和Canvas分别实现图片圆角效果</a>）。但由于我们具有操作片元着色器的能力，于是可以<a href="https://github.com/jin5354/d3-force-graph/blob/master/src/shaders/image.fs#L23" target="_blank" rel="external">直接在着色器上进行纹理的修改</a>，这里不但裁成了圆角，顺便还做了描边和抗锯齿。着色器直接运行在 GPU 上，性能很好。如果用软件模拟抗锯齿，开销肯定大得多。</p>
+<p><img src="/imgs/blog/pathTracker-18.png" alt="pathTracker-18"></p>
+<center>左：裁剪 + 抗锯齿 + 描边 右：只裁剪 </center>
+
+<p><br></p>
+<p>一些演示图：</p>
+<p><img src="/imgs/blog/pathTracker-14.png" alt="pathTracker-14"></p>
+<center>全景图，还在布局中</center>
+
+<p><br></p>
+<p><img src="/imgs/blog/pathTracker-16.png" alt="pathTracker-16"></p>
+<center>切换视角</center>
+
+<h2 id="5-参考资料"><a href="#5-参考资料" class="headerlink" title="5. 参考资料"></a>5. 参考资料</h2><ol>
+<li><a href="https://github.com/d3/d3-force" target="_blank" rel="external">d3-force</a></li>
+<li><a href="https://threejs.org/docs/#api/en/core/Geometry" target="_blank" rel="external">Geometry - three.js docs</a></li>
+<li><a href="https://threejs.org/docs/#api/en/core/BufferGeometry" target="_blank" rel="external">BufferGeometry - three.js docs</a></li>
+<li><a href="http://es6.ruanyifeng.com/#docs/arraybuffer" target="_blank" rel="external">ArrayBuffer - ECMAScript 6入门</a></li>
+<li><a href="https://threejs.org/docs/#api/en/objects/Points" target="_blank" rel="external">Points - three.js docs</a></li>
+<li><a href="https://threejs.org/docs/#api/en/objects/LineSegments" target="_blank" rel="external">LineSegments - three.js docs</a></li>
+<li><a href="https://bl.ocks.org/mbostock/01ab2e85e8727d6529d20391c0fd9a16" target="_blank" rel="external">Force-Directed Web Worker</a></li>
+<li><a href="https://developers.google.com/web/updates/2011/09/Workers-ArrayBuffer" target="_blank" rel="external">Workers ♥ ArrayBuffer  |  Web  |  Google Developers</a></li>
+<li><a href="https://www.loxodrome.io/post/web-worker-performance/" target="_blank" rel="external">Examining Web Worker Performance</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Worker/postMessage" target="_blank" rel="external">Worker.postMessage() - Web APIs | MDN</a></li>
+<li><a href="http://pmav.eu/stuff/javascript-webworkers/" target="_blank" rel="external">Javascript Web Workers Test v1.4.0</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/NavigatorConcurrentHardware/hardwareConcurrency" target="_blank" rel="external">navigator.hardwareConcurrency - Web APIs | MDN</a></li>
+<li><a href="https://www.desultoryquest.com/blog/drawing-anti-aliased-circular-points-using-opengl-slash-webgl/" target="_blank" rel="external">Drawing Anti-aliased Circular Points Using OpenGL/WebGL</a></li>
+<li><a href="https://webgl.404forest.com/list/H1BtgzNy8" target="_blank" rel="external">WebGL tutorial</a></li>
+</ol>
+
+            
+                
+
+            
+        </div>
+    </div>
+    <div class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">TAGGED IN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-none-link" href="/tags/d3/" rel="tag">d3</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/optimization/" rel="tag">optimization</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/three-js/" rel="tag">three.js</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/webgl/" rel="tag">webgl</a>
+
+            </div>
+        
+        <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2019/03/05/modern-web-development-tech-analysis-html-parser/"  data-tooltip="现代前端科技解析 —— HTML Parser">
+                
+                    <i class="fa fa-angle-left"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">PREVIOUS</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2018/09/06/preflight-request-and-content-type/" data-tooltip="预检请求(Preflight request) 与 Content-Type">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">NEXT</span>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions"  href="#btn-open-shareoptions">
+                <i class="fa fa-share-alt"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://www.404forest.com/2018/10/12/massive-data-visualization-full-rendering-optimization/">
+                <i class="fa fa-google-plus"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://www.404forest.com/2018/10/12/massive-data-visualization-full-rendering-optimization/">
+                <i class="fa fa-facebook-official"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://www.404forest.com/2018/10/12/massive-data-visualization-full-rendering-optimization/">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </li>
+        
+            <li class="post-action">
+                <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                    <i class="fa fa-comment-o"></i>
+                </a>
+            </li>
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#">
+            
+                <i class="fa fa-list"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+            <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2025 Jin. All Rights Reserved.
+    </span>
+    <a class="copyrights" target="_blank" rel="noopener" href="http://www.beian.miit.gov.cn/">
+        浙ICP备18012561号
+    </a>
+</footer>
+
+            </div>
+        </div>
+        <div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-remove"></i>
+        </div>
+        
+            <img id="about-card-picture" src="/assets/images/ava.png"/>
+        
+            <h4 id="about-card-name">Jin</h4>
+        
+            <h5 id="about-card-bio">Interested in Web Development/Typography/Japanese.</h5>
+        
+        
+            <h5 id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                WebDeveloper
+            </h5>
+        
+        
+            <h5 id="about-card-location">
+                <i class="fa fa-map-marker"></i>
+                <br/>
+                Beijing
+            </h5>
+        
+    </div>
+</div>
+
+        <div id="cover" style="background-image:url('/assets/images/bg4.jpg');"></div>
+    </body>
+    <!--SCRIPTS-->
+
+<script src="/assets/js/script.min.js"></script>
+
+<!--SCRIPTS END-->
+
+    <script type="text/javascript">
+        var disqus_shortname = '404forest';
+        (function() {
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+
+
+    <script type="text/javascript">
+        (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+                (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+            e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+        })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+        _st('install','ZkJM8hxyxxLens-VGG__','2.0.0');
+    </script>
+
+
+</html>

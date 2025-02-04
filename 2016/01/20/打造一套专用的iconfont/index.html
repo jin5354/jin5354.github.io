@@ -1,0 +1,430 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+    
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="404Forest">
+    <title>打造一套专用的iconfont - 404Forest</title>
+    <meta name="author" content="Jin">
+    
+        <link rel="icon" href="/assets/images/favicon.ico">
+    
+    
+    <meta name="description" content="为什么要使用iconfont？iconfont 是一个解决图标问题的优秀方案。">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="打造一套专用的iconfont">
+<meta property="og:url" content="http://www.404forest.com/2016/01/20/%E6%89%93%E9%80%A0%E4%B8%80%E5%A5%97%E4%B8%93%E7%94%A8%E7%9A%84iconfont/index.html">
+<meta property="og:site_name" content="404Forest">
+<meta property="og:description" content="为什么要使用iconfont？iconfont 是一个解决图标问题的优秀方案。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://7sbmuq.com1.z0.glb.clouddn.com/svg.png">
+<meta property="og:image" content="http://7sbmuq.com1.z0.glb.clouddn.com/iconfont.png">
+<meta property="og:image" content="http://7sbmuq.com1.z0.glb.clouddn.com/fonts.png">
+<meta property="article:published_time" content="2016-01-21T02:01:21.000Z">
+<meta property="article:modified_time" content="2025-02-04T23:02:44.267Z">
+<meta property="article:author" content="Jin">
+<meta property="article:tag" content="css">
+<meta property="article:tag" content="font">
+<meta property="article:tag" content="iconfont">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://7sbmuq.com1.z0.glb.clouddn.com/svg.png">
+<meta name="twitter:creator" content="@jin5354">
+    
+    
+    
+        <meta property="og:image" content="/assets/images/ava.png"/>
+    
+    
+    
+    
+    <!--STYLES-->
+    
+<link rel="stylesheet" href="/assets/css/style.min.css">
+
+    <!--STYLES END-->
+    
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-66492678-1']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+
+</head>
+
+    <body>
+        <div id="blog">
+            <header id="header" data-behavior="3">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <h1 class="header-title">
+        <a class="header-title-link" href="/%20">404Forest</a>
+    </h1>
+    
+        <a class="header-right-picture" href="/#about">
+            <img class="header-picture" src="/assets/images/ava.png"/>
+        </a>
+    
+</header>
+            <nav id="sidebar" data-behavior="3">
+    
+        <div class="sidebar-profile">
+            <a href="/#about">
+                
+                    <img class="sidebar-profile-picture" src="/assets/images/ava.png"/>
+                
+            </a>
+            <span class="sidebar-profile-name">Jin</span>
+        </div>
+    
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/%20"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+                    <span class="sidebar-button-desc">Home</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-archives"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+                    <span class="sidebar-button-desc">Archive</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-categories"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+                    <span class="sidebar-button-desc">Categories</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-tags"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+                    <span class="sidebar-button-desc">Tags</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link st-search-show-outputs"
+                         href="#search"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-search"></i>
+                    <span class="sidebar-button-desc">Search</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="#about"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+                    <span class="sidebar-button-desc">About</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="https://github.com/jin5354" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+                    <span class="sidebar-button-desc">GitHub</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="mailto:xiaoyanjinx@gmail.com" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-envelope-o"></i>
+                    <span class="sidebar-button-desc">Mail</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+    <div style="margin-left: 27px;">
+        <a target="_blank" rel="noopener" href="https://github.com/jin5354/404forest"><img src="https://img.shields.io/github/stars/jin5354/404forest.svg?style=social&label=Stars"></a>
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="3"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title" itemprop="headline">
+            打造一套专用的iconfont
+        </h1>
+    
+    <div class="post-meta">
+    <time itemprop="datePublished" content="Wed Jan 20 2016 18:01:21 GMT-0800">
+	
+		    1月 20, 2016
+    	
+    </time>
+    
+        <span>in </span>
+        
+    <a class="category-link" href="/categories/Code/">Code</a>, <a class="category-link" href="/categories/Code/design/">design</a>
+
+
+    
+</div>
+</div>
+    
+    <div class="main-content-wrap" style="margin-top: 60px;">索引</div>
+    <ol class="main-content-wrap toc-article"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8iconfont%EF%BC%9F"><span class="main-content-wrap toc-article-text">为什么要使用iconfont？</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#%E5%A6%82%E4%BD%95%E5%88%B6%E4%BD%9Ciconfont%EF%BC%9F"><span class="main-content-wrap toc-article-text">如何制作iconfont？</span></a><ol class="main-content-wrap toc-article-child"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-4"><a class="main-content-wrap toc-article-link" href="#%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%8C%E8%BE%93%E5%87%BASVG%E6%96%87%E4%BB%B6"><span class="main-content-wrap toc-article-text">第一步，输出SVG文件</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-4"><a class="main-content-wrap toc-article-link" href="#%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%8C%E5%88%B6%E4%BD%9Ciconfont%E5%AD%97%E4%BD%93"><span class="main-content-wrap toc-article-text">第二步，制作iconfont字体</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-4"><a class="main-content-wrap toc-article-link" href="#%E7%AC%AC%E4%B8%89%E6%AD%A5%EF%BC%8C%E4%BD%BF%E7%94%A8iconfont%E5%AD%97%E4%BD%93"><span class="main-content-wrap toc-article-text">第三步，使用iconfont字体</span></a></li></ol></li></ol>
+    <div class="post-content markdown" itemprop="articleBody">
+        <div class="main-content-wrap">
+            <h3 id="为什么要使用iconfont？"><a href="#为什么要使用iconfont？" class="headerlink" title="为什么要使用iconfont？"></a>为什么要使用iconfont？</h3><p>iconfont 是一个解决图标问题的优秀方案。</p>
+<a id="more"></a>
+<p>iconfont的优点在于：</p>
+<ol>
+<li>矢量性，可以随意改变大小而依旧保持清晰</li>
+<li>可定制，由于是字体所以针对字体的CSS属性都可以使用——字号、颜色、透明度可直接修改</li>
+<li>兼容性超强，连古老的IE6都已支持，通吃各种浏览器</li>
+<li>简单，所以图标均由字体控制，再也不用切各种雪碧图了。有各种网站支持在线生成。</li>
+<li>扩展性强，有新图标？直接添加至字体中即可！</li>
+<li>已被广泛应用。</li>
+</ol>
+<p>缺点：</p>
+<ol>
+<li>需要svg设计稿。也就是需要设计师支持。</li>
+</ol>
+<p>本站首页左边列表中的各种小图标就都是iconfont。</p>
+<h3 id="如何制作iconfont？"><a href="#如何制作iconfont？" class="headerlink" title="如何制作iconfont？"></a>如何制作iconfont？</h3><h4 id="第一步，输出SVG文件"><a href="#第一步，输出SVG文件" class="headerlink" title="第一步，输出SVG文件"></a>第一步，输出SVG文件</h4><p>首先需要将做好的图标输出为SVG文件。如果要制作iconfont的话，对SVG本身存在一些要求，具体可以看<a href="http://iconfont.cn/help/iconmake.html" target="_blank" rel="external">图标制作说明</a>。</p>
+<p>图标绘制规范：</p>
+<ol>
+<li><p>所有图标请在16X16的AI画布中绘制，（iconfont图标在绘制时均以标准图标大小16像素X16像素绘制，因为在制作成字体时文件需要设置较高的清晰度，所以图标路径也需要等比例放大。）</p>
+</li>
+<li><p>为了确保图标的清晰显示，在绘制时须避免水平、垂直的边缘出现半个单位。（半个单位的路径会导致图标在最终显示时边缘模糊，不清晰），弧线在绘制时要保证弧度饱满。</p>
+</li>
+<li><p>LOGO（包括图形和字体）类图标要基于基线对齐，同时需要综合考虑LOGO在组合使用时的水平位置关系。</p>
+</li>
+<li><p>字体或线条类图标绘制完成后，须对对象执行“扩展”操作，以矢量图形输出，未进行“扩展”操作的路径会影响图标的正常显示。</p>
+</li>
+<li><p>在绘制图形的时候，曲线必须是闭合的。如果曲线是不闭合的在字体转换的过程中是无发转译未闭合曲线的图形的。</p>
+</li>
+<li><p>在绘制好封闭图形后，要给图形填充颜色。</p>
+</li>
+</ol>
+<h4 id="第二步，制作iconfont字体"><a href="#第二步，制作iconfont字体" class="headerlink" title="第二步，制作iconfont字体"></a>第二步，制作iconfont字体</h4><p><img src="http://7sbmuq.com1.z0.glb.clouddn.com/svg.png" alt="svg"></p>
+<p>有了做好的svg文件之后，我们就可以开始制作iconfont字体了！</p>
+<p>有很多网站提供好用的在线iconfont制作服务。我一般使用<a href="https://icomoon.io/" target="_blank" rel="external">icomoon</a>，如果使用国产服务比如<a href="http://iconfont.cn/" target="_blank" rel="external">http://iconfont.cn/</a>当然也可以。</p>
+<p>进入icomoon后，点击右上角的icomoon app就进入制作主界面了。通过左上角的import icons，把svg都导进去。</p>
+<p><img src="http://7sbmuq.com1.z0.glb.clouddn.com/iconfont.png" alt="iconfont"></p>
+<p>每个set的右边是有设置按钮的，眼睛按钮右侧。可以调换图标位置。满意后点击右下角的generate即可生成字体。</p>
+<p>在接下来的预览页面，我们已经可以直接看到iconfont化的字体————以及其所对应的unicode编码。</p>
+<p>这时要注意，每个图标都只应对应1个unicode编码，如果某个图标对应了多个unicode编码，说明生成失败————输出的svg文件不合规范。需要重新输出svg。</p>
+<p>检查无误，就可以点击download下载了。</p>
+<p>打开下载的文件，fonts文件夹中躺着的4个文件就是我们所需要的字体文件了。</p>
+<p><img src="http://7sbmuq.com1.z0.glb.clouddn.com/fonts.png" alt="fonts"></p>
+<p>打开看一眼，感觉萌萌哒。</p>
+<h4 id="第三步，使用iconfont字体"><a href="#第三步，使用iconfont字体" class="headerlink" title="第三步，使用iconfont字体"></a>第三步，使用iconfont字体</h4><p>将字体文件存放妥当后，CSS中引入iconfont字体。（如果使用sass等预处理器解决方案更简单一点，将所有iconfont相关模块抽象成一个iconfont.scss，随后在有iconfont使用需求的项目中直接import即可）</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">@<span class="keyword">font-face</span> &#123;</div><div class="line">  <span class="attribute">font-family</span>: <span class="string">'wdiconfont'</span>;</div><div class="line">  <span class="attribute">src</span>: <span class="built_in">url</span>(<span class="string">'../../fonts/wdiconfont.eot'</span>); <span class="comment">/* IE9 Compat Modes */</span></div><div class="line">  <span class="attribute">src</span>: <span class="built_in">url</span>(<span class="string">'../../fonts/wdiconfont.eot?#iefix'</span>) <span class="built_in">format</span>(<span class="string">'embedded-opentype'</span>), <span class="comment">/* IE6-IE8 */</span></div><div class="line">  <span class="built_in">url</span>(<span class="string">'../../fonts/wdiconfont.woff'</span>) <span class="built_in">format</span>(<span class="string">'woff'</span>), <span class="comment">/* 所有现代浏览器 */</span></div><div class="line">  <span class="built_in">url</span>(<span class="string">'../../fonts/wdiconfont.ttf'</span>)  <span class="built_in">format</span>(<span class="string">'truetype'</span>), <span class="comment">/* Safari, Android, iOS */</span></div><div class="line">  <span class="built_in">url</span>(<span class="string">'../../fonts/wdiconfont.svg#svgFontName'</span>) <span class="built_in">format</span>(<span class="string">'svg'</span>); <span class="comment">/* Legacy iOS */</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>CSS中进行配置：<br><figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="selector-class">.iconfont</span> &#123;</div><div class="line">    <span class="attribute">font-family</span>: <span class="string">"wdiconfont"</span> <span class="meta">!important</span>;</div><div class="line">    <span class="attribute">-webkit-font-smoothing</span>: antialiased;</div><div class="line">    <span class="attribute">-moz-osx-font-smoothing</span>: grayscale;</div><div class="line">&#125;</div><div class="line"><span class="selector-class">.icon-chat</span><span class="selector-pseudo">::before</span> &#123;</div><div class="line">    <span class="attribute">content</span>: <span class="string">'\e900'</span>;</div><div class="line">&#125;</div><div class="line"><span class="selector-class">.icon-cart</span><span class="selector-pseudo">::before</span> &#123;</div><div class="line">    <span class="attribute">content</span>: <span class="string">'\e901'</span>;</div><div class="line">&#125;</div><div class="line"><span class="selector-class">.icon-wait-confirm</span><span class="selector-pseudo">::before</span> &#123;</div><div class="line">    <span class="attribute">content</span>: <span class="string">'\e902'</span>;</div><div class="line">&#125;</div><div class="line"><span class="selector-class">.icon-wait-rate</span><span class="selector-pseudo">::before</span> &#123;</div><div class="line">    <span class="attribute">content</span>: <span class="string">'\e903'</span>;</div><div class="line">&#125;</div><div class="line">....</div></pre></td></tr></table></figure></p>
+<p>HTML中一般使用i,span之类的标签作为图标载体<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;span <span class="class"><span class="keyword">class</span></span>=<span class="string">"iconfont icon-chat"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></div></pre></td></tr></table></figure></p>
+<p>这样配置好之后，网页上就可以正常显示了。</p>
+<p>PS: 字体编辑工具：FontLab Studio</p>
+<p>当我们已经有一个表现良好的iconfont之后，如果遇到新增图标，删除图标，两个iconfont合并之类的任务，可以使用FontLab Studio解决。</p>
+
+            
+                
+
+            
+        </div>
+    </div>
+    <div class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">TAGGED IN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-none-link" href="/tags/css/" rel="tag">css</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/font/" rel="tag">font</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/iconfont/" rel="tag">iconfont</a>
+
+            </div>
+        
+        <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2016/01/22/%E8%AF%B4%E8%AF%B4%E9%81%87%E5%88%B0%E7%9A%84%E9%82%A3%E4%BA%9B%E8%B7%A8%E5%9F%9F%EF%BC%8Caccess%20control%E3%80%81jsonp%E3%80%81cookie%E3%80%81iframe/"  data-tooltip="说说遇到的那些跨域，access control、jsonp、cookie、iframe">
+                
+                    <i class="fa fa-angle-left"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">PREVIOUS</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2015/12/17/%E7%AE%80%E8%B0%88flex%E5%B1%9E%E6%80%A7%E2%80%94%E2%80%94flex-grow%E3%80%81flex-shrink%E3%80%81flex-basis%E9%83%BD%E6%98%AF%E5%B9%B2%E5%95%A5%E7%9A%84/" data-tooltip="理解flex属性——flex-grow、flex-shrink、flex-basis都是干啥的">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">NEXT</span>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions"  href="#btn-open-shareoptions">
+                <i class="fa fa-share-alt"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://www.404forest.com/2016/01/20/%E6%89%93%E9%80%A0%E4%B8%80%E5%A5%97%E4%B8%93%E7%94%A8%E7%9A%84iconfont/">
+                <i class="fa fa-google-plus"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://www.404forest.com/2016/01/20/%E6%89%93%E9%80%A0%E4%B8%80%E5%A5%97%E4%B8%93%E7%94%A8%E7%9A%84iconfont/">
+                <i class="fa fa-facebook-official"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://www.404forest.com/2016/01/20/%E6%89%93%E9%80%A0%E4%B8%80%E5%A5%97%E4%B8%93%E7%94%A8%E7%9A%84iconfont/">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </li>
+        
+            <li class="post-action">
+                <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                    <i class="fa fa-comment-o"></i>
+                </a>
+            </li>
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#">
+            
+                <i class="fa fa-list"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+            <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2025 Jin. All Rights Reserved.
+    </span>
+    <a class="copyrights" target="_blank" rel="noopener" href="http://www.beian.miit.gov.cn/">
+        浙ICP备18012561号
+    </a>
+</footer>
+
+            </div>
+        </div>
+        <div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-remove"></i>
+        </div>
+        
+            <img id="about-card-picture" src="/assets/images/ava.png"/>
+        
+            <h4 id="about-card-name">Jin</h4>
+        
+            <h5 id="about-card-bio">Interested in Web Development/Typography/Japanese.</h5>
+        
+        
+            <h5 id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                WebDeveloper
+            </h5>
+        
+        
+            <h5 id="about-card-location">
+                <i class="fa fa-map-marker"></i>
+                <br/>
+                Beijing
+            </h5>
+        
+    </div>
+</div>
+
+        <div id="cover" style="background-image:url('/assets/images/bg4.jpg');"></div>
+    </body>
+    <!--SCRIPTS-->
+
+<script src="/assets/js/script.min.js"></script>
+
+<!--SCRIPTS END-->
+
+    <script type="text/javascript">
+        var disqus_shortname = '404forest';
+        (function() {
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+
+
+    <script type="text/javascript">
+        (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+                (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+            e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+        })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+        _st('install','ZkJM8hxyxxLens-VGG__','2.0.0');
+    </script>
+
+
+</html>

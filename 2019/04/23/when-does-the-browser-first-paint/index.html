@@ -1,0 +1,493 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+    
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="404Forest">
+    <title>对浏览器首次渲染时间点的探究 - 404Forest</title>
+    <meta name="author" content="Jin">
+    
+        <link rel="icon" href="/assets/images/favicon.ico">
+    
+    
+    <meta name="description" content="使用 Chrome Devtool 进行性能分析时，在 Performance 面板上，可以看到用绿线标出来的 First-Contentful-Paint。浏览器何时进行首次渲染？网上只能查到一些模棱两可的资料，今天我们来探究这个问题。">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="对浏览器首次渲染时间点的探究">
+<meta property="og:url" content="http://www.404forest.com/2019/04/23/when-does-the-browser-first-paint/index.html">
+<meta property="og:site_name" content="404Forest">
+<meta property="og:description" content="使用 Chrome Devtool 进行性能分析时，在 Performance 面板上，可以看到用绿线标出来的 First-Contentful-Paint。浏览器何时进行首次渲染？网上只能查到一些模棱两可的资料，今天我们来探究这个问题。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/first-paint4.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/eventloop-1.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/first-paint1.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/first-paint2.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/first-paint3.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/first-paint5.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/first-paint6.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/first-paint8.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/first-paint9.png">
+<meta property="article:published_time" content="2019-04-24T05:17:10.000Z">
+<meta property="article:modified_time" content="2025-02-04T23:02:44.263Z">
+<meta property="article:author" content="Jin">
+<meta property="article:tag" content="eventloop">
+<meta property="article:tag" content="performance">
+<meta property="article:tag" content="first-paint">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://www.404forest.com/imgs/blog/first-paint4.png">
+<meta name="twitter:creator" content="@jin5354">
+    
+    
+    
+        <meta property="og:image" content="/assets/images/ava.png"/>
+    
+    
+    
+    
+    <!--STYLES-->
+    
+<link rel="stylesheet" href="/assets/css/style.min.css">
+
+    <!--STYLES END-->
+    
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-66492678-1']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+
+</head>
+
+    <body>
+        <div id="blog">
+            <header id="header" data-behavior="3">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <h1 class="header-title">
+        <a class="header-title-link" href="/%20">404Forest</a>
+    </h1>
+    
+        <a class="header-right-picture" href="/#about">
+            <img class="header-picture" src="/assets/images/ava.png"/>
+        </a>
+    
+</header>
+            <nav id="sidebar" data-behavior="3">
+    
+        <div class="sidebar-profile">
+            <a href="/#about">
+                
+                    <img class="sidebar-profile-picture" src="/assets/images/ava.png"/>
+                
+            </a>
+            <span class="sidebar-profile-name">Jin</span>
+        </div>
+    
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/%20"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+                    <span class="sidebar-button-desc">Home</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-archives"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+                    <span class="sidebar-button-desc">Archive</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-categories"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+                    <span class="sidebar-button-desc">Categories</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-tags"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+                    <span class="sidebar-button-desc">Tags</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link st-search-show-outputs"
+                         href="#search"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-search"></i>
+                    <span class="sidebar-button-desc">Search</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="#about"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+                    <span class="sidebar-button-desc">About</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="https://github.com/jin5354" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+                    <span class="sidebar-button-desc">GitHub</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="mailto:xiaoyanjinx@gmail.com" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-envelope-o"></i>
+                    <span class="sidebar-button-desc">Mail</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+    <div style="margin-left: 27px;">
+        <a target="_blank" rel="noopener" href="https://github.com/jin5354/404forest"><img src="https://img.shields.io/github/stars/jin5354/404forest.svg?style=social&label=Stars"></a>
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="3"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title" itemprop="headline">
+            对浏览器首次渲染时间点的探究
+        </h1>
+    
+    <div class="post-meta">
+    <time itemprop="datePublished" content="Tue Apr 23 2019 22:17:10 GMT-0700">
+	
+		    4月 23, 2019
+    	
+    </time>
+    
+        <span>in </span>
+        
+    <a class="category-link" href="/categories/Code/">Code</a>
+
+
+    
+</div>
+</div>
+    
+    <div class="main-content-wrap" style="margin-top: 60px;">索引</div>
+    <ol class="main-content-wrap toc-article"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#1-%E5%BC%95%E5%AD%90"><span class="main-content-wrap toc-article-text">1. 引子</span></a><ol class="main-content-wrap toc-article-child"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#1-1-%E6%9C%AF%E8%AF%AD%E5%A0%AA%E6%98%8E"><span class="main-content-wrap toc-article-text">1.1 术语堪明</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#1-2-%E6%8F%90%E5%87%BA%E5%9C%BA%E6%99%AF"><span class="main-content-wrap toc-article-text">1.2 提出场景</span></a></li></ol></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#2-%E8%A7%84%E8%8C%83%E8%A7%A3%E8%AF%BB"><span class="main-content-wrap toc-article-text">2. 规范解读</span></a><ol class="main-content-wrap toc-article-child"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#2-1-stage1-paint-timing-%E8%A7%84%E8%8C%83"><span class="main-content-wrap toc-article-text">2.1 stage1: paint timing 规范</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#2-2-stage2-eventloop-%E8%A7%84%E8%8C%83"><span class="main-content-wrap toc-article-text">2.2 stage2: eventloop 规范</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#2-3-stage3-html-parser-%E8%A7%84%E8%8C%83"><span class="main-content-wrap toc-article-text">2.3 stage3: html parser 规范</span></a></li></ol></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#3-%E5%AE%9E%E6%88%98%E6%B5%8B%E8%AF%95"><span class="main-content-wrap toc-article-text">3. 实战测试</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#4-%E9%A2%98%E5%A4%96%E8%AF%9D"><span class="main-content-wrap toc-article-text">4. 题外话</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#5-%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="main-content-wrap toc-article-text">5. 参考资料</span></a></li></ol>
+    <div class="post-content markdown" itemprop="articleBody">
+        <div class="main-content-wrap">
+            <p>使用 Chrome Devtool 进行性能分析时，在 Performance 面板上，可以看到用绿线标出来的 <code>First-Contentful-Paint</code>。浏览器何时进行首次渲染？网上只能查到一些模棱两可的资料，今天我们来探究这个问题。</p>
+<a id="more"></a>
+<blockquote>
+<p>注：<br>原始链接: <a href="https://www.404forest.com/2019/04/23/when-does-the-browser-first-paint/">https://www.404forest.com/2019/04/23/when-does-the-browser-first-paint/</a><br>文章备份: <a href="https://github.com/jin5354/404forest/issues/73" target="_blank" rel="external">https://github.com/jin5354/404forest/issues/73</a></p>
+</blockquote>
+<h1 id="1-引子"><a href="#1-引子" class="headerlink" title="1. 引子"></a>1. 引子</h1><h2 id="1-1-术语堪明"><a href="#1-1-术语堪明" class="headerlink" title="1.1 术语堪明"></a>1.1 术语堪明</h2><ul>
+<li>首次渲染</li>
+<li>首屏时间/首屏渲染</li>
+</ul>
+<p>在掘金上用『首次渲染』进行搜索，查不到什么相关资料；使用『首屏时间』进行搜索，能搜出大量性能优化的文章。点进去看可以发现，大家常谈的『首屏时间』是一个业务概念，指的是业务的首屏内容全部渲染完毕的时间点，一般使用埋点进行手动上报。本文探索的则是浏览器进行首次渲染的时间点，此时可能只渲染出了网页的部分内容。</p>
+<p><img src="/imgs/blog/first-paint4.png" alt="first-paint4"></p>
+<center>浏览器何时进行首次渲染？</center>
+
+<h2 id="1-2-提出场景"><a href="#1-2-提出场景" class="headerlink" title="1.2 提出场景"></a>1.2 提出场景</h2><p>举例说明:<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>demo<span class="tag">&lt;/<span class="name">title</span>&gt;</span></div><div class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"app"</span>&gt;</span></div><div class="line">      <span class="tag">&lt;<span class="name">p</span>&gt;</span>俺是用来测试首屏渲染的文字。<span class="tag">&lt;/<span class="name">p</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"./bundle.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div><div class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>这是一个最常见的单页应用形态。<code>bundle.js</code> 下载完后，执行，构建 DOM 树，替换 <code>div#app</code> 节点，渲染应用。那么问题来了，这段用来测试首屏渲染的文字，会不会被渲染到屏幕上？查询已有的资料，主要从两个方面讲解：</p>
+<ul>
+<li>浏览器解析页面流程：<ol>
+<li>解析 HTML，构建 DOM 树</li>
+<li>解析 CSS，构建 CSSOM</li>
+<li>合并 DOM 和 CSSOM，构建渲染树（render tree）</li>
+<li>对渲染树进行布局，得到每个节点的位置、尺寸信息</li>
+<li>对渲染树进行绘制。</li>
+</ol>
+</li>
+</ul>
+<p>由于脚本是阻塞 html 解析的，只有下载、执行完，html 解析才宣告结束，此时构建的渲染树是完全的，但也已经不再有测试文字节点了。而在脚本下载、执行完之前，这个『不完整的渲染树』会渲染吗？得不出确切的结论。</p>
+<ul>
+<li>『需要着重指出的是，这是一个渐进的过程。为达到更好的用户体验，呈现引擎会力求尽快将内容显示在屏幕上。它不必等到整个 HTML 文档解析完毕之后，就会开始构建呈现树和设置布局。在不断接收和处理来自网络的其余内容的同时，呈现引擎会将部分内容解析并显示出来。』 - 来自『浏览器的工作原理：新式网络浏览器幕后揭秘』</li>
+</ul>
+<p>这篇讲解浏览器工作内幕的经典文章表示：HTML 解析完毕之前，也是可以进行绘制的，那么测试文字一定就能绘制出来么？依然没有明确的答案，感觉像是浏览器的黑箱。没有办法啦，只能自己去尽量检索了。</p>
+<h1 id="2-规范解读"><a href="#2-规范解读" class="headerlink" title="2. 规范解读"></a>2. 规范解读</h1><h2 id="2-1-stage1-paint-timing-规范"><a href="#2-1-stage1-paint-timing-规范" class="headerlink" title="2.1 stage1: paint timing 规范"></a>2.1 stage1: paint timing 规范</h2><p>在网上检索『首次渲染』、『when does browser first paint』找不到相关的资料。在搜索时，突然发现一个新的 API <a href="https://developer.mozilla.org/en-US/docs/Web/API/PerformancePaintTiming" target="_blank" rel="external">PerformancePaintTiming</a>，可以通过 <code>first-paint</code> 和 <code>first-contentful-paint</code> 这两个 <code>entry name</code> 来获取首次渲染的时间。赶快去查阅它的<a href="https://w3c.github.io/paint-timing/#mark-paint-timing" target="_blank" rel="external">规范</a>：</p>
+<blockquote>
+<p>4.1.1. Mark paint timing</p>
+<p>Perform the following steps:</p>
+<ol>
+<li><p>Let <code>paint-timestamp</code> be the input timestamp.</p>
+</li>
+<li><p>If this instance of <strong>update the rendering</strong> is the <strong>first paint</strong>, then record the timestamp as paint-timestamp and invoke the §4.1.2 Report paint timing algorithm with two arguments: <code>&quot;first-paint&quot;</code> and <code>paint-timestamp</code>.</p>
+<blockquote>
+<p>NOTE: First paint excludes the default background paint, but includes non-default background paint.(这里可以发现，默认的白屏不算 first-paint，至少得设个背景色)</p>
+</blockquote>
+</li>
+<li><p>Otherwise, if this instance of <strong>update the rendering</strong> is the <strong>first contentful paint</strong>, then record the timestamp as paint-timestamp and invoke the §4.1.2 Report paint timing algorithm with two arguments: <code>&quot;first-contentful-paint&quot;</code> and <code>paint-timestamp</code>.</p>
+<blockquote>
+<p>NOTE: This paint must include text, image (including background images), non-white canvas or SVG.(写了字，放了图片，就算 first-contentful-paint 啦)</p>
+</blockquote>
+</li>
+</ol>
+</blockquote>
+<p>翻译：如果 <code>update the rendering</code> 实例是 <code>first-paint</code> 那么就记录时间戳，上报为 <code>first-paint</code> 时间。如果 <code>update the rendering</code> 实例是 <code>first-contentful-paint</code> 那么就记录时间戳，上报为 <code>first-contentful-paint</code> 时间。</p>
+<p><a href="(https://html.spec.whatwg.org/multipage/webappapis.html#update-the-rendering"><code>update the rendering</code></a>是啥？点进去，规范直接跳到了 <code>eventloop</code>。恍然大悟，<code>update the rendering</code> 不就是 <code>eventloop</code> 中的最后一个阶段吗！</p>
+<p><img src="/imgs/blog/eventloop-1.png" alt="eventloop-1"></p>
+<center>不熟悉 eventloop 的同学可查阅之前文章：<a href="https://www.404forest.com/2017/07/18/how-javascript-actually-works-eventloop-and-uirendering/">深入探究 eventloop 与浏览器渲染的时序问题</a></center>
+
+<p><br><br>原来浏览器对于首次渲染根本就没有什么『黑箱操作』，人家只是老老实实的按照 <code>eventloop</code> 来运行而已。<code>eventloop</code> 第一次进行到 <code>update the rendering</code> 阶段的时间点那就是 <code>first-paint</code> 的时间点了。于是我们下一步来研究，HTML 解析过程中，<code>eventloop</code> 是怎么运行的？</p>
+<h2 id="2-2-stage2-eventloop-规范"><a href="#2-2-stage2-eventloop-规范" class="headerlink" title="2.2 stage2: eventloop 规范"></a>2.2 stage2: eventloop 规范</h2><p>我们知道 <code>eventloop</code> 按照 <code>task &gt; microtask &gt; render</code> 的顺序执行。查阅<a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" target="_blank" rel="external">规范</a>中关于 <code>task</code> 的定义，得：</p>
+<blockquote>
+<p>The HTML parser tokenizing one or more bytes, and then processing any resulting tokens, is typically a task.</p>
+</blockquote>
+<p>HTML 解析是一个典型的 <code>task</code>。<code>task</code> 执行完才能 <code>render</code>，正如 HTML 解析完才能渲染，很合理。然而经典文章说了，明明可以边解析边绘制的，事情肯定不会这么简单。</p>
+<h2 id="2-3-stage3-html-parser-规范"><a href="#2-3-stage3-html-parser-规范" class="headerlink" title="2.3 stage3: html parser 规范"></a>2.3 stage3: html parser 规范</h2><p>在 <code>html parser</code> 规范中检索 <code>eventloop</code> 得：</p>
+<blockquote>
+<p>(<a href="https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-incdata" target="_blank" rel="external">原文</a>很晦涩，这里为了方便理解，直接翻译最核心的几句：)</p>
+<p>当解析到 <code>&lt;/script&gt;</code> 时：</p>
+<p>如果当前文档存在<strong>阻碍 JS 执行的 CSS</strong> 或者当前的脚本 <strong>不处于 <code>ready to be parser-executed</code></strong> 状态，<strong>spin the event loop</strong>，直到不再存在阻碍 JS 执行的 CSS 且该段脚本处于 <code>ready to be parser-executed</code>。</p>
+</blockquote>
+<p>我们已经知道 CSS 的加载是会阻碍 JS 执行的。而脚本不处于这个 <code>ready to be parser-executed</code> 状态简单理解就是还没下载完。如果出现这两种情况，脚本就无法立刻执行，需要等待。此时要进行 <strong>spin the eventloop</strong>，查阅<a href="https://html.spec.whatwg.org/multipage/webappapis.html#spin-the-event-loop" target="_blank" rel="external">规范</a>，该操作即为：</p>
+<blockquote>
+<p>（简单翻译）</p>
+<ol>
+<li>暂存此时正在执行的 task 或 microtask</li>
+<li>暂存此时的 js 执行上下文堆栈</li>
+<li>清空 js执行上下文堆栈</li>
+<li>如果当前正在执行的是 task，执行 microtask checkpoint</li>
+<li>停止执行当前的 task/microtask。继续执行 eventloop 的主流程。</li>
+<li>当满足条件时，重新添加之前暂存的 task/microtask，恢复暂存的 js 执行上下文堆栈，继续执行。</li>
+</ol>
+</blockquote>
+<p>简单的说就是让 <code>eventloop</code> 中断并暂存当前正在执行的 task/microtask，保持 <code>eventloop</code> 的继续执行，待一段时间之后满足条件了再恢复之前的 task/microtask。</p>
+<p>那么问题就水落石出了：</p>
+<p><strong>如果在 HTML 解析过程中，『解析到了某个脚本，但这个脚本被 CSS 阻塞住了或者还没下载完』，则会中断暂存当前的解析 <code>task</code>，继续执行 <code>eventloop</code>，网页被渲染</strong>。</p>
+<p>如果 JS 全部是内联的，或者网速好，在解析到<code>&lt;/script&gt;</code>时脚本全都已下载完了，则解析 task 不会被中断，也就不会出现渲染情况了。</p>
+<h1 id="3-实战测试"><a href="#3-实战测试" class="headerlink" title="3. 实战测试"></a>3. 实战测试</h1><p>对于 <a href="/2019/04/23/when-does-the-browser-first-paint/#1-2-%E6%8F%90%E5%87%BA%E5%9C%BA%E6%99%AF">1.2</a> 中的例子，我们禁用缓存，使用 chrome 模拟 3G 网速，测试结果：</p>
+<p><img src="/imgs/blog/first-paint1.png" alt="first-paint1"></p>
+<p><center>在 bundle.js 加载之前，测试文字被渲染出来了</center><br><br></p>
+<p><img src="/imgs/blog/first-paint2.png" alt="first-paint2"></p>
+<p><center><code>First-Contentful-Paint</code>在很早的位置</center><br><br></p>
+<p>可验证之前的结论：HTML 解析过程中遇到脚本且脚本处于等待执行状态（被CSS阻塞/没下载完），解析中断，进行渲染。我们开启缓存，不限速，让 bundle.js 走强缓存，瞬间加载：</p>
+<p><img src="/imgs/blog/first-paint3.png" alt="first-paint3"></p>
+<p><center><code>First-Contentful-Paint</code>在 HTML 解析之后</center><br><br></p>
+<p>此时解析 Task 不被中断，渲染只能等到 HTML 解析完成之后再执行啦。</p>
+<h1 id="4-题外话"><a href="#4-题外话" class="headerlink" title="4. 题外话"></a>4. 题外话</h1><p>笔者弄清该问题，花了一两个小时，写这篇文章又花了仨小时，查了不少资料，还是小有收获的，比如骨架屏的原理就是在解析中断时提早渲染页面，顺带巩固了 eventloop 和浏览器渲染机制。在 sf 上看到了有人跟我有同样的问题：</p>
+<p><img src="/imgs/blog/first-paint5.png" alt="first-paint5"></p>
+<p>哇，遇到同样的探索者真难得！本是开心的准备迎接知识的海洋，然后：</p>
+<p><img src="/imgs/blog/first-paint6.png" alt="first-paint6"></p>
+<p><img src="/imgs/blog/first-paint8.png" alt="first-paint8"></p>
+<p><img src="/imgs/blog/first-paint9.png" alt="first-paint9"></p>
+<h1 id="5-参考资料"><a href="#5-参考资料" class="headerlink" title="5. 参考资料"></a>5. 参考资料</h1><ol>
+<li><a href="https://www.html5rocks.com/zh/tutorials/internals/howbrowserswork/" target="_blank" rel="external">浏览器的工作原理：新式网络浏览器幕后揭秘</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/PerformancePaintTiming" target="_blank" rel="external">PerformancePaintTiming - Web APIs | MDN</a></li>
+<li><a href="https://w3c.github.io/paint-timing/#mark-paint-timing" target="_blank" rel="external">Paint Timing 1 - Editor’s Draft, 24 January 2019</a></li>
+<li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#update-the-rendering" target="_blank" rel="external">update-the-rendering</a></li>
+<li><a href="https://www.404forest.com/2017/07/18/how-javascript-actually-works-eventloop-and-uirendering/">深入探究 eventloop 与浏览器渲染的时序问题</a></li>
+<li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" target="_blank" rel="external">concept-task</a></li>
+<li><a href="https://html.spec.whatwg.org/multipage/parsing.html#html-parser" target="_blank" rel="external">html-parser</a></li>
+<li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#spin-the-event-loop" target="_blank" rel="external">spin-the-event-loop</a></li>
+<li><a href="https://segmentfault.com/q/1010000008273871" target="_blank" rel="external">浏览器首次渲染页面的时间点是？</a></li>
+</ol>
+
+            
+                
+
+            
+        </div>
+    </div>
+    <div class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">TAGGED IN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-none-link" href="/tags/eventloop/" rel="tag">eventloop</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/first-paint/" rel="tag">first-paint</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/performance/" rel="tag">performance</a>
+
+            </div>
+        
+        <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2019/06/02/react-flow/"  data-tooltip="React flow：React 渲染流程图解">
+                
+                    <i class="fa fa-angle-left"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">PREVIOUS</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2019/03/20/vue-flow-vue-ecosystem-mechanism-diagram/" data-tooltip="Vue flow： Vue 生态工作机制图解">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">NEXT</span>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions"  href="#btn-open-shareoptions">
+                <i class="fa fa-share-alt"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://www.404forest.com/2019/04/23/when-does-the-browser-first-paint/">
+                <i class="fa fa-google-plus"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://www.404forest.com/2019/04/23/when-does-the-browser-first-paint/">
+                <i class="fa fa-facebook-official"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://www.404forest.com/2019/04/23/when-does-the-browser-first-paint/">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </li>
+        
+            <li class="post-action">
+                <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                    <i class="fa fa-comment-o"></i>
+                </a>
+            </li>
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#">
+            
+                <i class="fa fa-list"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+            <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2025 Jin. All Rights Reserved.
+    </span>
+    <a class="copyrights" target="_blank" rel="noopener" href="http://www.beian.miit.gov.cn/">
+        浙ICP备18012561号
+    </a>
+</footer>
+
+            </div>
+        </div>
+        <div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-remove"></i>
+        </div>
+        
+            <img id="about-card-picture" src="/assets/images/ava.png"/>
+        
+            <h4 id="about-card-name">Jin</h4>
+        
+            <h5 id="about-card-bio">Interested in Web Development/Typography/Japanese.</h5>
+        
+        
+            <h5 id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                WebDeveloper
+            </h5>
+        
+        
+            <h5 id="about-card-location">
+                <i class="fa fa-map-marker"></i>
+                <br/>
+                Beijing
+            </h5>
+        
+    </div>
+</div>
+
+        <div id="cover" style="background-image:url('/assets/images/bg4.jpg');"></div>
+    </body>
+    <!--SCRIPTS-->
+
+<script src="/assets/js/script.min.js"></script>
+
+<!--SCRIPTS END-->
+
+    <script type="text/javascript">
+        var disqus_shortname = '404forest';
+        (function() {
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+
+
+    <script type="text/javascript">
+        (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+                (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+            e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+        })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+        _st('install','ZkJM8hxyxxLens-VGG__','2.0.0');
+    </script>
+
+
+</html>

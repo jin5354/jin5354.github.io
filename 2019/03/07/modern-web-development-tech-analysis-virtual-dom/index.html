@@ -1,0 +1,431 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+    
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="404Forest">
+    <title>现代前端科技解析 —— Virtual DOM - 404Forest</title>
+    <meta name="author" content="Jin">
+    
+        <link rel="icon" href="/assets/images/favicon.ico">
+    
+    
+    <meta name="description" content="本文解析 Virtual DOM 在框架中的实际运用：如何构建一个 Virtual DOM，并基于其构建真实 DOM。当 Virtual DOM 结构发生改变时，如何进行 Diff，并更新真实 DOM。">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="现代前端科技解析 —— Virtual DOM">
+<meta property="og:url" content="http://www.404forest.com/2019/03/07/modern-web-development-tech-analysis-virtual-dom/index.html">
+<meta property="og:site_name" content="404Forest">
+<meta property="og:description" content="本文解析 Virtual DOM 在框架中的实际运用：如何构建一个 Virtual DOM，并基于其构建真实 DOM。当 Virtual DOM 结构发生改变时，如何进行 Diff，并更新真实 DOM。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/vdom1.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/vdom2.png">
+<meta property="article:published_time" content="2019-03-07T19:20:10.000Z">
+<meta property="article:modified_time" content="2025-02-04T23:02:44.260Z">
+<meta property="article:author" content="Jin">
+<meta property="article:tag" content="Modern web development tech analysis">
+<meta property="article:tag" content="现代前端科技解析">
+<meta property="article:tag" content="vue">
+<meta property="article:tag" content="ast">
+<meta property="article:tag" content="virtual dom">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://www.404forest.com/imgs/blog/vdom1.png">
+<meta name="twitter:creator" content="@jin5354">
+    
+    
+    
+        <meta property="og:image" content="/assets/images/ava.png"/>
+    
+    
+    
+    
+    <!--STYLES-->
+    
+<link rel="stylesheet" href="/assets/css/style.min.css">
+
+    <!--STYLES END-->
+    
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-66492678-1']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+
+</head>
+
+    <body>
+        <div id="blog">
+            <header id="header" data-behavior="3">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <h1 class="header-title">
+        <a class="header-title-link" href="/%20">404Forest</a>
+    </h1>
+    
+        <a class="header-right-picture" href="/#about">
+            <img class="header-picture" src="/assets/images/ava.png"/>
+        </a>
+    
+</header>
+            <nav id="sidebar" data-behavior="3">
+    
+        <div class="sidebar-profile">
+            <a href="/#about">
+                
+                    <img class="sidebar-profile-picture" src="/assets/images/ava.png"/>
+                
+            </a>
+            <span class="sidebar-profile-name">Jin</span>
+        </div>
+    
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/%20"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+                    <span class="sidebar-button-desc">Home</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-archives"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+                    <span class="sidebar-button-desc">Archive</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-categories"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+                    <span class="sidebar-button-desc">Categories</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-tags"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+                    <span class="sidebar-button-desc">Tags</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link st-search-show-outputs"
+                         href="#search"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-search"></i>
+                    <span class="sidebar-button-desc">Search</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="#about"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+                    <span class="sidebar-button-desc">About</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="https://github.com/jin5354" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+                    <span class="sidebar-button-desc">GitHub</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="mailto:xiaoyanjinx@gmail.com" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-envelope-o"></i>
+                    <span class="sidebar-button-desc">Mail</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+    <div style="margin-left: 27px;">
+        <a target="_blank" rel="noopener" href="https://github.com/jin5354/404forest"><img src="https://img.shields.io/github/stars/jin5354/404forest.svg?style=social&label=Stars"></a>
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="3"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title" itemprop="headline">
+            现代前端科技解析 —— Virtual DOM
+        </h1>
+    
+    <div class="post-meta">
+    <time itemprop="datePublished" content="Thu Mar 07 2019 11:20:10 GMT-0800">
+	
+		    3月 07, 2019
+    	
+    </time>
+    
+        <span>in </span>
+        
+    <a class="category-link" href="/categories/Code/">Code</a>
+
+
+    
+</div>
+</div>
+    
+    <div class="main-content-wrap" style="margin-top: 60px;">索引</div>
+    <ol class="main-content-wrap toc-article"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#1-Virtual-DOM-%E6%A6%82%E8%BF%B0"><span class="main-content-wrap toc-article-text">1. Virtual DOM 概述</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#2-Virtual-DOM-%E5%AE%9E%E7%8E%B0"><span class="main-content-wrap toc-article-text">2. Virtual DOM 实现</span></a><ol class="main-content-wrap toc-article-child"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#2-1-Virtual-DOM-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="main-content-wrap toc-article-text">2.1 Virtual DOM 数据结构</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#2-2-Virtual-DOM-%E7%94%9F%E6%88%90"><span class="main-content-wrap toc-article-text">2.2 Virtual DOM 生成</span></a><ol class="main-content-wrap toc-article-child"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#2-2-1-compileToFunction"><span class="main-content-wrap toc-article-text">2.2.1 compileToFunction</span></a></li></ol></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#2-3-%E5%88%9B%E5%BB%BA%E7%9C%9F%E5%AE%9E-DOM"><span class="main-content-wrap toc-article-text">2.3 创建真实 DOM</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#2-4-Diff-%E7%AE%97%E6%B3%95"><span class="main-content-wrap toc-article-text">2.4 Diff 算法</span></a></li></ol></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#3-%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="main-content-wrap toc-article-text">3.参考资料</span></a></li></ol>
+    <div class="post-content markdown" itemprop="articleBody">
+        <div class="main-content-wrap">
+            <p>本文解析 Virtual DOM 在框架中的实际运用：如何构建一个 Virtual DOM，并基于其构建真实 DOM。当 Virtual DOM 结构发生改变时，如何进行 Diff，并更新真实 DOM。</p>
+<a id="more"></a>
+<blockquote>
+<p>注：<br>原始链接: <a href="https://www.404forest.com/2019/03/07/modern-web-development-tech-analysis-virtual-dom/">https://www.404forest.com/2019/03/07/modern-web-development-tech-analysis-virtual-dom/</a><br>文章备份: <a href="https://github.com/jin5354/404forest/issues/71" target="_blank" rel="external">https://github.com/jin5354/404forest/issues/71</a></p>
+</blockquote>
+<h1 id="1-Virtual-DOM-概述"><a href="#1-Virtual-DOM-概述" class="headerlink" title="1. Virtual DOM 概述"></a>1. Virtual DOM 概述</h1><ul>
+<li>什么是 Virtual DOM？</li>
+</ul>
+<p>Virtual DOM 是一个 JavaScript 数据结构，可以描述真实 DOM 的组织结构。</p>
+<ul>
+<li>为什么我们需要 Virtual DOM？</li>
+</ul>
+<p>React 中没有数据响应式机制，数据更新后框架不知道具体哪里要做修改，而整个组件全部 DOM 重渲染性能又过差。于是提出了 Virtual DOM 概念，将真实 DOM 结构做一层抽象。数据更新时，React 对前后 Virtual DOM 树进行 Diff（创建 Virtual DOM 树成本可比创建真实 DOM 低的多！），准确找出要修改的部分，进行最小化的真实 DOM 修改，提升性能。</p>
+<p>然而 Vue 1.0 就实现了数据响应式机制，数据修改时能准确做到『指哪打哪』，只修改关联的 DOM，为什么在 2.0 中也拥抱了 Virtual DOM 呢？加了这样一个中间层必然有成本，带来了什么好处？</p>
+<ol>
+<li>HTML 模板的高度抽象。受限于 html 语法限制，我们难以复用 HTML 节点；而使用 Virtual DOM，我们能够用 JS 描述 DOM 节点，从而带来了复用 HTML 模板的能力，提高效率。</li>
+<li>剥离 HTML Parser，实现框架瘦身，提高运行效率。Vue 2.0 可以在编译时提前将 template 转换成 render 函数，对应使用 runtime 版本的包，这样做减小了 30% 的打包体积，同时将编译步骤提前，提高了运行时效率。</li>
+<li>跨平台。抽象出了 Virtual DOM 数据结构后，就可以适配 DOM 之外的渲染目标，如移动端（Weex）。</li>
+</ol>
+<h1 id="2-Virtual-DOM-实现"><a href="#2-Virtual-DOM-实现" class="headerlink" title="2. Virtual DOM 实现"></a>2. Virtual DOM 实现</h1><h2 id="2-1-Virtual-DOM-数据结构"><a href="#2-1-Virtual-DOM-数据结构" class="headerlink" title="2.1 Virtual DOM 数据结构"></a>2.1 Virtual DOM 数据结构</h2><p>本文实现的 Virtual DOM 参考 Vue，结构简化，如下：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">interface</span> VNode &#123;</div><div class="line">  <span class="keyword">type</span>?: <span class="string">'Element'</span> | <span class="string">'Text'</span> | <span class="string">'Comment'</span>,</div><div class="line">  tag?: <span class="built_in">string</span>,</div><div class="line">  data?: VNodeData,</div><div class="line">  children?: <span class="built_in">Array</span>&lt;VNode&gt;,</div><div class="line">  text?: <span class="built_in">string</span>,</div><div class="line">  elm?: Node  <span class="comment">// 对应的真实 DOM 节点</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">interface</span> VNodeData &#123;</div><div class="line">  key?: <span class="built_in">string</span>,</div><div class="line">  ref?: <span class="built_in">string</span>,</div><div class="line">  events?: &#123;</div><div class="line">    [key: <span class="built_in">string</span>]: <span class="built_in">any</span></div><div class="line">  &#125;,</div><div class="line">  attrs?: &#123;</div><div class="line">    [key: <span class="built_in">string</span>]: <span class="built_in">any</span></div><div class="line">  &#125;,</div><div class="line">  rawAttrs?: &#123;</div><div class="line">    [key: <span class="built_in">string</span>]: <span class="built_in">any</span></div><div class="line">  &#125;,</div><div class="line">  directives?: &#123;</div><div class="line">    [key: <span class="built_in">string</span>]: <span class="built_in">any</span></div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="2-2-Virtual-DOM-生成"><a href="#2-2-Virtual-DOM-生成" class="headerlink" title="2.2 Virtual DOM 生成"></a>2.2 Virtual DOM 生成</h2><p>Virtual DOM 从何而来？前一篇文章所讲的<a href="https://www.404forest.com/2019/03/05/modern-web-development-tech-analysis-html-parser/">现代前端科技解析 —— HTML Parser</a> 可以将 template 解析为 AST。但是 AST 中只是模板占位符，还需要结合真实数据才是最终结果。于是 Vue 将 template 解析成 AST 后，又将其转换为 render() 函数。将数据传参进去，生成实时的 Virtual DOM。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> ASTElement = parse(template)</div><div class="line"><span class="keyword">let</span> render = compileToFunction(ASTElement)</div><div class="line"><span class="keyword">let</span> vdom = render(data)</div></pre></td></tr></table></figure>
+<h3 id="2-2-1-compileToFunction"><a href="#2-2-1-compileToFunction" class="headerlink" title="2.2.1 compileToFunction"></a>2.2.1 compileToFunction</h3><p>如何将 AST 转换成 render 函数呢？我们看一个 jsx 转换的例子：</p>
+<p>转换前：<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">ul</span> <span class="attr">className</span>=<span class="string">”list”</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span>item 1<span class="tag">&lt;/<span class="name">li</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span>item 2<span class="tag">&lt;/<span class="name">li</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">ul</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>转换后：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">React.createElement(‘ul’, &#123; <span class="attr">className</span>: ‘list’ &#125;,</div><div class="line">  React.createElement(‘li’, &#123;&#125;, ‘item <span class="number">1</span>’),</div><div class="line">  React.createElement(‘li’, &#123;&#125;, ‘item <span class="number">2</span>’),</div><div class="line">)</div></pre></td></tr></table></figure></p>
+<p>简单来看，我们就是把每个 ASTElement 都替换成一个 <code>createElement</code> 函数。函数接收参数，返回 vdom 结果。我们首先实现几个 vdom 创建函数：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// VNode class</span></div><div class="line"><span class="keyword">export</span> <span class="keyword">class</span> VNode &#123;</div><div class="line">  <span class="keyword">type</span></div><div class="line">  tag</div><div class="line">  data</div><div class="line">  children</div><div class="line">  text</div><div class="line">  elm</div><div class="line"></div><div class="line">  <span class="keyword">constructor</span>(</div><div class="line">    type?: 'Element' | 'Text' | 'Comment',</div><div class="line">    tag?: string,</div><div class="line">    data?: VNodeData,</div><div class="line">    children?: Array&lt;VNode&gt;,</div><div class="line">    text?: string,</div><div class="line">    elm?: Node</div><div class="line">  ) &#123;</div><div class="line">    <span class="keyword">this</span>.type = <span class="keyword">type</span></div><div class="line">    <span class="keyword">this</span>.tag = tag</div><div class="line">    <span class="keyword">this</span>.data = data</div><div class="line">    <span class="keyword">this</span>.children = children</div><div class="line">    <span class="keyword">this</span>.text = text</div><div class="line">    <span class="keyword">this</span>.elm = elm</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 创建节点</span></div><div class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">createElementVNode</span>(<span class="params"><span class="keyword">type</span>, tag, data, children, text</span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> <span class="keyword">new</span> VNode(<span class="keyword">type</span>, tag, data, children, text)</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 创建注释节点</span></div><div class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">createCommentVNode</span>(<span class="params">str: <span class="built_in">string</span></span>) </span>&#123;</div><div class="line">  <span class="keyword">let</span> node = <span class="keyword">new</span> VNode(<span class="string">'Comment'</span>)</div><div class="line">  node.data = &#123;&#125;</div><div class="line">  node.text = str</div><div class="line">  <span class="keyword">return</span> node</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 创建空白注释节点</span></div><div class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">createEmptyVNode</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> createCommentVNode(<span class="string">''</span>)</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 创建文本节点</span></div><div class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">createTextVNode</span>(<span class="params">str: <span class="built_in">string</span></span>) </span>&#123;</div><div class="line">  <span class="keyword">let</span> node = <span class="keyword">new</span> VNode(<span class="string">'Text'</span>)</div><div class="line">  node.data = &#123;&#125;</div><div class="line">  node.text = str</div><div class="line">  <span class="keyword">return</span> node</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 为 vm 安装一些渲染用函数</span></div><div class="line"><span class="comment">// 为了显示 render 函数更方便，这里提供一些简写</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">installRenderHelpers</span>(<span class="params">vm</span>) </span>&#123;</div><div class="line">  vm._c = createElementVNode</div><div class="line">  vm._e = createEmptyVNode</div><div class="line">  vm._s = createTextVNode</div><div class="line">  vm._m = createCommentVNode</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>随后使用 <code>new Function</code> 生成 render 函数。具体思路就是递归，对每个 ASTElement 进行转换，转换为 <code>_c()</code> 这种创建 vdom 的函数调用。如果不了解 ASTElement 这个数据结构先读一下前文<a href="https://www.404forest.com/2019/03/05/modern-web-development-tech-analysis-html-parser/">现代前端科技解析 —— HTML Parser</a>哦。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> render = compileToFunctions(ASTElement)</div><div class="line"></div><div class="line"><span class="comment">// 将 ast 翻译为 render 函数</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">compileToFunctions</span>(<span class="params">ast: ASTElement</span>) </span>&#123;</div><div class="line"></div><div class="line">  <span class="keyword">let</span> code</div><div class="line">  <span class="keyword">if</span>(!ast) &#123;</div><div class="line">    <span class="comment">// 如果没传 ast，返回一个 空 div vdom</span></div><div class="line">    code = <span class="string">'_c("div")'</span></div><div class="line">  &#125;<span class="keyword">else</span> &#123;</div><div class="line">    code = genElement(ast)</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Function</span>(<span class="string">`with(this) &#123;</span></div><div class="line">    return <span class="subst">$&#123;code&#125;</span></div><div class="line">  &#125;`)</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 将 ASTElement 转换为 function code string</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">genElement</span>(<span class="params">el: ASTElement</span>): <span class="title">string</span> </span>&#123;</div><div class="line">  <span class="keyword">switch</span>(el.type) &#123;</div><div class="line">    <span class="keyword">case</span>(<span class="string">'Element'</span>): &#123;</div><div class="line">      <span class="comment">// 对于有 v-if 和 v-for 指令的元素，先处理 if 和 for 的逻辑</span></div><div class="line">      <span class="keyword">if</span>(el.data.directives.for &amp;&amp; !el.forProcessed) &#123;</div><div class="line">        <span class="keyword">return</span> genFor(el)</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">if</span>(el.data.directives.if &amp;&amp; !el.ifProcessed) &#123;</div><div class="line">        <span class="keyword">return</span> genIf(el)</div><div class="line">      &#125;<span class="keyword">else</span> &#123;</div><div class="line">        <span class="keyword">let</span> data = genData(el)</div><div class="line">        <span class="keyword">let</span> children = genChildren(el)</div><div class="line">        <span class="keyword">return</span> <span class="string">`_c('Element', '<span class="subst">$&#123;el.tag&#125;</span>', <span class="subst">$&#123;data&#125;</span>, <span class="subst">$&#123;children&#125;</span>)`</span></div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">case</span>(<span class="string">'Text'</span>): &#123;</div><div class="line">      <span class="keyword">return</span> genText(el.text)</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">case</span>(<span class="string">'Comment'</span>): &#123;</div><div class="line">      <span class="keyword">return</span> <span class="string">`_m(\`<span class="subst">$&#123;el.text&#125;</span>\`)`</span></div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 处理 v-if 指令，转换为三元操作符</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">genIf</span>(<span class="params">el: ASTElement</span>): <span class="title">string</span> </span>&#123;</div><div class="line">  el.ifProcessed = <span class="literal">true</span></div><div class="line">  <span class="keyword">return</span> <span class="string">`(<span class="subst">$&#123;el.data.directives.if&#125;</span>) ? <span class="subst">$&#123;genElement(el)&#125;</span> : _e()`</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 处理 v-for 指令，转换为 map 函数</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">genFor</span>(<span class="params">el: ASTElement</span>): <span class="title">string</span> </span>&#123;</div><div class="line">  el.forProcessed = <span class="literal">true</span></div><div class="line">  <span class="keyword">let</span> result = el.data.directives.for.match(<span class="regexp">/(\w+)\sin\s(\w+)/</span>)</div><div class="line">  <span class="keyword">let</span> iterator = result[<span class="number">1</span>]</div><div class="line">  <span class="keyword">let</span> data = result[<span class="number">2</span>]</div><div class="line">  <span class="keyword">return</span> <span class="string">`...(() =&gt; &#123;</span></div><div class="line">    return <span class="subst">$&#123;data&#125;</span>.map(<span class="subst">$&#123;iterator&#125;</span> =&gt; &#123;</div><div class="line">      return <span class="subst">$&#123;genElement(el)&#125;</span></div><div class="line">    &#125;)</div><div class="line">  &#125;)()`</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 更多具体见 https://github.com/jin5354/mini-vue/blob/master/src/Compile.ts</span></div></pre></td></tr></table></figure>
+<p>此处加入了一些对 <code>v-if</code>, <code>v-for</code> 等指令的处理。理解起来比较容易，对于 <code>v-if</code> 的 dom，转换为三元表达式；对于 <code>v-for</code> 的 dom，转换为一个 map 函数。</p>
+<p>实例：</p>
+<p>转换前：<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"container"</span>&gt;</span></div><div class="line">  <span class="comment">&lt;!-- test --&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">button</span> <span class="attr">v-on:click</span>=<span class="string">"clickHandler"</span>&gt;</span>click me<span class="tag">&lt;/<span class="name">button</span>&gt;</span></div><div class="line">   <span class="tag">&lt;<span class="name">ul</span> <span class="attr">:class</span>=<span class="string">"testClass"</span> <span class="attr">v-if</span>=<span class="string">"show"</span>&gt;</span></div><div class="line">     <span class="tag">&lt;<span class="name">li</span> <span class="attr">v-for</span>=<span class="string">"city in arr"</span> &gt;</span>&#123;&#123;city&#125;&#125;<span class="tag">&lt;/<span class="name">li</span>&gt;</span></div><div class="line">   <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></div><div class="line"> <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>转换后：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">render</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="keyword">with</span>(<span class="keyword">this</span>) &#123;</div><div class="line">    <span class="keyword">return</span> _c(<span class="string">'Element'</span>, <span class="string">'div'</span>, &#123;<span class="attr">attrs</span>: &#123;<span class="attr">class</span>: <span class="string">'container'</span>,&#125;,<span class="attr">events</span>: &#123;&#125;,&#125;, [</div><div class="line">      _s(<span class="string">`</span></div><div class="line">      `),</div><div class="line">      _m(<span class="string">` test `</span>),</div><div class="line">      _s(<span class="string">`</span></div><div class="line">      `),</div><div class="line">      _c(<span class="string">'Element'</span>, <span class="string">'button'</span>, &#123;<span class="attr">attrs</span>: &#123;&#125;,<span class="attr">events</span>: &#123;<span class="attr">click</span>: clickHandler&#125;,&#125;, [</div><div class="line">        _s(<span class="string">`click me`</span>)</div><div class="line">      ]),</div><div class="line">      _s(<span class="string">`</span></div><div class="line">      `),</div><div class="line">      <span class="comment">// v-if</span></div><div class="line">      (show) ? _c(<span class="string">'Element'</span>, <span class="string">'ul'</span>, &#123;<span class="attr">attrs</span>: &#123;<span class="attr">class</span>: testClass,&#125;,<span class="attr">events</span>: &#123;&#125;,&#125;, [</div><div class="line">        _s(<span class="string">`</span></div><div class="line">        `),</div><div class="line">        <span class="comment">// v-for</span></div><div class="line">        ...(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">          <span class="keyword">return</span> arr.map(<span class="function"><span class="params">city</span> =&gt;</span> &#123;</div><div class="line">            <span class="keyword">return</span> _c(<span class="string">'Element'</span>, <span class="string">'li'</span>, &#123;<span class="attr">attrs</span>: &#123;&#125;,<span class="attr">events</span>: &#123;&#125;,&#125;, [_s(city)])</div><div class="line">          &#125;)</div><div class="line">        &#125;)(),</div><div class="line">        _s(<span class="string">`</span></div><div class="line">      `)]) : _e(),_s(<span class="string">`</span></div><div class="line">      `)</div><div class="line">    ])</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这样就完成了 render 函数的转换。如果对 Vue 中更详实的 <code>compileToFunctions</code> 函数感兴趣，可以查阅源码中的 <a href="https://github.com/vuejs/vue/blob/52719ccab8fccffbdf497b96d3731dc86f04c1ce/src/compiler/codegen/index.js" target="_blank" rel="external">CodeGen 部分</a>。</p>
+<h2 id="2-3-创建真实-DOM"><a href="#2-3-创建真实-DOM" class="headerlink" title="2.3 创建真实 DOM"></a>2.3 创建真实 DOM</h2><p>执行编译好的 render 函数，就可以获得 Virtual DOM。基于 Virtual DOM 生成真实 DOM，不难，主要还是深度遍历。核心代码：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 根据 VNode 创建真实 dom，并附着在 VNode.elm 属性上</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">createDOM</span>(<span class="params">node: VNode</span>) </span>&#123;</div><div class="line">  <span class="keyword">let</span> $node: Node</div><div class="line">  <span class="keyword">if</span>(node.type === <span class="string">'Element'</span>) &#123;</div><div class="line">    $node = <span class="built_in">document</span>.createElement(node.tag)</div><div class="line">    node.children.forEach(e =&gt; &#123;</div><div class="line">      $node.appendChild(createDOM(e))</div><div class="line">    &#125;)</div><div class="line">    updateProps($node, node.data.attrs, &#123;&#125;)</div><div class="line">    updateEvents($node, node.data.events, &#123;&#125;)</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">if</span>(node.type === <span class="string">'Text'</span>) &#123;</div><div class="line">    $node = <span class="built_in">document</span>.createTextNode(node.text)</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">if</span>(node.type === <span class="string">'Comment'</span>) &#123;</div><div class="line">    $node = <span class="built_in">document</span>.createComment(node.text)</div><div class="line">  &#125;</div><div class="line">  node.elm = $node</div><div class="line">  <span class="keyword">return</span> $node</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>对 Virtual DOM 根节点调用 createDOM 方法之后，就获得的真实 DOM appendChild 即可。</p>
+<h2 id="2-4-Diff-算法"><a href="#2-4-Diff-算法" class="headerlink" title="2.4 Diff 算法"></a>2.4 Diff 算法</h2><p>Vue 中的 Virtual DOM 算法是基于 <a href="https://github.com/snabbdom/snabbdom" target="_blank" rel="external">snabbdom</a> 的一个轻量实现。diff 只在同层级之间进行比较，网上解读 diff 的文章已经足够多了，这里限于篇幅也不再贴出代码，diff 核心代码 100 行左右即可搞定，有兴趣可以看<a href="https://github.com/jin5354/mini-vue/blob/master/src/vdom.ts" target="_blank" rel="external">我自己实现的版本</a>。由于 Virtual DOM 对应的真实 DOM 节点已经挂在自己的 elm 属性下面，边遍历就可以边进行真实 DOM 的修改。</p>
+<p>diff 思路如下：</p>
+<p><img src="/imgs/blog/vdom1.png" alt="vdom1"></p>
+<p>几种常见情况的 diff 过程：</p>
+<p><img src="/imgs/blog/vdom2.png" alt="vdom2"></p>
+<p>Vue 中的 diff 源码可见 <a href="https://github.com/vuejs/vue/blob/6fe07ebf5ab3fea1860c59fe7cdd2ec1b760f9b0/src/core/vdom/patch.js" target="_blank" rel="external">patch 部分</a>，思路是一致的。</p>
+<h1 id="3-参考资料"><a href="#3-参考资料" class="headerlink" title="3.参考资料"></a>3.参考资料</h1><ol>
+<li><a href="https://zhuanlan.zhihu.com/p/23752826" target="_blank" rel="external">Vue 的理念问题</a></li>
+<li><a href="https://github.com/vuejs/vue/blob/52719ccab8fccffbdf497b96d3731dc86f04c1ce/src/compiler/codegen/index.js" target="_blank" rel="external">Vue CodeGen</a></li>
+<li><a href="https://github.com/vuejs/vue/blob/6fe07ebf5ab3fea1860c59fe7cdd2ec1b760f9b0/src/core/vdom/patch.js" target="_blank" rel="external">Vue patch</a></li>
+<li><a href="https://github.com/snabbdom/snabbdom" target="_blank" rel="external">snabbdom</a></li>
+<li><a href="https://github.com/aooy/blog/issues/2" target="_blank" rel="external">解析vue2.0的diff算法</a></li>
+</ol>
+
+            
+                
+
+            
+        </div>
+    </div>
+    <div class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">TAGGED IN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-none-link" href="/tags/Modern-web-development-tech-analysis/" rel="tag">Modern web development tech analysis</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/ast/" rel="tag">ast</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/virtual-dom/" rel="tag">virtual dom</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/vue/" rel="tag">vue</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/%E7%8E%B0%E4%BB%A3%E5%89%8D%E7%AB%AF%E7%A7%91%E6%8A%80%E8%A7%A3%E6%9E%90/" rel="tag">现代前端科技解析</a>
+
+            </div>
+        
+        <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2019/03/20/vue-flow-vue-ecosystem-mechanism-diagram/"  data-tooltip="Vue flow： Vue 生态工作机制图解">
+                
+                    <i class="fa fa-angle-left"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">PREVIOUS</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2019/03/05/modern-web-development-tech-analysis-html-parser/" data-tooltip="现代前端科技解析 —— HTML Parser">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">NEXT</span>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions"  href="#btn-open-shareoptions">
+                <i class="fa fa-share-alt"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://www.404forest.com/2019/03/07/modern-web-development-tech-analysis-virtual-dom/">
+                <i class="fa fa-google-plus"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://www.404forest.com/2019/03/07/modern-web-development-tech-analysis-virtual-dom/">
+                <i class="fa fa-facebook-official"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://www.404forest.com/2019/03/07/modern-web-development-tech-analysis-virtual-dom/">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </li>
+        
+            <li class="post-action">
+                <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                    <i class="fa fa-comment-o"></i>
+                </a>
+            </li>
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#">
+            
+                <i class="fa fa-list"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+            <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2025 Jin. All Rights Reserved.
+    </span>
+    <a class="copyrights" target="_blank" rel="noopener" href="http://www.beian.miit.gov.cn/">
+        浙ICP备18012561号
+    </a>
+</footer>
+
+            </div>
+        </div>
+        <div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-remove"></i>
+        </div>
+        
+            <img id="about-card-picture" src="/assets/images/ava.png"/>
+        
+            <h4 id="about-card-name">Jin</h4>
+        
+            <h5 id="about-card-bio">Interested in Web Development/Typography/Japanese.</h5>
+        
+        
+            <h5 id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                WebDeveloper
+            </h5>
+        
+        
+            <h5 id="about-card-location">
+                <i class="fa fa-map-marker"></i>
+                <br/>
+                Beijing
+            </h5>
+        
+    </div>
+</div>
+
+        <div id="cover" style="background-image:url('/assets/images/bg4.jpg');"></div>
+    </body>
+    <!--SCRIPTS-->
+
+<script src="/assets/js/script.min.js"></script>
+
+<!--SCRIPTS END-->
+
+    <script type="text/javascript">
+        var disqus_shortname = '404forest';
+        (function() {
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+
+
+    <script type="text/javascript">
+        (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+                (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+            e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+        })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+        _st('install','ZkJM8hxyxxLens-VGG__','2.0.0');
+    </script>
+
+
+</html>

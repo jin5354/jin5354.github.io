@@ -1,0 +1,444 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+    
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="404Forest">
+    <title>常见知识点汇总（一）：DOM结构与DOM操作 - 404Forest</title>
+    <meta name="author" content="Jin">
+    
+        <link rel="icon" href="/assets/images/favicon.ico">
+    
+    
+    <meta name="description" content="节点关系：">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="常见知识点汇总（一）：DOM结构与DOM操作">
+<meta property="og:url" content="http://www.404forest.com/2014/12/08/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E6%B1%87%E6%80%BB%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9ADOM%E7%BB%93%E6%9E%84%E4%B8%8EDOM%E6%93%8D%E4%BD%9C/index.html">
+<meta property="og:site_name" content="404Forest">
+<meta property="og:description" content="节点关系：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/qiniu/node-relationship.png">
+<meta property="article:published_time" content="2014-12-09T07:58:41.000Z">
+<meta property="article:modified_time" content="2025-02-04T23:02:44.266Z">
+<meta property="article:author" content="Jin">
+<meta property="article:tag" content="Javascript">
+<meta property="article:tag" content="Front-end-Developer-Interview-Questions">
+<meta property="article:tag" content="常见知识点汇总">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://www.404forest.com/imgs/blog/qiniu/node-relationship.png">
+<meta name="twitter:creator" content="@jin5354">
+    
+    
+    
+        <meta property="og:image" content="/assets/images/ava.png"/>
+    
+    
+    
+    
+    <!--STYLES-->
+    
+<link rel="stylesheet" href="/assets/css/style.min.css">
+
+    <!--STYLES END-->
+    
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-66492678-1']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+
+</head>
+
+    <body>
+        <div id="blog">
+            <header id="header" data-behavior="3">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <h1 class="header-title">
+        <a class="header-title-link" href="/%20">404Forest</a>
+    </h1>
+    
+        <a class="header-right-picture" href="/#about">
+            <img class="header-picture" src="/assets/images/ava.png"/>
+        </a>
+    
+</header>
+            <nav id="sidebar" data-behavior="3">
+    
+        <div class="sidebar-profile">
+            <a href="/#about">
+                
+                    <img class="sidebar-profile-picture" src="/assets/images/ava.png"/>
+                
+            </a>
+            <span class="sidebar-profile-name">Jin</span>
+        </div>
+    
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/%20"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+                    <span class="sidebar-button-desc">Home</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-archives"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+                    <span class="sidebar-button-desc">Archive</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-categories"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+                    <span class="sidebar-button-desc">Categories</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-tags"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+                    <span class="sidebar-button-desc">Tags</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link st-search-show-outputs"
+                         href="#search"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-search"></i>
+                    <span class="sidebar-button-desc">Search</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="#about"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+                    <span class="sidebar-button-desc">About</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="https://github.com/jin5354" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+                    <span class="sidebar-button-desc">GitHub</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="mailto:xiaoyanjinx@gmail.com" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-envelope-o"></i>
+                    <span class="sidebar-button-desc">Mail</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+    <div style="margin-left: 27px;">
+        <a target="_blank" rel="noopener" href="https://github.com/jin5354/404forest"><img src="https://img.shields.io/github/stars/jin5354/404forest.svg?style=social&label=Stars"></a>
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="3"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title" itemprop="headline">
+            常见知识点汇总（一）：DOM结构与DOM操作
+        </h1>
+    
+    <div class="post-meta">
+    <time itemprop="datePublished" content="Mon Dec 08 2014 23:58:41 GMT-0800">
+	
+		    12月 08, 2014
+    	
+    </time>
+    
+        <span>in </span>
+        
+    <a class="category-link" href="/categories/Code/">Code</a>
+
+
+    
+</div>
+</div>
+    
+    <div class="main-content-wrap" style="margin-top: 60px;">索引</div>
+    <ol class="main-content-wrap toc-article"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-5"><a class="main-content-wrap toc-article-link" href="#%E8%8A%82%E7%82%B9%E5%85%B3%E7%B3%BB%EF%BC%9A"><span class="main-content-wrap toc-article-text">节点关系：</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-5"><a class="main-content-wrap toc-article-link" href="#%E8%8A%82%E7%82%B9%E7%A7%BB%E5%8A%A8"><span class="main-content-wrap toc-article-text">节点移动</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-5"><a class="main-content-wrap toc-article-link" href="#%E8%8A%82%E7%82%B9%E6%93%8D%E4%BD%9C"><span class="main-content-wrap toc-article-text">节点操作</span></a><ol class="main-content-wrap toc-article-child"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-6"><a class="main-content-wrap toc-article-link" href="#%E5%88%9B%E5%BB%BA"><span class="main-content-wrap toc-article-text">创建</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-6"><a class="main-content-wrap toc-article-link" href="#%E5%88%A0%E9%99%A4%E8%8A%82%E7%82%B9"><span class="main-content-wrap toc-article-text">删除节点</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-6"><a class="main-content-wrap toc-article-link" href="#%E6%B7%BB%E5%8A%A0%E8%8A%82%E7%82%B9"><span class="main-content-wrap toc-article-text">添加节点</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-6"><a class="main-content-wrap toc-article-link" href="#%E6%9B%BF%E6%8D%A2%E8%8A%82%E7%82%B9"><span class="main-content-wrap toc-article-text">替换节点</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-6"><a class="main-content-wrap toc-article-link" href="#%E7%A7%BB%E9%99%A4%E8%8A%82%E7%82%B9"><span class="main-content-wrap toc-article-text">移除节点</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-6"><a class="main-content-wrap toc-article-link" href="#%E5%85%8B%E9%9A%86%E8%8A%82%E7%82%B9"><span class="main-content-wrap toc-article-text">克隆节点</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-6"><a class="main-content-wrap toc-article-link" href="#%E6%9F%A5%E6%89%BE%E8%8A%82%E7%82%B9"><span class="main-content-wrap toc-article-text">查找节点</span></a></li></ol></li></ol>
+    <div class="post-content markdown" itemprop="articleBody">
+        <div class="main-content-wrap">
+            <h5 id="节点关系："><a href="#节点关系：" class="headerlink" title="节点关系："></a>节点关系：</h5><a id="more"></a>
+<p><img src="/imgs/blog/qiniu/node-relationship.png" alt="node-relationship"></p>
+<p>节点关系可用上图概括。</p>
+<hr>
+<h5 id="节点移动"><a href="#节点移动" class="headerlink" title="节点移动"></a>节点移动</h5><p>由图知常见的移动方式：</p>
+<ul>
+<li>someNode.parentNode    <em>//移动至父节点</em></li>
+<li>someNode.firstChild    <em>//移动至第一个子节点</em></li>
+<li>someNode.lastChild    <em>//移动至最后一个子节点</em></li>
+<li>someNode.childNodes[x]    <em>//移动至第x+1个子节点</em></li>
+<li>someNode.nextSibling    <em>//移动至下一个兄弟节点</em></li>
+<li>someNode.previousSibling    <em>//移动至上一个兄弟节点</em></li>
+</ul>
+<p>每个节点都有一个名为childNodes的属性，其中保存着一个NodeList对象。访问保存在其中的节点可以通过方括号或者item()来表示。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> firstChild = someNode.childNodes[<span class="number">0</span>];</div><div class="line"><span class="keyword">var</span> firstChild = someNode.childNodes.item(<span class="number">0</span>);</div></pre></td></tr></table></figure>
+<p><strong>关于NodeList</strong></p>
+<blockquote>
+<p>NodeList是一种类数组对象，可以保存一组有序的节点。虽然其可以使用方括号语法来访问，并且这个对象也有length属性，但并不是Array的示例。NodeList是基于DOM结构动态执行查询的结果，能够自动反映DOM结构变化并实时更新，而不是在第一次访问它的某个瞬间拍摄下来的一张快照。</p>
+<blockquote>
+<p>使用Array.prototype.slice()方法可以将NodeList及arguments转换为数组。</p>
+</blockquote>
+</blockquote>
+<p><strong>关于子节点</strong></p>
+<p>元素的childNodes属性中包含了它的所有子节点，子节点包括元素、文本节点、注释或处理指令等等，不同浏览器在看待这些节点方面存在显著不同。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&lt;ul id="testlist"&gt;</div><div class="line">	&lt;li&gt;LI1&lt;/li&gt;</div><div class="line">	&lt;li&gt;LI2&lt;/li&gt;</div><div class="line">&lt;/ul&gt;</div></pre></td></tr></table></figure>
+<p>若代码为上，在IE中，ul元素有2个子节点，分别为两个li元素；在其他浏览器中，ul元素有5个子节点，包括2个li元素和3个文本节点（表示li元素间的空白符。）</p>
+<p>示例：</p>
+<pre>
+<ul id="testlist">
+<li>LI1</li>
+<li>LI2</li>
+</ul>
+<button onclick="alert(getElementById('testlist').childNodes.length)">number of ul's childNodes</button>
+</pre>
+
+
+<p>如果像下面这样去除空白符：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;ul id=<span class="string">"testlist"</span>&gt;<span class="xml"><span class="tag">&lt;<span class="name">li</span>&gt;</span>LI1<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><span class="xml"><span class="tag">&lt;<span class="name">li</span>&gt;</span>LI2<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><span class="xml"><span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span></div></pre></td></tr></table></figure>
+<p>那么在所有浏览器中都会有相同的结果：ul元素有2个子节点，分别为2个li元素。</p>
+<p>示例：</p>
+<pre>
+<ul id="testlist2"><li>LI1</li><li>LI2</li></ul>
+<button onclick="alert(getElementById('testlist2').childNodes.length)">number of ul's childNodes</button>
+</pre>
+
+
+<h5 id="节点操作"><a href="#节点操作" class="headerlink" title="节点操作"></a>节点操作</h5><h6 id="创建"><a href="#创建" class="headerlink" title="创建"></a>创建</h6><p><strong>创建元素节点</strong><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> div = <span class="built_in">document</span>.createElement(<span class="string">"div"</span>);</div></pre></td></tr></table></figure></p>
+<p>在IE中，可以传入完整元素标签来创建：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> div = <span class="built_in">document</span>.createElement(<span class="string">"&lt;div id=\"NewDiv\" class=\"box\"&gt;&lt;/div&gt;"</span>);</div></pre></td></tr></table></figure></p>
+<p><strong>创建文本节点</strong><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> textNode = <span class="built_in">document</span>.createTextNode(<span class="string">"&lt;strong&gt;Hello&lt;/strong&gt; world!"</span>);</div></pre></td></tr></table></figure></p>
+<p>一般情况下每个元素只有一个文本子节点，但是可以为其添加多个，如果两个文本节点是相邻的同胞节点，那么这两个节点中的文本就会连起来显示。中间不会有空格。</p>
+<p><strong>创建注释节点</strong><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> comment = <span class="built_in">document</span>.createComment(<span class="string">"A comment"</span>);</div></pre></td></tr></table></figure></p>
+<p>浏览器不会识别位于标签之后的注释，所以如果要访问注释节点，一定要保证其为<html>元素的后代（即位于<html>和</html>之间）。</html></p>
+<p><strong>创建文档片段节点</strong><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> fragment = <span class="built_in">document</span>.createDocumentFragment();</div></pre></td></tr></table></figure></p>
+<p><strong>创建特性节点</strong><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> attr = <span class="built_in">document</span>.createAttribute(<span class="string">"align"</span>);</div></pre></td></tr></table></figure></p>
+<p>特性节点不被认为是文档树的部分。相比直接引用特性节点，getAttribute()、setAttribute()、removeAttribute()方法更为常用。</p>
+<h6 id="删除节点"><a href="#删除节点" class="headerlink" title="删除节点"></a>删除节点</h6><p><strong>删除元素节点</strong><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">document</span>.body.removeChild(thisDiv);</div></pre></td></tr></table></figure></p>
+<p><strong>删除特性节点</strong><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">thisDIV.removeAttribute(<span class="string">'color'</span>);</div><div class="line">thisDIV.removeAttributeNode(color);</div></pre></td></tr></table></figure></p>
+<h6 id="添加节点"><a href="#添加节点" class="headerlink" title="添加节点"></a>添加节点</h6><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> returnNode = someNode.appendChild(newNode);</div></pre></td></tr></table></figure>
+<p>appendChild()用于向<strong>childNodes列表的末尾</strong>添加一个节点。更新完成之后，appendChild()会返回新增的节点。<br>若传入appendChild()中的节点已经是文档的一部分，那么结果则是将该节点从原来的位置转移到新位置上。</p>
+<p>如果要将节点插入至childNodes列表中某特定位置，可以使用：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">insertBefore(要插入的节点,作为参照的节点);</div></pre></td></tr></table></figure></p>
+<h6 id="替换节点"><a href="#替换节点" class="headerlink" title="替换节点"></a>替换节点</h6><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">replaceChild(要插入的节点，要替换的节点);</div></pre></td></tr></table></figure>
+<h6 id="移除节点"><a href="#移除节点" class="headerlink" title="移除节点"></a>移除节点</h6><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">removeChild(要移除的节点);</div></pre></td></tr></table></figure>
+<h6 id="克隆节点"><a href="#克隆节点" class="headerlink" title="克隆节点"></a>克隆节点</h6><p>cloneNode()用于创建调用这个方法的节点的另一个完全相同的副本。它接受一个布尔值参数，在参数为true时，执行深复制，复制节点及整个子节点树；在参数为false时，执行浅复制，只复制节点本身。复制后的节点副本属于文档所有，为孤儿状态。<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> deepList = myList.cloneNode(<span class="literal">true</span>);</div><div class="line"><span class="keyword">var</span> shallowList = myList.cloneNode(<span class="literal">false</span>);</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p>cloneNode()方法不会复制添加到DOM节点中的Javascript属性，例如事件处理程序等。</p>
+</blockquote>
+<h6 id="查找节点"><a href="#查找节点" class="headerlink" title="查找节点"></a>查找节点</h6><p>getElementsByTagName()：返回带有指定标签名的对象的集合。<br>getElementsByName()：返回带有指定名称的对象的集合。<br>getElementById() ：返回对拥有指定 ID 的第一个对象的引用。<br>getElementsByClassName()：返回带有指定类名的对象的集合。（HTML5新增）</p>
+
+            
+                
+
+            
+        </div>
+    </div>
+    <div class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">TAGGED IN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-none-link" href="/tags/Front-end-Developer-Interview-Questions/" rel="tag">Front-end-Developer-Interview-Questions</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/Javascript/" rel="tag">Javascript</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E6%B1%87%E6%80%BB/" rel="tag">常见知识点汇总</a>
+
+            </div>
+        
+        <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2014/12/17/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E6%B1%87%E6%80%BB%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E4%BA%8B%E4%BB%B6/"  data-tooltip="常见知识点汇总（二）：事件">
+                
+                    <i class="fa fa-angle-left"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">PREVIOUS</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2014/12/04/%E4%BD%BF%E7%94%A8hexo/" data-tooltip="使用hexo">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">NEXT</span>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions"  href="#btn-open-shareoptions">
+                <i class="fa fa-share-alt"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://www.404forest.com/2014/12/08/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E6%B1%87%E6%80%BB%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9ADOM%E7%BB%93%E6%9E%84%E4%B8%8EDOM%E6%93%8D%E4%BD%9C/">
+                <i class="fa fa-google-plus"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://www.404forest.com/2014/12/08/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E6%B1%87%E6%80%BB%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9ADOM%E7%BB%93%E6%9E%84%E4%B8%8EDOM%E6%93%8D%E4%BD%9C/">
+                <i class="fa fa-facebook-official"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://www.404forest.com/2014/12/08/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E6%B1%87%E6%80%BB%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9ADOM%E7%BB%93%E6%9E%84%E4%B8%8EDOM%E6%93%8D%E4%BD%9C/">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </li>
+        
+            <li class="post-action">
+                <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                    <i class="fa fa-comment-o"></i>
+                </a>
+            </li>
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#">
+            
+                <i class="fa fa-list"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+            <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2025 Jin. All Rights Reserved.
+    </span>
+    <a class="copyrights" target="_blank" rel="noopener" href="http://www.beian.miit.gov.cn/">
+        浙ICP备18012561号
+    </a>
+</footer>
+
+            </div>
+        </div>
+        <div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-remove"></i>
+        </div>
+        
+            <img id="about-card-picture" src="/assets/images/ava.png"/>
+        
+            <h4 id="about-card-name">Jin</h4>
+        
+            <h5 id="about-card-bio">Interested in Web Development/Typography/Japanese.</h5>
+        
+        
+            <h5 id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                WebDeveloper
+            </h5>
+        
+        
+            <h5 id="about-card-location">
+                <i class="fa fa-map-marker"></i>
+                <br/>
+                Beijing
+            </h5>
+        
+    </div>
+</div>
+
+        <div id="cover" style="background-image:url('/assets/images/bg4.jpg');"></div>
+    </body>
+    <!--SCRIPTS-->
+
+<script src="/assets/js/script.min.js"></script>
+
+<!--SCRIPTS END-->
+
+    <script type="text/javascript">
+        var disqus_shortname = '404forest';
+        (function() {
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+
+
+    <script type="text/javascript">
+        (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+                (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+            e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+        })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+        _st('install','ZkJM8hxyxxLens-VGG__','2.0.0');
+    </script>
+
+
+</html>

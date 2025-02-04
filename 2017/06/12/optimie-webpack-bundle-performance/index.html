@@ -1,0 +1,480 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+    
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="404Forest">
+    <title>Webpack 构建性能优化实践 - 404Forest</title>
+    <meta name="author" content="Jin">
+    
+        <link rel="icon" href="/assets/images/favicon.ico">
+    
+    
+    <meta name="description" content="随着项目体积膨胀，webpack 构建时间越来越长。webpack 构建属于高频需求，每天耗费大量时间干等着是很难受的——于是有了本文，探讨如何加速 webpack 构建。">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="Webpack 构建性能优化实践">
+<meta property="og:url" content="http://www.404forest.com/2017/06/12/optimie-webpack-bundle-performance/index.html">
+<meta property="og:site_name" content="404Forest">
+<meta property="og:description" content="随着项目体积膨胀，webpack 构建时间越来越长。webpack 构建属于高频需求，每天耗费大量时间干等着是很难受的——于是有了本文，探讨如何加速 webpack 构建。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/optimie-webpack-bundle-performance-1.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/optimie-webpack-bundle-performance-2.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/optimie-webpack-bundle-performance-3.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/optimie-webpack-bundle-performance-4.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/optimie-webpack-bundle-performance-5.png">
+<meta property="article:published_time" content="2017-06-12T20:29:11.000Z">
+<meta property="article:modified_time" content="2025-02-04T23:02:44.260Z">
+<meta property="article:author" content="Jin">
+<meta property="article:tag" content="webpack">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://www.404forest.com/imgs/blog/optimie-webpack-bundle-performance-1.png">
+<meta name="twitter:creator" content="@jin5354">
+    
+    
+    
+        <meta property="og:image" content="/assets/images/ava.png"/>
+    
+    
+    
+    
+    <!--STYLES-->
+    
+<link rel="stylesheet" href="/assets/css/style.min.css">
+
+    <!--STYLES END-->
+    
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-66492678-1']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+
+</head>
+
+    <body>
+        <div id="blog">
+            <header id="header" data-behavior="3">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <h1 class="header-title">
+        <a class="header-title-link" href="/%20">404Forest</a>
+    </h1>
+    
+        <a class="header-right-picture" href="/#about">
+            <img class="header-picture" src="/assets/images/ava.png"/>
+        </a>
+    
+</header>
+            <nav id="sidebar" data-behavior="3">
+    
+        <div class="sidebar-profile">
+            <a href="/#about">
+                
+                    <img class="sidebar-profile-picture" src="/assets/images/ava.png"/>
+                
+            </a>
+            <span class="sidebar-profile-name">Jin</span>
+        </div>
+    
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/%20"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+                    <span class="sidebar-button-desc">Home</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-archives"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+                    <span class="sidebar-button-desc">Archive</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-categories"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+                    <span class="sidebar-button-desc">Categories</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-tags"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+                    <span class="sidebar-button-desc">Tags</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link st-search-show-outputs"
+                         href="#search"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-search"></i>
+                    <span class="sidebar-button-desc">Search</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="#about"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+                    <span class="sidebar-button-desc">About</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="https://github.com/jin5354" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+                    <span class="sidebar-button-desc">GitHub</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="mailto:xiaoyanjinx@gmail.com" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-envelope-o"></i>
+                    <span class="sidebar-button-desc">Mail</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+    <div style="margin-left: 27px;">
+        <a target="_blank" rel="noopener" href="https://github.com/jin5354/404forest"><img src="https://img.shields.io/github/stars/jin5354/404forest.svg?style=social&label=Stars"></a>
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="3"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title" itemprop="headline">
+            Webpack 构建性能优化实践
+        </h1>
+    
+    <div class="post-meta">
+    <time itemprop="datePublished" content="Mon Jun 12 2017 13:29:11 GMT-0700">
+	
+		    6月 12, 2017
+    	
+    </time>
+    
+        <span>in </span>
+        
+    <a class="category-link" href="/categories/Code/">Code</a>
+
+
+    
+</div>
+</div>
+    
+    <div class="main-content-wrap" style="margin-top: 60px;">索引</div>
+    <ol class="main-content-wrap toc-article"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#1-%E4%BD%BF%E7%94%A8-visualizer-%E8%BF%BD%E8%B8%AA%E4%B8%8E%E7%B2%BE%E7%AE%80%E9%A1%B9%E7%9B%AE%E4%BE%9D%E8%B5%96"><span class="main-content-wrap toc-article-text">1. 使用 visualizer 追踪与精简项目依赖</span></a><ol class="main-content-wrap toc-article-child"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#1-1-%E8%BE%93%E5%87%BA-stats-json"><span class="main-content-wrap toc-article-text">1.1 输出 stats.json</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#1-2-%E5%B0%86-stats-json-%E5%AF%BC%E5%85%A5-visualizer"><span class="main-content-wrap toc-article-text">1.2 将 stats.json 导入 visualizer</span></a></li></ol></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#2-%E5%8D%87%E7%BA%A7%E7%8E%AF%E5%A2%83"><span class="main-content-wrap toc-article-text">2. 升级环境</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#3-%E6%8F%90%E9%80%9F-Webpack-%E6%9E%84%E5%BB%BA"><span class="main-content-wrap toc-article-text">3. 提速 Webpack 构建</span></a><ol class="main-content-wrap toc-article-child"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#3-1-%E6%9F%A5%E7%9C%8B-Webpack-%E5%90%84%E7%8E%AF%E8%8A%82%E6%B6%88%E8%80%97%E6%97%B6%E9%97%B4"><span class="main-content-wrap toc-article-text">3.1 查看 Webpack 各环节消耗时间</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#3-2-%E4%BD%BF%E7%94%A8-dllPlugin-amp-DllReferencePlugin"><span class="main-content-wrap toc-article-text">3.2 使用 dllPlugin &amp; DllReferencePlugin</span></a><ol class="main-content-wrap toc-article-child"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#3-2-1-%E4%BD%BF%E7%94%A8-dllPlugin-%E5%81%9A%E9%A2%84%E7%BC%96%E8%AF%91"><span class="main-content-wrap toc-article-text">3.2.1 使用 dllPlugin 做预编译</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#3-2-2-%E4%BD%BF%E7%94%A8-DllReferencePlugin-%E5%BC%95%E5%85%A5%E9%A2%84%E7%BC%96%E8%AF%91%E5%BA%93-manifest"><span class="main-content-wrap toc-article-text">3.2.2 使用 DllReferencePlugin 引入预编译库 manifest</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#3-2-3-%E5%9C%A8%E9%A1%B5%E9%9D%A2%E4%B8%AD%E5%BC%95%E5%85%A5-dll-js"><span class="main-content-wrap toc-article-text">3.2.3 在页面中引入 dll.js</span></a></li></ol></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#3-3-happypack"><span class="main-content-wrap toc-article-text">3.3 happypack</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#3-4-%E4%BD%BF%E7%94%A8-webpack-uglify-parallel-%E5%B9%B6%E8%A1%8C%E6%89%A7%E8%A1%8C%E5%8E%8B%E7%BC%A9"><span class="main-content-wrap toc-article-text">3.4 使用 webpack-uglify-parallel 并行执行压缩</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#3-5-%E5%85%B6%E4%BB%96%E9%9B%B6%E6%95%A3%E7%9A%84%E4%BC%98%E5%8C%96%E7%82%B9"><span class="main-content-wrap toc-article-text">3.5 其他零散的优化点</span></a><ol class="main-content-wrap toc-article-child"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#3-5-1-cache"><span class="main-content-wrap toc-article-text">3.5.1 cache</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#3-5-2-resolve-modules"><span class="main-content-wrap toc-article-text">3.5.2 resolve.modules</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#3-5-3-resolve-alias-%E4%B8%8E-module-noParse"><span class="main-content-wrap toc-article-text">3.5.3 resolve.alias 与 module.noParse</span></a></li></ol></li></ol></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#4-CommonsChunkPlugin-%E4%B8%8E-DllPlugin-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="main-content-wrap toc-article-text">4. CommonsChunkPlugin 与 DllPlugin 的区别</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#5-%E8%AF%95%E9%AA%8C"><span class="main-content-wrap toc-article-text">5. 试验</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#6-%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="main-content-wrap toc-article-text">6. 参考资料</span></a></li></ol>
+    <div class="post-content markdown" itemprop="articleBody">
+        <div class="main-content-wrap">
+            <p>随着项目体积膨胀，webpack 构建时间越来越长。webpack 构建属于高频需求，每天耗费大量时间干等着是很难受的——于是有了本文，探讨如何加速 webpack 构建。</p>
+<a id="more"></a>
+<h1 id="1-使用-visualizer-追踪与精简项目依赖"><a href="#1-使用-visualizer-追踪与精简项目依赖" class="headerlink" title="1. 使用 visualizer 追踪与精简项目依赖"></a>1. 使用 visualizer 追踪与精简项目依赖</h1><p>项目本身容易出现的问题有以下两点：</p>
+<ul>
+<li>为了实现小功能，引了个大包</li>
+</ul>
+<p>比如：只为了使用 <code>lodash</code> 中的某个工具函数，把整个 <code>lodash</code> 都引进来；只为了一个简单的时间格式化功能，引了几十 K 的 <code>moment</code>；只为了画一个简单的小图表，引了整个 <code>echarts</code>。</p>
+<p>为了一个小功能，引入一个复杂的库明显是不划算的。为了解决这种问题， 我们需要仔细分析项目的依赖：<code>lodash</code> 有打碎的工具函数的各自的库，需要时可以直接引用 <code>lodash.clonedeep</code> 库，避免引入无用内容；简单功能自己实现，不要太偷懒；需求不高，可以换用小体积的库，比如画简单图，完全可以将 <code>echarts</code> 替换成能达到功能的另一个小型库。</p>
+<ul>
+<li>无用依赖忘记移除</li>
+</ul>
+<p>有时业务代码变动，部分逻辑下线，而文件头部的模块引入部分忘了删掉，就会导致产生无用依赖。</p>
+<p>优化精简依赖既可以减少打包时间，也可以优化 bundle 体积。</p>
+<p>项目使用的依赖散落在文件各处，其体积也难以横向对比。借助 webpack 的 stat 功能与合适的 visualizer 工具可以更轻松的分析依赖。</p>
+<h2 id="1-1-输出-stats-json"><a href="#1-1-输出-stats-json" class="headerlink" title="1.1 输出 stats.json"></a>1.1 输出 stats.json</h2><p>使用 <a href="https://github.com/FormidableLabs/webpack-stats-plugin" target="_blank" rel="external">webpack-stats-plugin</a> 插件可以在构建完成后的 output 目录下生成 <code>stats.json</code> 文件。这个文件记录了 webpack 构建相关数据。</p>
+<p><code>webpack-stats-plugin</code> 的使用方法可见 <a href="https://github.com/FormidableLabs/webpack-stats-plugin" target="_blank" rel="external">README.md</a>。</p>
+<h2 id="1-2-将-stats-json-导入-visualizer"><a href="#1-2-将-stats-json-导入-visualizer" class="headerlink" title="1.2 将 stats.json 导入 visualizer"></a>1.2 将 stats.json 导入 visualizer</h2><p>目前有两个好用的 visualizer：</p>
+<p><a href="https://chrisbateman.github.io/webpack-visualizer/" target="_blank" rel="external">WEBPACK VISUALIZER</a></p>
+<p><img src="/imgs/blog/optimie-webpack-bundle-performance-1.png" alt="optimie-webpack-bundle-performance-1"></p>
+<p>通过这个圆环图可以清晰的看出各依赖的占比，寻找其中的大块依赖，检查是否有可精简项。</p>
+<p><a href="http://webpack.github.io/analyse/" target="_blank" rel="external">webpack analyse</a></p>
+<p><img src="/imgs/blog/optimie-webpack-bundle-performance-2.png" alt="optimie-webpack-bundle-performance-2"></p>
+<p>webpack 官方出的分析工具，可以从更多维度分析依赖。可以清晰的看到各文件中的依赖关系。</p>
+<h1 id="2-升级环境"><a href="#2-升级环境" class="headerlink" title="2. 升级环境"></a>2. 升级环境</h1><p><strong>一般来说</strong>新版本总是要胜于旧版本，将 node、npm 以及项目依赖在项目正常工作的前提下升级到尽可能新的稳定版，往往会有好结果。例如：伴随着 node 8 发布的 npm 5 就声称在性能上获得了显著提升，至少 <code>npm install</code> 的速度起飞了。</p>
+<h1 id="3-提速-Webpack-构建"><a href="#3-提速-Webpack-构建" class="headerlink" title="3. 提速 Webpack 构建"></a>3. 提速 Webpack 构建</h1><h2 id="3-1-查看-Webpack-各环节消耗时间"><a href="#3-1-查看-Webpack-各环节消耗时间" class="headerlink" title="3.1 查看 Webpack 各环节消耗时间"></a>3.1 查看 Webpack 各环节消耗时间</h2><p>使用命令行调用 Webpack 时加入 <code>--colors</code>、<code>--profile</code>、<code>--display-modules</code> 可以显示加载的模块、构建各环节耗时，并着色以增强可读性。</p>
+<p><img src="/imgs/blog/optimie-webpack-bundle-performance-3.png" alt="optimie-webpack-bundle-performance-3"></p>
+<h2 id="3-2-使用-dllPlugin-amp-DllReferencePlugin"><a href="#3-2-使用-dllPlugin-amp-DllReferencePlugin" class="headerlink" title="3.2 使用 dllPlugin &amp; DllReferencePlugin"></a>3.2 使用 dllPlugin &amp; DllReferencePlugin</h2><p>这两个插件搭配使用，作用是将不产生变化的公共库（如 vue、react、polyfill 这种）抽离，将其进行预编译，这样在每次构建时就不再重复分析这些公共库，避免内耗。dllPlugin 用于预编译公共库，产生相应的 <code>dll.js</code> 和 <code>manifest.json</code>，DllReferencePlugin 用于将 dllPlugin 产生的预编译结果传送给 Webpack。使用 DllReferencePlugin 前要先用 dllPlugin 准备好预编译结果。</p>
+<h3 id="3-2-1-使用-dllPlugin-做预编译"><a href="#3-2-1-使用-dllPlugin-做预编译" class="headerlink" title="3.2.1 使用 dllPlugin 做预编译"></a>3.2.1 使用 dllPlugin 做预编译</h3><p>新建一个 <code>webpack.config.dll.js</code>，其内容与项目构建文件基本类同，只是将入口换成公共库，仅对公共库做编译：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>)</div><div class="line"><span class="keyword">const</span> autoprefixer = <span class="built_in">require</span>(<span class="string">'autoprefixer'</span>)</div><div class="line"><span class="keyword">const</span> px2rem = <span class="built_in">require</span>(<span class="string">'postcss-px2rem'</span>)</div><div class="line"><span class="keyword">const</span> webpack = <span class="built_in">require</span>(<span class="string">'webpack'</span>)</div><div class="line"><span class="keyword">const</span> filterStream = <span class="built_in">require</span>(<span class="string">'postcss-filter-stream'</span>)</div><div class="line"></div><div class="line"><span class="built_in">module</span>.exports = &#123;</div><div class="line">  entry: &#123;</div><div class="line">    vendor: [<span class="string">'es6-promise/auto'</span>, <span class="string">'regenerator-runtime/runtime'</span>, <span class="string">'vue'</span>, <span class="string">'vuex-router-sync'</span>, <span class="string">'vue-router'</span>, <span class="string">'lodash.clonedeep'</span>, <span class="string">'vuex'</span>, <span class="string">'axios'</span>] <span class="comment">// 改动点1：项目入口改为需要预编译的公共库的入口</span></div><div class="line">  &#125;,</div><div class="line">  output: &#123;</div><div class="line">    path: path.resolve(path.resolve(__dirname), <span class="string">'dll'</span>), <span class="comment">// 改动点2：编译出的文件找个地方存一下，我这里存到 /dll 文件夹下</span></div><div class="line">    publicPath: <span class="string">'/'</span>,</div><div class="line">    filename: <span class="string">'dll.[name].js'</span>,</div><div class="line">    library: <span class="string">'[name]'</span></div><div class="line">  &#125;,</div><div class="line">  <span class="keyword">module</span>: &#123;</div><div class="line">    rules: [</div><div class="line">      &#123;</div><div class="line">        test: <span class="regexp">/\.js$/</span>,</div><div class="line">        use: [</div><div class="line">          <span class="string">'babel-loader'</span>,</div><div class="line">          <span class="string">'eslint-loader'</span></div><div class="line">        ],</div><div class="line">        exclude: <span class="regexp">/node_modules/</span></div><div class="line">      &#125;,</div><div class="line">      &#123;</div><div class="line">        enforce: <span class="string">'pre'</span>,</div><div class="line">        test: <span class="regexp">/\.vue$/</span>,</div><div class="line">        loader: <span class="string">'eslint-loader'</span>,</div><div class="line">        exclude: <span class="regexp">/node_modules/</span></div><div class="line">      &#125;,</div><div class="line">      &#123;</div><div class="line">        test: <span class="regexp">/\.vue$/</span>,</div><div class="line">        loaders: [&#123;</div><div class="line">          loader: <span class="string">'vue-loader'</span>,</div><div class="line">          options: &#123;</div><div class="line">            postcss: &#123;</div><div class="line">              plugins: [autoprefixer(&#123;browsers: [<span class="string">'&gt; 1%'</span>, <span class="string">'ie &gt;= 9'</span>, <span class="string">'iOS &gt;= 6'</span>, <span class="string">'Android &gt;= 2.1'</span>]&#125;), filterStream(<span class="string">'**/site/**'</span>, px2rem(&#123;remUnit: <span class="number">75</span>&#125;))]</div><div class="line">            &#125;</div><div class="line">          &#125;</div><div class="line">        &#125;]</div><div class="line">      &#125;,</div><div class="line">      &#123;</div><div class="line">        test: <span class="regexp">/\.(css|scss|sass)$/</span>,</div><div class="line">        loaders: [<span class="string">'style-loader'</span>, <span class="string">'css-loader'</span>, <span class="string">'sass-loader'</span>]</div><div class="line">      &#125;,</div><div class="line">      &#123;</div><div class="line">        test: <span class="regexp">/\.md$/</span>,</div><div class="line">        use: <span class="string">'raw-loader'</span></div><div class="line">      &#125;,</div><div class="line">      &#123;</div><div class="line">        test: <span class="regexp">/\.(eot|svg|ttf|woff|woff2|png|jpg|gif|svg)(\?t=\d+)?$/</span>,</div><div class="line">        loaders: [&#123;</div><div class="line">          loader: <span class="string">'url-loader?limit=8192&amp;name=index/assets/[name]-[hash].[ext]'</span></div><div class="line">        &#125;]</div><div class="line">      &#125;</div><div class="line">    ]</div><div class="line">  &#125;,</div><div class="line">  plugins: [</div><div class="line">    <span class="keyword">new</span> webpack.DllPlugin(&#123;</div><div class="line">      path: path.join(__dirname, <span class="string">'dll'</span>, <span class="string">'[name]-manifest.json'</span>), <span class="comment">// 改动点3：引入 dllPlugin 插件，指出将 manifest.json 存放的地方，我这里也存到 /dll 文件夹下，和 dll.js 一起</span></div><div class="line">      name: <span class="string">'[name]'</span>,</div><div class="line">    &#125;),</div><div class="line">    <span class="keyword">new</span> webpack.DefinePlugin(&#123;</div><div class="line">      <span class="string">'process.env'</span>: &#123;</div><div class="line">        NODE_ENV: <span class="string">'"production"'</span></div><div class="line">      &#125;</div><div class="line">    &#125;),</div><div class="line">    <span class="keyword">new</span> webpack.optimize.UglifyJsPlugin(&#123;</div><div class="line">      output: &#123;</div><div class="line">        comments: <span class="literal">false</span>,</div><div class="line">      &#125;,</div><div class="line">      compress: &#123;</div><div class="line">        warnings: <span class="literal">false</span></div><div class="line">      &#125;</div><div class="line">    &#125;)</div><div class="line">  ]</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>编写完后执行 <code>webpack --config=webpack.config.dll.js</code>，没问题的话，预编译结果会在 <code>/dll</code> 下会生成。</p>
+<h3 id="3-2-2-使用-DllReferencePlugin-引入预编译库-manifest"><a href="#3-2-2-使用-DllReferencePlugin-引入预编译库-manifest" class="headerlink" title="3.2.2 使用 DllReferencePlugin 引入预编译库 manifest"></a>3.2.2 使用 DllReferencePlugin 引入预编译库 manifest</h3><p>在项目构建的 <code>webpack.config.js</code> 中加入：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="selector-tag">new</span> <span class="selector-tag">webpack</span><span class="selector-class">.DllReferencePlugin</span>(&#123;</div><div class="line">  <span class="attribute">context</span>: __dirname,</div><div class="line">  manifest: <span class="built_in">require</span>(<span class="string">'./dll/vendor-manifest.json'</span>) // 指向 dllPlugin 生成的 manifest.json</div><div class="line">&#125;)</div></pre></td></tr></table></figure>
+<h3 id="3-2-3-在页面中引入-dll-js"><a href="#3-2-3-在页面中引入-dll-js" class="headerlink" title="3.2.3 在页面中引入 dll.js"></a>3.2.3 在页面中引入 dll.js</h3><p>在 index.html 中，引入项目主要的 <code>app.js</code> 之前，先引入 <code>dll.js</code> 即可。如： <code>&lt;script src=&quot;../dll/dll.vendor.js&quot;&gt;&lt;/script&gt;</code>。</p>
+<p>如果使用 <code>HtmlwebpackPlugin</code> 插件，可以搭配 <code>HtmlWebpackIncludeAssetsPlugin</code> 插件引入该 js：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">new</span> HtmlWebpackIncludeAssetsPlugin(&#123;</div><div class="line">  <span class="attr">assets</span>: [<span class="string">'dll/dll.vendor.js'</span>],</div><div class="line">  <span class="attr">append</span>: <span class="literal">false</span>,</div><div class="line">  <span class="attr">hash</span>: <span class="literal">true</span></div><div class="line">&#125;),</div></pre></td></tr></table></figure>
+<p>这就大功告成了。项目中依赖的公共库越多，提速效果越大，一般来说这个优化项都可带来 20%+ 的提速效果。我们再次使用 webpack 打包，可以看到：</p>
+<p><img src="/imgs/blog/optimie-webpack-bundle-performance-4.png" alt="optimie-webpack-bundle-performance-4"></p>
+<p>公共库全部标明 <code>from dll-reference vendor</code>，同时其 <code>building</code> 耗时均为 0-1ms。相比较上面的几个 js，<code>building</code> 动辄 500ms 左右。这部分时间被节约了出来。</p>
+<p>由于做了 vendor 的拆分，最终实际上是拆成了两个包，如果生产环境下还是想只用一个包的话，可以将这个插件只应用于开发环境，不用于生产环境。</p>
+<h2 id="3-3-happypack"><a href="#3-3-happypack" class="headerlink" title="3.3 happypack"></a>3.3 happypack</h2><p>webpack 在单个 node 进程中调用 loader，导致耗 cpu 计算型 loader 性能不佳。happypack 允许多进程调用 loader，恰当的使用 happypack 可以提速构建。</p>
+<p>该插件适合场景：项目复杂度高、耗 cpu 操作多（如 babel transform）、需处理文件多。如果项目简单，使用该插件效果即不显著。</p>
+<p>用法非常简单，首先在 webpack 构建文件中添加该插件：</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line">const os = require(<span class="string">'os'</span>)</div><div class="line">const HappyPack = require(<span class="string">'happypack'</span>)</div><div class="line">const happThreadPool = HappyPack.ThreadPool(&#123;size: os.cpus().length&#125;) // 指定线程池中的线程数量为处理器的核心数</div><div class="line"></div><div class="line">...</div><div class="line">module<span class="variable">s:</span> &#123;</div><div class="line">  rule<span class="variable">s:</span> &#123;</div><div class="line">    &#123;</div><div class="line">      tes<span class="variable">t:</span> /\.js$/,</div><div class="line">      use: [</div><div class="line">        <span class="string">'happypack/loader?id=js'</span>, // 将 babel-loader 替换为 happypack/loader?id=js</div><div class="line">        <span class="string">'eslint-loader'</span></div><div class="line">      ],</div><div class="line">      exclude: /node_modules/,</div><div class="line">    &#125;,</div><div class="line">    &#123;</div><div class="line">      tes<span class="variable">t:</span> /\.vue$/,</div><div class="line">      loader<span class="variable">s:</span> [&#123;</div><div class="line">        loader: <span class="string">'vue-loader'</span>,</div><div class="line">        option<span class="variable">s:</span> &#123;</div><div class="line">          postcs<span class="variable">s:</span> &#123;</div><div class="line">            plugin<span class="variable">s:</span> [autoprefixer(&#123;browser<span class="variable">s:</span> [<span class="string">'&gt; 1%'</span>, <span class="string">'ie &gt;= 9'</span>, <span class="string">'iOS &gt;= 6'</span>, <span class="string">'Android &gt;= 2.1'</span>]&#125;), filterStream(<span class="string">'**/site/**'</span>, px2rem(&#123;remUni<span class="variable">t:</span> <span class="number">75</span>&#125;))]</div><div class="line">          &#125;,</div><div class="line">          loader<span class="variable">s:</span> &#123;</div><div class="line">            <span class="keyword">j</span><span class="variable">s:</span> <span class="string">'happypack/loader?id=js'</span> // 将 vue-loader 中处理 js 的部分也交给 happypack/loader?id=js 处理</div><div class="line">          &#125;</div><div class="line">        &#125;</div><div class="line">      &#125;]</div><div class="line">    &#125;,</div><div class="line">  &#125;</div><div class="line">&#125;,</div><div class="line">plugin<span class="variable">s:</span> [</div><div class="line">  ...</div><div class="line">  <span class="keyword">new</span> HappyPack(&#123;</div><div class="line">    id: <span class="string">'js'</span>,</div><div class="line">    loader<span class="variable">s:</span> [<span class="string">'babel-loader?cacheDirectory=true'</span>], // 使用 happypack 接管 babel-loader 插件，并指定其 id 为 js</div><div class="line">    threadPoo<span class="variable">l:</span> happThreadPool</div><div class="line">  &#125;)</div><div class="line">  ...</div><div class="line">]</div><div class="line">...</div></pre></td></tr></table></figure>
+<p>这里只允许 happypack 并行执行 <code>babel-loader</code>，对其他 loader 做了尝试，提速不明显。各位也可以根据自己项目实际情况多试试。</p>
+<p><img src="/imgs/blog/optimie-webpack-bundle-performance-5.png" alt="optimie-webpack-bundle-performance-5"></p>
+<p>在 webpack 打印出的 log 里可以确认 happypack 是否生效。</p>
+<h2 id="3-4-使用-webpack-uglify-parallel-并行执行压缩"><a href="#3-4-使用-webpack-uglify-parallel-并行执行压缩" class="headerlink" title="3.4 使用 webpack-uglify-parallel 并行执行压缩"></a>3.4 使用 webpack-uglify-parallel 并行执行压缩</h2><p><code>webpack-uglify-parallel</code> 功能与自带的 <code>uglifyPlugin</code> 没差，只是允许开启多核并行执行以提高性能。</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">const os = <span class="keyword">require</span>(<span class="string">'os'</span>)</div><div class="line">const UglifyJsParallelPlugin = <span class="keyword">require</span>(<span class="string">'webpack-uglify-parallel'</span>)</div><div class="line"></div><div class="line"><span class="params">...</span></div><div class="line"><span class="literal">new</span> UglifyJsParallelPlugin(&#123;</div><div class="line">  workers: os.cpus().length,</div><div class="line">  output: &#123;</div><div class="line">    comments: <span class="literal">false</span>,</div><div class="line">  &#125;,</div><div class="line">  compress: &#123;</div><div class="line">    warnings: <span class="literal">false</span>,</div><div class="line">  &#125;,</div><div class="line">  sourceMap: <span class="literal">false</span></div><div class="line">&#125;)</div><div class="line"><span class="params">...</span></div></pre></td></tr></table></figure>
+<p>直接将项目中的 <code>uglifyPlugin</code> 替换为 <code>webpack-uglify-parallel</code> 即可。多加一个参数 <code>workers</code>，指定进程数，一般来说设置为 CPU 核心数。</p>
+<h2 id="3-5-其他零散的优化点"><a href="#3-5-其他零散的优化点" class="headerlink" title="3.5 其他零散的优化点"></a>3.5 其他零散的优化点</h2><h3 id="3-5-1-cache"><a href="#3-5-1-cache" class="headerlink" title="3.5.1 cache"></a>3.5.1 cache</h3><p>开启 webpack 的 cache 选项：</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">module.exports = &#123;</div><div class="line">  <span class="keyword">cache</span>: <span class="literal">true</span>,</div><div class="line">  entry: <span class="params">...</span>,</div><div class="line">  output: <span class="params">...</span>,</div><div class="line">  <span class="params">...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>开启 babel-loader 的 cache 选项：</p>
+<figure class="highlight ada"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">loaders: [<span class="symbol">'babel</span>-loader?cacheDirectory=<span class="literal">true</span>'],</div></pre></td></tr></table></figure>
+<h3 id="3-5-2-resolve-modules"><a href="#3-5-2-resolve-modules" class="headerlink" title="3.5.2 resolve.modules"></a>3.5.2 resolve.modules</h3><p>定义 resolve.modules 可以告知 webpack 去哪里搜索模块。显式定义可以节约搜索时间。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="selector-tag">resolve</span>: &#123;</div><div class="line">  <span class="attribute">modules</span>: [path.<span class="built_in">resolve</span>(__dirname, <span class="string">'../node_modules'</span>)],  //根据项目实际情况配</div><div class="line">&#125;,</div></pre></td></tr></table></figure>
+<h3 id="3-5-3-resolve-alias-与-module-noParse"><a href="#3-5-3-resolve-alias-与-module-noParse" class="headerlink" title="3.5.3 resolve.alias 与 module.noParse"></a>3.5.3 resolve.alias 与 module.noParse</h3><p>显式指定外部依赖的具体文件，如：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="selector-tag">resolve</span>: &#123;</div><div class="line">  <span class="attribute">alais</span>: &#123;</div><div class="line">    <span class="string">'vue'</span>: <span class="string">'vue/dist/vue.runtime.min.js'</span>,</div><div class="line">    <span class="string">'vue-router'</span>: <span class="string">'vue-router/dist/vue-router.min.js'</span></div><div class="line">    ...</div><div class="line">  &#125;</div><div class="line">&#125;,</div></pre></td></tr></table></figure>
+<p>指定到对应库的 min 文件，这种文件已经经过压缩，且不再含外部依赖，我们可以应用 noParse 让 webpack 跳过对其的解析来进行优化：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="selector-tag">modules</span>: &#123;</div><div class="line">  <span class="attribute">noParse</span>: [/vue\.runtime\.min/, /vue-router\.min/]</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="4-CommonsChunkPlugin-与-DllPlugin-的区别"><a href="#4-CommonsChunkPlugin-与-DllPlugin-的区别" class="headerlink" title="4. CommonsChunkPlugin 与 DllPlugin 的区别"></a>4. CommonsChunkPlugin 与 DllPlugin 的区别</h1><p>在多入口项目中，每个入口最终会产生一个独立的 bundle。CommonsChunkPlugin 可以抽取多入口中的公共模块部分，将公共模块打包到一个或多个独立文件中去，以便在其他入口和模块中使用。</p>
+<p>使用 CommonsChunkPlugin 主要是为了复用公共模块，减少最终打包文件体积，优化加载性能。公共模块在每次构建时都会重新打包，所以并不会提升构建速度。</p>
+<p>DllPlugin 的目的是预编译公共库，这样在之后的构建过程中，公共库都不需重新打包，主要目的是加速构建过程。当然，他也可以在生产环境临时客串一下 CommonsChunkPlugin 的功能，把你的代码拆分成两部分，dll 和其他，如果你想这么做的话。</p>
+<h1 id="5-试验"><a href="#5-试验" class="headerlink" title="5. 试验"></a>5. 试验</h1><p>在一个手头的小项目上，试验上面的方法，每次打包时间重复三次取平均值：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>生产环境(ms)</th>
+<th>开发环境(ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>优化前</td>
+<td>15509</td>
+<td>11226</td>
+</tr>
+<tr>
+<td>dllPlugin</td>
+<td>11166</td>
+<td>8788</td>
+</tr>
+<tr>
+<td>happypack</td>
+<td>9898</td>
+<td>7743</td>
+</tr>
+<tr>
+<td>uglifyParallel</td>
+<td>8764</td>
+</tr>
+</tbody>
+</table>
+<p>已经做到了近 50% 的速度提升，相信随着项目体积的膨胀，速度提升占比还会再上升。</p>
+<h1 id="6-参考资料"><a href="#6-参考资料" class="headerlink" title="6. 参考资料"></a>6. 参考资料</h1><ol>
+<li><a href="https://github.com/pigcan/blog/issues/1" target="_blank" rel="external">Webpack 构建性能优化探索</a></li>
+<li><a href="https://github.com/SunShinewyf/webpack-demo/issues/5" target="_blank" rel="external">webpack的性能优化</a></li>
+<li><a href="http://code.oneapm.com/javascript/2015/07/07/webpack_performance_1/" target="_blank" rel="external">Webpack 性能优化 （一）</a></li>
+<li><a href="https://flyyang.github.io/2017/03/09/%E4%BD%BF%E7%94%A8happypack%E5%B0%86vuejs%E9%A1%B9%E7%9B%AEwebpack%E5%88%9D%E5%A7%8B%E5%8C%96%E6%9E%84%E5%BB%BA%E9%80%9F%E5%BA%A6%E6%8F%90%E5%8D%8750/" target="_blank" rel="external">使用happypack将vuejs项目webpack初始化构建速度提升50%</a></li>
+<li><a href="https://webpack.toobug.net/zh-cn/chapter3/common-chunks-plugin.html" target="_blank" rel="external">webpack common chunks plugin vs webpack dll plugin</a></li>
+</ol>
+
+            
+                
+
+            
+        </div>
+    </div>
+    <div class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">TAGGED IN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-none-link" href="/tags/webpack/" rel="tag">webpack</a>
+
+            </div>
+        
+        <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2017/06/28/modern-web-development-tech-analysis-data-reactivity-system/"  data-tooltip="现代前端科技解析 —— 数据响应式系统 (Data Reactivity System)">
+                
+                    <i class="fa fa-angle-left"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">PREVIOUS</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2017/06/09/You-Dont-Know-JS-Volume-3-Mindmaps/" data-tooltip="《你不知道的 JavaScript（下卷）》脑图">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">NEXT</span>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions"  href="#btn-open-shareoptions">
+                <i class="fa fa-share-alt"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://www.404forest.com/2017/06/12/optimie-webpack-bundle-performance/">
+                <i class="fa fa-google-plus"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://www.404forest.com/2017/06/12/optimie-webpack-bundle-performance/">
+                <i class="fa fa-facebook-official"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://www.404forest.com/2017/06/12/optimie-webpack-bundle-performance/">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </li>
+        
+            <li class="post-action">
+                <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                    <i class="fa fa-comment-o"></i>
+                </a>
+            </li>
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#">
+            
+                <i class="fa fa-list"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+            <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2025 Jin. All Rights Reserved.
+    </span>
+    <a class="copyrights" target="_blank" rel="noopener" href="http://www.beian.miit.gov.cn/">
+        浙ICP备18012561号
+    </a>
+</footer>
+
+            </div>
+        </div>
+        <div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-remove"></i>
+        </div>
+        
+            <img id="about-card-picture" src="/assets/images/ava.png"/>
+        
+            <h4 id="about-card-name">Jin</h4>
+        
+            <h5 id="about-card-bio">Interested in Web Development/Typography/Japanese.</h5>
+        
+        
+            <h5 id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                WebDeveloper
+            </h5>
+        
+        
+            <h5 id="about-card-location">
+                <i class="fa fa-map-marker"></i>
+                <br/>
+                Beijing
+            </h5>
+        
+    </div>
+</div>
+
+        <div id="cover" style="background-image:url('/assets/images/bg4.jpg');"></div>
+    </body>
+    <!--SCRIPTS-->
+
+<script src="/assets/js/script.min.js"></script>
+
+<!--SCRIPTS END-->
+
+    <script type="text/javascript">
+        var disqus_shortname = '404forest';
+        (function() {
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+
+
+    <script type="text/javascript">
+        (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+                (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+            e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+        })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+        _st('install','ZkJM8hxyxxLens-VGG__','2.0.0');
+    </script>
+
+
+</html>

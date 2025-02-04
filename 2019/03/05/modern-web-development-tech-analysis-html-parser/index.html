@@ -1,0 +1,402 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+    
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="404Forest">
+    <title>现代前端科技解析 —— HTML Parser - 404Forest</title>
+    <meta name="author" content="Jin">
+    
+        <link rel="icon" href="/assets/images/favicon.ico">
+    
+    
+    <meta name="description" content="无论是 Vue 中的 Template 还是 React 中的 JSX，使用框架时，我们都是把 HTML 写在了 JavaScript 里，随后框架解析 HTML 字符串，得到 AST，继而生成 virtual dom。本文解析如何实现一个 HTML Parser，并且简单支持识别 Vue 中的事件、指令。">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="现代前端科技解析 —— HTML Parser">
+<meta property="og:url" content="http://www.404forest.com/2019/03/05/modern-web-development-tech-analysis-html-parser/index.html">
+<meta property="og:site_name" content="404Forest">
+<meta property="og:description" content="无论是 Vue 中的 Template 还是 React 中的 JSX，使用框架时，我们都是把 HTML 写在了 JavaScript 里，随后框架解析 HTML 字符串，得到 AST，继而生成 virtual dom。本文解析如何实现一个 HTML Parser，并且简单支持识别 Vue 中的事件、指令。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/parse1.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/parse2.png">
+<meta property="article:published_time" content="2019-03-06T05:32:11.000Z">
+<meta property="article:modified_time" content="2025-02-04T23:02:44.260Z">
+<meta property="article:author" content="Jin">
+<meta property="article:tag" content="Modern web development tech analysis">
+<meta property="article:tag" content="现代前端科技解析">
+<meta property="article:tag" content="vue">
+<meta property="article:tag" content="parser">
+<meta property="article:tag" content="ast">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://www.404forest.com/imgs/blog/parse1.png">
+<meta name="twitter:creator" content="@jin5354">
+    
+    
+    
+        <meta property="og:image" content="/assets/images/ava.png"/>
+    
+    
+    
+    
+    <!--STYLES-->
+    
+<link rel="stylesheet" href="/assets/css/style.min.css">
+
+    <!--STYLES END-->
+    
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-66492678-1']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+
+</head>
+
+    <body>
+        <div id="blog">
+            <header id="header" data-behavior="3">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <h1 class="header-title">
+        <a class="header-title-link" href="/%20">404Forest</a>
+    </h1>
+    
+        <a class="header-right-picture" href="/#about">
+            <img class="header-picture" src="/assets/images/ava.png"/>
+        </a>
+    
+</header>
+            <nav id="sidebar" data-behavior="3">
+    
+        <div class="sidebar-profile">
+            <a href="/#about">
+                
+                    <img class="sidebar-profile-picture" src="/assets/images/ava.png"/>
+                
+            </a>
+            <span class="sidebar-profile-name">Jin</span>
+        </div>
+    
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/%20"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+                    <span class="sidebar-button-desc">Home</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-archives"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+                    <span class="sidebar-button-desc">Archive</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-categories"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+                    <span class="sidebar-button-desc">Categories</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-tags"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+                    <span class="sidebar-button-desc">Tags</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link st-search-show-outputs"
+                         href="#search"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-search"></i>
+                    <span class="sidebar-button-desc">Search</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="#about"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+                    <span class="sidebar-button-desc">About</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="https://github.com/jin5354" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+                    <span class="sidebar-button-desc">GitHub</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="mailto:xiaoyanjinx@gmail.com" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-envelope-o"></i>
+                    <span class="sidebar-button-desc">Mail</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+    <div style="margin-left: 27px;">
+        <a target="_blank" rel="noopener" href="https://github.com/jin5354/404forest"><img src="https://img.shields.io/github/stars/jin5354/404forest.svg?style=social&label=Stars"></a>
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="3"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title" itemprop="headline">
+            现代前端科技解析 —— HTML Parser
+        </h1>
+    
+    <div class="post-meta">
+    <time itemprop="datePublished" content="Tue Mar 05 2019 21:32:11 GMT-0800">
+	
+		    3月 05, 2019
+    	
+    </time>
+    
+        <span>in </span>
+        
+    <a class="category-link" href="/categories/Code/">Code</a>
+
+
+    
+</div>
+</div>
+    
+    <div class="main-content-wrap" style="margin-top: 60px;">索引</div>
+    <ol class="main-content-wrap toc-article"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#1-%E6%98%8E%E7%A1%AE-AST-%E6%A0%BC%E5%BC%8F"><span class="main-content-wrap toc-article-text">1. 明确 AST 格式</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#2-%E8%A7%A3%E6%9E%90%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="main-content-wrap toc-article-text">2. 解析字符串</span></a><ol class="main-content-wrap toc-article-child"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#2-1-%E8%A7%A3%E6%9E%90%E7%9A%84%E6%80%BB%E4%BD%93%E6%80%9D%E8%B7%AF"><span class="main-content-wrap toc-article-text">2.1 解析的总体思路</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#2-2-%E8%A7%A3%E6%9E%90%E8%87%AA%E5%AE%9A%E4%B9%89-attrs"><span class="main-content-wrap toc-article-text">2.2 解析自定义 attrs</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#2-3-%E8%A7%A3%E6%9E%90%E5%AE%9E%E7%8E%B0"><span class="main-content-wrap toc-article-text">2.3 解析实现</span></a></li></ol></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-1"><a class="main-content-wrap toc-article-link" href="#3-%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="main-content-wrap toc-article-text">3.参考资料</span></a></li></ol>
+    <div class="post-content markdown" itemprop="articleBody">
+        <div class="main-content-wrap">
+            <p>无论是 Vue 中的 Template 还是 React 中的 JSX，使用框架时，我们都是把 HTML 写在了 JavaScript 里，随后框架解析 HTML 字符串，得到 AST，继而生成 virtual dom。本文解析如何实现一个 HTML Parser，并且简单支持识别 Vue 中的事件、指令。</p>
+<a id="more"></a>
+<blockquote>
+<p>注：<br>原始链接: <a href="https://www.404forest.com/2019/03/05/modern-web-development-tech-analysis-html-parser/">https://www.404forest.com/2019/03/05/modern-web-development-tech-analysis-html-parser/</a><br>文章备份: <a href="https://github.com/jin5354/404forest/issues/70" target="_blank" rel="external">https://github.com/jin5354/404forest/issues/70</a></p>
+</blockquote>
+<h1 id="1-明确-AST-格式"><a href="#1-明确-AST-格式" class="headerlink" title="1. 明确 AST 格式"></a>1. 明确 AST 格式</h1><p>查看 Vue 中解析 Template 得到的 AST 格式，可见源码 <a href="https://github.com/vuejs/vue/blob/dev/flow/compiler.js#L99" target="_blank" rel="external">ASTElement</a>。可以看到 Vue 中的 ASTElement 拥有巨多的属性，如 DOM 相关的 tag、attrsList、children、text 等，也有 Vue 相关的 key、static、hasBindings、if 等等。本文实现一个简版的 Parser，定义结果 ASTElement 格式如下：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">type</span> ASTRoot = ASTElement[]</div><div class="line"></div><div class="line"><span class="keyword">interface</span> ASTElement &#123;</div><div class="line">  <span class="comment">// 将元素分为 Element、Text、Comment 三种节点</span></div><div class="line">  <span class="keyword">type</span>: <span class="string">'Element'</span> | <span class="string">'Text'</span> | <span class="string">'Comment'</span>,</div><div class="line">  children: ASTElement[],</div><div class="line">  <span class="comment">// 标签名</span></div><div class="line">  tag: <span class="built_in">string</span>,</div><div class="line">  <span class="comment">// 文本内容，Text、Comment 节点有，Element 节点为空</span></div><div class="line">  text: <span class="built_in">string</span>,</div><div class="line">  <span class="comment">// 解析后的 attrs 数据</span></div><div class="line">  data: ASTElementData | <span class="literal">null</span>,</div><div class="line">  parent: ASTElement | ASTRoot</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">interface</span> ASTElementData &#123;</div><div class="line">  key? : <span class="built_in">string</span>,</div><div class="line">  ref? : <span class="built_in">string</span>,</div><div class="line">  <span class="comment">// 存放 v-on:click 这种事件</span></div><div class="line">  events?: &#123;</div><div class="line">    [key: <span class="built_in">string</span>]: <span class="built_in">any</span></div><div class="line">  &#125;,</div><div class="line">  <span class="comment">// 存放原生 attrs</span></div><div class="line">  attrs?: &#123;</div><div class="line">    [key: <span class="built_in">string</span>]: <span class="built_in">any</span></div><div class="line">  &#125;,</div><div class="line">  <span class="comment">// 存放全部 attrs</span></div><div class="line">  rawAttrs?: &#123;</div><div class="line">    [key: <span class="built_in">string</span>]: <span class="built_in">any</span></div><div class="line">  &#125;,</div><div class="line">  <span class="comment">// 存放 v-if 这种指令</span></div><div class="line">  directives?: &#123;</div><div class="line">    [key: <span class="built_in">string</span>]: <span class="built_in">any</span></div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">type</span> parse = (html: <span class="built_in">string</span>) =&gt; ASTRoot</div></pre></td></tr></table></figure>
+<p>本文所实现的 parser 接收的 html string 支持多个根节点，返回一个 <code>ASTRoot</code>，即 <code>ASTElement</code> 数组。举例：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//输入：</span></div><div class="line"><span class="keyword">let</span> template = <span class="string">`&lt;div class="container"&gt;</span></div><div class="line"> &lt;p&gt;Text1&lt;/p&gt;</div><div class="line">&lt;/div&gt;`</div><div class="line">parse(template)</div><div class="line"><span class="comment">// 输出：</span></div><div class="line"><span class="comment">// 节省篇幅，简略展示</span></div><div class="line">[&#123;</div><div class="line">  <span class="keyword">type</span>: <span class="string">'Element'</span>,</div><div class="line">  tag: <span class="string">'div'</span></div><div class="line">  data: &#123;</div><div class="line">    rawAttrs: &#123;</div><div class="line">      <span class="keyword">class</span>: <span class="string">'container'</span></div><div class="line">    &#125;,</div><div class="line">    attrs: &#123;</div><div class="line">      <span class="keyword">class</span>: <span class="string">'container'</span></div><div class="line">    &#125;</div><div class="line">  &#125;,</div><div class="line">  children: [</div><div class="line">    &#123;</div><div class="line">      <span class="keyword">type</span>: <span class="string">'Text'</span>,</div><div class="line">      text: <span class="string">'\n'</span></div><div class="line">    &#125;,</div><div class="line">    &#123;</div><div class="line">      <span class="keyword">type</span>: <span class="string">'Element'</span>,</div><div class="line">      tag: <span class="string">'p'</span>,</div><div class="line">      children: [&#123;</div><div class="line">        <span class="keyword">type</span>: <span class="string">'Text'</span>,</div><div class="line">        text: <span class="string">'Text1'</span></div><div class="line">      &#125;]</div><div class="line">    &#125;,</div><div class="line">    &#123;</div><div class="line">      <span class="keyword">type</span>: <span class="string">'Text'</span>,</div><div class="line">      text: <span class="string">'\n'</span></div><div class="line">    &#125;</div><div class="line">  ]</div><div class="line">&#125;]</div></pre></td></tr></table></figure>
+<h1 id="2-解析字符串"><a href="#2-解析字符串" class="headerlink" title="2. 解析字符串"></a>2. 解析字符串</h1><h2 id="2-1-解析的总体思路"><a href="#2-1-解析的总体思路" class="headerlink" title="2.1 解析的总体思路"></a>2.1 解析的总体思路</h2><p>一个经典的 HTML Parser 出自 2004 年 Erik Arvidsson 编写的 <a href="http://erik.eae.net/simplehtmlparser/simplehtmlparser.js" target="_blank" rel="external">SimpleHtmlParser</a>。Vue 中的 <a href="https://github.com/vuejs/vue/blob/6ad99796c747987142c21b45c9361cca60e54e68/src/compiler/parser/html-parser.js" target="_blank" rel="external">html-parser</a> 也是基于此代码改写而成。本文实现的 parser 将按照 SimpleHtmlParser 的思路编写。</p>
+<p>我们使用一个栈 <code>stack</code> 来维护节点的层级关系，使用变量 <code>parent</code> 代指当前的父节点。处理模板字符串时，逐次判断当前节点是否是注释节点，亦或是新进入元素节点、或是遇到节点闭合，最终判断文本节点。每确定当前节点身份，对应生成 AST 节点添加到 parent 节点，维护层级栈（入栈或出栈），并裁掉已处理的节点，继续 parse 剩下的部分，直到模板字符串全部被处理完。详细处理过程如下图所示：</p>
+<p><img src="/imgs/blog/parse1.png" alt="parse1"></p>
+<p>以上文例子为例，处理全流程如下：</p>
+<p><img src="/imgs/blog/parse2.png" alt="parse2"></p>
+<h2 id="2-2-解析自定义-attrs"><a href="#2-2-解析自定义-attrs" class="headerlink" title="2.2 解析自定义 attrs"></a>2.2 解析自定义 attrs</h2><p>使用正则可以匹配出某个元素的全部 attrs。对于我们自定义的 v-on，v-if 等指令，无论是使用正则，还是简单的使用 startswith 都可以进行判断。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 处理 attr，解析出 key ref 指令 事件等</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">processAttrs</span>(<span class="params">nodeData, attrMap</span>) </span>&#123;</div><div class="line">  <span class="built_in">Object</span>.keys(attrMap).forEach(k =&gt; &#123;</div><div class="line">    <span class="keyword">if</span>(k === <span class="string">':key'</span>) &#123;</div><div class="line">      nodeData.key = attrMap[k]</div><div class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span>(k === <span class="string">'key'</span>) &#123;</div><div class="line">      nodeData.key = <span class="string">'`'</span> + attrMap[k] + <span class="string">'`'</span></div><div class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span>(k === <span class="string">'ref'</span>) &#123;</div><div class="line">      nodeData.ref = attrMap[k]</div><div class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span>(k.startsWith(<span class="string">'v-'</span>)) &#123;</div><div class="line">      <span class="keyword">if</span>(k.slice(<span class="number">2</span>, <span class="number">5</span>) === <span class="string">'on:'</span>) &#123;</div><div class="line">        nodeData.events[k.slice(<span class="number">5</span>)] = attrMap[k]</div><div class="line">      &#125;<span class="keyword">else</span> &#123;</div><div class="line">        nodeData.directives[k.slice(<span class="number">2</span>)] = attrMap[k]</div><div class="line">      &#125;</div><div class="line">    &#125;<span class="keyword">else</span> &#123;</div><div class="line">      nodeData.attrs[k] = attrMap[k]</div><div class="line">    &#125;</div><div class="line">  &#125;)</div><div class="line"></div><div class="line">  nodeData.rawAttrs = attrMap</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="2-3-解析实现"><a href="#2-3-解析实现" class="headerlink" title="2.3 解析实现"></a>2.3 解析实现</h2><p>按照上述思路，代码实现如下：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> START_TAG_REG = <span class="regexp">/^&lt;([^&lt;&gt;\s\/]+)((\s+[^=&gt;\s]+(\s*=\s*((\"[^"]*\")|(\'[^']*\')|[^&gt;\s]+))?)*)\s*\/?\s*&gt;/m</span></div><div class="line"><span class="keyword">const</span> END_TAG_REG = <span class="regexp">/^&lt;\/([^&gt;\s]+)[^&gt;]*&gt;/m</span></div><div class="line"><span class="keyword">const</span> ATTRIBUTE_REG = <span class="regexp">/([^=\s]+)(\s*=\s*((\"([^"]*)\")|(\'([^']*)\')|[^&gt;\s]+))?/gm</span></div><div class="line"></div><div class="line"><span class="keyword">export</span> <span class="keyword">class</span> ASTElement &#123;</div><div class="line">  <span class="keyword">type</span></div><div class="line">  children</div><div class="line">  tag</div><div class="line">  text</div><div class="line">  data</div><div class="line">  parent</div><div class="line"></div><div class="line">  <span class="keyword">constructor</span>(</div><div class="line">    type: 'Element' | 'Text' | 'Comment',</div><div class="line">    children: ASTElement[],</div><div class="line">    tag: string,</div><div class="line">    text: string,</div><div class="line">    data: ASTElementData | null,</div><div class="line">    parent: ASTElement | ASTRoot</div><div class="line">  ) &#123;</div><div class="line">    <span class="keyword">this</span>.type = <span class="keyword">type</span></div><div class="line">    <span class="keyword">this</span>.children = children</div><div class="line">    <span class="keyword">this</span>.tag = tag</div><div class="line">    <span class="keyword">this</span>.text = text</div><div class="line">    <span class="keyword">this</span>.data = data</div><div class="line">    <span class="keyword">this</span>.parent = parent</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">parse</span>(<span class="params">source: <span class="built_in">string</span></span>): <span class="title">ASTElement</span>[] </span>&#123;</div><div class="line"></div><div class="line">  <span class="keyword">let</span> result = &#123;</div><div class="line">    children: []</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">let</span> stack = []</div><div class="line">  <span class="keyword">let</span> parent: <span class="built_in">any</span> = <span class="literal">null</span></div><div class="line"></div><div class="line">  stack.push(result)</div><div class="line">  parent = result</div><div class="line"></div><div class="line">  <span class="keyword">while</span>(source.length &gt; <span class="number">0</span>) &#123;</div><div class="line"></div><div class="line">    <span class="comment">// 判断一些节点，如果都不符合按照文本处理</span></div><div class="line">    <span class="comment">// 判断接下来要处理的是不是注释 &lt;!-- 开头</span></div><div class="line">    <span class="keyword">if</span>(source.startsWith(<span class="string">'&lt;!--'</span>)) &#123;</div><div class="line">      <span class="comment">// 找注释结尾的位置，找到了，就提取出注释节点</span></div><div class="line">      <span class="keyword">let</span> endIndex = source.indexOf(<span class="string">'--&gt;'</span>)</div><div class="line">      <span class="keyword">if</span>(endIndex !== <span class="number">-1</span>) &#123;</div><div class="line">        <span class="comment">// console.log(`发现注释节点$&#123;source.substring(4, endIndex)&#125;`)</span></div><div class="line">        parent.children.push(<span class="keyword">new</span> ASTElement(<span class="string">'Comment'</span>, [], <span class="string">''</span>, source.substring(<span class="number">4</span>, endIndex), &#123;&#125;, parent))</div><div class="line">        source = source.substring(endIndex + <span class="number">3</span>)</div><div class="line">        <span class="keyword">continue</span></div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// 判断是不是 end Tag</span></div><div class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(source.startsWith(<span class="string">'&lt;/'</span>) &amp;&amp; END_TAG_REG.test(source)) &#123;</div><div class="line">      <span class="keyword">let</span> left = <span class="built_in">RegExp</span>.leftContext</div><div class="line">      <span class="keyword">let</span> tag = <span class="built_in">RegExp</span>.lastMatch</div><div class="line">      <span class="keyword">let</span> right = <span class="built_in">RegExp</span>.rightContext</div><div class="line"></div><div class="line">      <span class="comment">//console.log(`发现闭合标签 $&#123;tag&#125;`)</span></div><div class="line">      <span class="keyword">let</span> result = tag.match(END_TAG_REG)</div><div class="line">      <span class="keyword">let</span> name = result[<span class="number">1</span>]</div><div class="line"></div><div class="line">      <span class="keyword">if</span>(name === parent.tag) &#123;</div><div class="line">        stack.pop()</div><div class="line">        parent = stack[stack.length - <span class="number">1</span>]</div><div class="line">        <span class="comment">// console.log('闭合，出栈')</span></div><div class="line">      &#125;<span class="keyword">else</span> &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'闭合标签对不上，html 语法出错'</span>)</div><div class="line">      &#125;</div><div class="line">      source = right</div><div class="line">      <span class="keyword">continue</span></div><div class="line">    &#125;</div><div class="line">    <span class="comment">// 判断是不是 start Tag</span></div><div class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(source.charAt(<span class="number">0</span>) === <span class="string">'&lt;'</span> &amp;&amp; START_TAG_REG.test(source)) &#123;</div><div class="line">      <span class="keyword">let</span> left = <span class="built_in">RegExp</span>.leftContext</div><div class="line">      <span class="keyword">let</span> tag = <span class="built_in">RegExp</span>.lastMatch</div><div class="line">      <span class="keyword">let</span> right = <span class="built_in">RegExp</span>.rightContext</div><div class="line"></div><div class="line">      <span class="keyword">let</span> result = tag.match(START_TAG_REG)</div><div class="line">      <span class="keyword">let</span> tagName = result[<span class="number">1</span>]</div><div class="line">      <span class="keyword">let</span> attrs = result[<span class="number">2</span>]</div><div class="line">      <span class="keyword">let</span> attrMap = &#123;&#125;</div><div class="line">      <span class="keyword">let</span> nodeData: ASTElementData = &#123;</div><div class="line">        attrs: &#123;&#125;,</div><div class="line">        events: &#123;&#125;,</div><div class="line">        directives: &#123;&#125;,</div><div class="line">        rawAttrs: &#123;&#125;</div><div class="line">      &#125;</div><div class="line"></div><div class="line">      <span class="comment">// 抽取 attributes</span></div><div class="line">      <span class="keyword">if</span>(attrs) &#123;</div><div class="line">        attrs.replace(ATTRIBUTE_REG, (a0, a1, a2, a3, a4, a5, a6) =&gt; &#123;</div><div class="line">          <span class="keyword">let</span> attrName = a1</div><div class="line">          <span class="keyword">let</span> attrValue = a3 || <span class="literal">null</span></div><div class="line">          <span class="keyword">if</span>(attrValue &amp;&amp; attrValue.startsWith(<span class="string">'"'</span>) &amp;&amp; attrValue.endsWith(<span class="string">'"'</span>)) &#123;</div><div class="line">            attrMap[attrName] = attrValue.slice(<span class="number">1</span>, attrValue.length - <span class="number">1</span>)</div><div class="line">          &#125;<span class="keyword">else</span> <span class="keyword">if</span>(attrValue &amp;&amp; attrValue.startsWith(<span class="string">"'"</span>) &amp;&amp; attrValue.endsWith(<span class="string">"'"</span>)) &#123;</div><div class="line">            attrMap[attrName] = attrValue.slice(<span class="number">1</span>, attrValue.length - <span class="number">1</span>)</div><div class="line">          &#125;<span class="keyword">else</span> &#123;</div><div class="line">            attrMap[attrName] = attrValue</div><div class="line">          &#125;</div><div class="line">          <span class="keyword">return</span> <span class="string">''</span></div><div class="line">        &#125;)</div><div class="line">      &#125;</div><div class="line"></div><div class="line">      processAttrs(nodeData, attrMap)</div><div class="line"></div><div class="line">      <span class="comment">// console.log(`发现元素节点$&#123;tag&#125;`)</span></div><div class="line">      <span class="keyword">let</span> element = <span class="keyword">new</span> ASTElement(<span class="string">'Element'</span>, [], tagName, <span class="string">''</span>, nodeData, parent)</div><div class="line">      parent.children.push(element)</div><div class="line">      <span class="comment">// 如果不是自闭合 tag，入栈</span></div><div class="line">      <span class="keyword">if</span>(!tag.endsWith(<span class="string">'/&gt;'</span>)) &#123;</div><div class="line">        stack.push(element)</div><div class="line">        parent = element</div><div class="line">      &#125;</div><div class="line">      source = right</div><div class="line">      <span class="keyword">continue</span></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// 确认为文字模式，开始识别文本节点</span></div><div class="line">    <span class="comment">// console.log('开始识别文字')</span></div><div class="line">    <span class="keyword">let</span> index = source.indexOf(<span class="string">'&lt;'</span>, <span class="number">1</span>)</div><div class="line">    <span class="keyword">if</span>(index == <span class="number">-1</span>) &#123;</div><div class="line">      <span class="keyword">if</span>(parent.children[parent.children.length - <span class="number">1</span>] &amp;&amp; parent.children[parent.children.length - <span class="number">1</span>].type === <span class="string">'Text'</span>) &#123;</div><div class="line">        parent.children[parent.children.length - <span class="number">1</span>].text += source</div><div class="line">      &#125;<span class="keyword">else</span> &#123;</div><div class="line">        parent.children.push(<span class="keyword">new</span> ASTElement(<span class="string">'Text'</span>, [], <span class="string">''</span>, source, &#123;&#125;, parent))</div><div class="line">      &#125;</div><div class="line">      source = <span class="string">''</span></div><div class="line">    &#125;<span class="keyword">else</span> &#123;</div><div class="line">      <span class="keyword">if</span>(parent.children[parent.children.length - <span class="number">1</span>] &amp;&amp; parent.children[parent.children.length - <span class="number">1</span>].type === <span class="string">'Text'</span>) &#123;</div><div class="line">        parent.children[parent.children.length - <span class="number">1</span>].text += source.substring(<span class="number">0</span>, index)</div><div class="line">      &#125;<span class="keyword">else</span> &#123;</div><div class="line">        parent.children.push(<span class="keyword">new</span> ASTElement(<span class="string">'Text'</span>, [], <span class="string">''</span>, source.substring(<span class="number">0</span>, index), &#123;&#125;, parent))</div><div class="line">      &#125;</div><div class="line">      source = source.substring(index)</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> result.children</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 处理 attr，解析出 key ref 指令 事件等</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">processAttrs</span>(<span class="params">nodeData, attrMap</span>) </span>&#123;</div><div class="line">  <span class="built_in">Object</span>.keys(attrMap).forEach(k =&gt; &#123;</div><div class="line">    <span class="keyword">if</span>(k === <span class="string">':key'</span>) &#123;</div><div class="line">      nodeData.key = attrMap[k]</div><div class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span>(k === <span class="string">'key'</span>) &#123;</div><div class="line">      nodeData.key = <span class="string">'`'</span> + attrMap[k] + <span class="string">'`'</span></div><div class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span>(k === <span class="string">'ref'</span>) &#123;</div><div class="line">      nodeData.ref = attrMap[k]</div><div class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span>(k.startsWith(<span class="string">'v-'</span>)) &#123;</div><div class="line">      <span class="keyword">if</span>(k.slice(<span class="number">2</span>, <span class="number">5</span>) === <span class="string">'on:'</span>) &#123;</div><div class="line">        nodeData.events[k.slice(<span class="number">5</span>)] = attrMap[k]</div><div class="line">      &#125;<span class="keyword">else</span> &#123;</div><div class="line">        nodeData.directives[k.slice(<span class="number">2</span>)] = attrMap[k]</div><div class="line">      &#125;</div><div class="line">    &#125;<span class="keyword">else</span> &#123;</div><div class="line">      nodeData.attrs[k] = attrMap[k]</div><div class="line">    &#125;</div><div class="line">  &#125;)</div><div class="line"></div><div class="line">  nodeData.rawAttrs = attrMap</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="3-参考资料"><a href="#3-参考资料" class="headerlink" title="3.参考资料"></a>3.参考资料</h1><ol>
+<li><a href="https://github.com/vuejs/vue/blob/6ad99796c747987142c21b45c9361cca60e54e68/src/compiler/parser/html-parser.js" target="_blank" rel="external">vue parser</a></li>
+<li><a href="http://erik.eae.net/simplehtmlparser/simplehtmlparser.js" target="_blank" rel="external">simple-html-parser</a></li>
+</ol>
+
+            
+                
+
+            
+        </div>
+    </div>
+    <div class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">TAGGED IN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-none-link" href="/tags/Modern-web-development-tech-analysis/" rel="tag">Modern web development tech analysis</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/ast/" rel="tag">ast</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/parser/" rel="tag">parser</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/vue/" rel="tag">vue</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/%E7%8E%B0%E4%BB%A3%E5%89%8D%E7%AB%AF%E7%A7%91%E6%8A%80%E8%A7%A3%E6%9E%90/" rel="tag">现代前端科技解析</a>
+
+            </div>
+        
+        <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2019/03/07/modern-web-development-tech-analysis-virtual-dom/"  data-tooltip="现代前端科技解析 —— Virtual DOM">
+                
+                    <i class="fa fa-angle-left"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">PREVIOUS</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2018/10/12/massive-data-visualization-full-rendering-optimization/" data-tooltip="万级节点可视化全量渲染优化探究">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">NEXT</span>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions"  href="#btn-open-shareoptions">
+                <i class="fa fa-share-alt"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://www.404forest.com/2019/03/05/modern-web-development-tech-analysis-html-parser/">
+                <i class="fa fa-google-plus"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://www.404forest.com/2019/03/05/modern-web-development-tech-analysis-html-parser/">
+                <i class="fa fa-facebook-official"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://www.404forest.com/2019/03/05/modern-web-development-tech-analysis-html-parser/">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </li>
+        
+            <li class="post-action">
+                <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                    <i class="fa fa-comment-o"></i>
+                </a>
+            </li>
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#">
+            
+                <i class="fa fa-list"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+            <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2025 Jin. All Rights Reserved.
+    </span>
+    <a class="copyrights" target="_blank" rel="noopener" href="http://www.beian.miit.gov.cn/">
+        浙ICP备18012561号
+    </a>
+</footer>
+
+            </div>
+        </div>
+        <div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-remove"></i>
+        </div>
+        
+            <img id="about-card-picture" src="/assets/images/ava.png"/>
+        
+            <h4 id="about-card-name">Jin</h4>
+        
+            <h5 id="about-card-bio">Interested in Web Development/Typography/Japanese.</h5>
+        
+        
+            <h5 id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                WebDeveloper
+            </h5>
+        
+        
+            <h5 id="about-card-location">
+                <i class="fa fa-map-marker"></i>
+                <br/>
+                Beijing
+            </h5>
+        
+    </div>
+</div>
+
+        <div id="cover" style="background-image:url('/assets/images/bg4.jpg');"></div>
+    </body>
+    <!--SCRIPTS-->
+
+<script src="/assets/js/script.min.js"></script>
+
+<!--SCRIPTS END-->
+
+    <script type="text/javascript">
+        var disqus_shortname = '404forest';
+        (function() {
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+
+
+    <script type="text/javascript">
+        (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+                (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+            e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+        })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+        _st('install','ZkJM8hxyxxLens-VGG__','2.0.0');
+    </script>
+
+
+</html>

@@ -1,0 +1,410 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+    
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="404Forest">
+    <title>玉泉通过ipv6来使用shadowsocks - 404Forest</title>
+    <meta name="author" content="Jin">
+    
+        <link rel="icon" href="/assets/images/favicon.ico">
+    
+    
+    <meta name="description" content="今年暑假期间GFW大升级，在机器学习、数据挖掘、深度包检测等装备全面部署下的GFW火力大大提升，导致杭州电信环境下shadowsocks可用性大幅降低，在Linode、DO、conoha等家的vps上架设的shadowsocks被打击严重，难以正常使用。试用ipv6，发现效果还可以，可能功夫网gfw对ipv6的针对力度还不大。下面说一下流程。">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="玉泉通过ipv6来使用shadowsocks">
+<meta property="og:url" content="http://www.404forest.com/2015/10/13/%E7%8E%89%E6%B3%89%E9%80%9A%E8%BF%87ipv6%E6%9D%A5%E4%BD%BF%E7%94%A8shadowsocks/index.html">
+<meta property="og:site_name" content="404Forest">
+<meta property="og:description" content="今年暑假期间GFW大升级，在机器学习、数据挖掘、深度包检测等装备全面部署下的GFW火力大大提升，导致杭州电信环境下shadowsocks可用性大幅降低，在Linode、DO、conoha等家的vps上架设的shadowsocks被打击严重，难以正常使用。试用ipv6，发现效果还可以，可能功夫网gfw对ipv6的针对力度还不大。下面说一下流程。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://7sbmuq.com1.z0.glb.clouddn.com/ss-ipv6-1.png">
+<meta property="og:image" content="http://7sbmuq.com1.z0.glb.clouddn.com/ss-ipv6-2.png">
+<meta property="og:image" content="http://7sbmuq.com1.z0.glb.clouddn.com/ss-ipv6-3.png">
+<meta property="og:image" content="http://7sbmuq.com1.z0.glb.clouddn.com/ss-ipv6-4.png">
+<meta property="og:image" content="http://7sbmuq.com1.z0.glb.clouddn.com/ss-ipv6-5.png">
+<meta property="og:image" content="http://7sbmuq.com1.z0.glb.clouddn.com/ss-ipv6-6.png">
+<meta property="og:image" content="http://7sbmuq.com1.z0.glb.clouddn.com/ladder.png">
+<meta property="article:published_time" content="2015-10-13T09:35:41.000Z">
+<meta property="article:modified_time" content="2025-02-04T23:02:44.267Z">
+<meta property="article:author" content="Jin">
+<meta property="article:tag" content="ipv6">
+<meta property="article:tag" content="shadowsocks">
+<meta property="article:tag" content="GFW">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://7sbmuq.com1.z0.glb.clouddn.com/ss-ipv6-1.png">
+<meta name="twitter:creator" content="@jin5354">
+    
+    
+    
+        <meta property="og:image" content="/assets/images/ava.png"/>
+    
+    
+    
+    
+    <!--STYLES-->
+    
+<link rel="stylesheet" href="/assets/css/style.min.css">
+
+    <!--STYLES END-->
+    
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-66492678-1']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+
+</head>
+
+    <body>
+        <div id="blog">
+            <header id="header" data-behavior="3">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <h1 class="header-title">
+        <a class="header-title-link" href="/%20">404Forest</a>
+    </h1>
+    
+        <a class="header-right-picture" href="/#about">
+            <img class="header-picture" src="/assets/images/ava.png"/>
+        </a>
+    
+</header>
+            <nav id="sidebar" data-behavior="3">
+    
+        <div class="sidebar-profile">
+            <a href="/#about">
+                
+                    <img class="sidebar-profile-picture" src="/assets/images/ava.png"/>
+                
+            </a>
+            <span class="sidebar-profile-name">Jin</span>
+        </div>
+    
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/%20"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+                    <span class="sidebar-button-desc">Home</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-archives"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+                    <span class="sidebar-button-desc">Archive</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-categories"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+                    <span class="sidebar-button-desc">Categories</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-tags"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+                    <span class="sidebar-button-desc">Tags</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link st-search-show-outputs"
+                         href="#search"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-search"></i>
+                    <span class="sidebar-button-desc">Search</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="#about"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+                    <span class="sidebar-button-desc">About</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="https://github.com/jin5354" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+                    <span class="sidebar-button-desc">GitHub</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="mailto:xiaoyanjinx@gmail.com" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-envelope-o"></i>
+                    <span class="sidebar-button-desc">Mail</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+    <div style="margin-left: 27px;">
+        <a target="_blank" rel="noopener" href="https://github.com/jin5354/404forest"><img src="https://img.shields.io/github/stars/jin5354/404forest.svg?style=social&label=Stars"></a>
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="3"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title" itemprop="headline">
+            玉泉通过ipv6来使用shadowsocks
+        </h1>
+    
+    <div class="post-meta">
+    <time itemprop="datePublished" content="Tue Oct 13 2015 02:35:41 GMT-0700">
+	
+		    10月 13, 2015
+    	
+    </time>
+    
+        <span>in </span>
+        
+    <a class="category-link" href="/categories/Code/">Code</a>
+
+
+    
+</div>
+</div>
+    
+    <div class="main-content-wrap" style="margin-top: 60px;">索引</div>
+    
+    <div class="post-content markdown" itemprop="articleBody">
+        <div class="main-content-wrap">
+            <p>今年暑假期间GFW大升级，在机器学习、数据挖掘、深度包检测等装备全面部署下的GFW火力大大提升，导致杭州电信环境下shadowsocks可用性大幅降低，在Linode、DO、conoha等家的vps上架设的shadowsocks被打击严重，难以正常使用。试用ipv6，发现效果还可以，可能功夫网gfw对ipv6的针对力度还不大。下面说一下流程。</p>
+<a id="more"></a>
+<p>首先你需要分配到一个ipv6地址。</p>
+<p>据说玉泉的有线网络会自动分配一个ipv6地址，我是一直使用无线（ZJUWLAN）的，有线的情况不清楚，不过到底有没有拿到ipv6访问后文的网址就知道了。其实我个人感觉用ZJUWLAN + 自建VPN方式通用性大一点，寝室教室都能用。如果你说wifi信号不好，那就没办法了..</p>
+<p>第一步，使用ZJUWLAN的话，通过自建VPN方式登录。（不能使用网页认证方式登录，那种方式拿不到ipv6）</p>
+<p>在偏好设置-网络中，新建一个l2tp的vpn，按图配置。点击鉴定设置，密码中填入VPN密码。高级中，确保“通过VPN连接发送所有流量”为非勾选状态。</p>
+<p><img src="http://7sbmuq.com1.z0.glb.clouddn.com/ss-ipv6-1.png" alt="ss-ipv6-1"></p>
+<p>这时在接入ZJUWLAN后，连接这个VPN就可以接入外网了。偶尔会出鉴定失败什么的错误，多试几次就可以上了。</p>
+<p>这里如果有问题可以参考下98的这个帖子 <a href="http://www.cc98.org/dispbbs.asp?boardid=226&amp;id=4551270" target="_blank" rel="external">网络问题日经帖之终结帖！</a></p>
+<p>第二步，点击左边的 + 号，新建一个6 to 4连接，什么也不用配置，直接点应用。正常情况下立刻就能看到一个ipv6地址了。</p>
+<p><img src="http://7sbmuq.com1.z0.glb.clouddn.com/ss-ipv6-2.png" alt="ss-ipv6-2"></p>
+<p>点击左边的齿轮，选择设定服务顺序，把VPN(L2TP)拖动到最上方。</p>
+<p>第三步，访问<a href="http://www.test-ipv6.nl/" target="_blank" rel="external">test-ipv6</a>，看看是不是一路绿灯。</p>
+<p><img src="http://7sbmuq.com1.z0.glb.clouddn.com/ss-ipv6-3.png" alt="ss-ipv6-3"></p>
+<p><img src="http://7sbmuq.com1.z0.glb.clouddn.com/ss-ipv6-4.png" alt="ss-ipv6-4"></p>
+<p>看一下自己vps的ipv6地址，ping6一下试试。</p>
+<p><img src="http://7sbmuq.com1.z0.glb.clouddn.com/ss-ipv6-5.png" alt="ss-ipv6-5"></p>
+<p>如果都能正常连接表示离成功就八九不离十了。我第一次配置时，ipv6地址获取成功，但是不能访问ipv6网站，也不能ping通自己vps的ipv6地址。我也没什么头绪，后来放置一天再尝试就正常了。囧。神奇玉泉。</p>
+<p>第四步，微调一下服务器端ss，开启对ipv6的监听。</p>
+<p>方式非常简单：如果使用json配置文件，改server一行为：<br><figure class="highlight autohotkey"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="symbol">“server”:”::</span>”</div></pre></td></tr></table></figure></p>
+<p>表示同时监听ipv4和ipv6；</p>
+<p>如果使用命令行形式启动ss，添加“-s ::”启动就可以了。</p>
+<p>最后一步别忘了，本地ss客户端改一下ipv6地址。</p>
+<p><img src="http://7sbmuq.com1.z0.glb.clouddn.com/ss-ipv6-6.png" alt="ss-ipv6-6"></p>
+<p>Enjoy！</p>
+<p><img src="http://7sbmuq.com1.z0.glb.clouddn.com/ladder.png" alt="ladder"></p>
+<p>PS： 感谢v2ex上遇到的<a href="http://www.v2ex.com/member/xiangtianxiao" target="_blank" rel="external">xiangtianxiao</a>同学的分享。</p>
+
+            
+                
+
+            
+        </div>
+    </div>
+    <div class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">TAGGED IN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-none-link" href="/tags/GFW/" rel="tag">GFW</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/ipv6/" rel="tag">ipv6</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/shadowsocks/" rel="tag">shadowsocks</a>
+
+            </div>
+        
+        <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2015/10/25/%E3%80%8AWebKit%E6%8A%80%E6%9C%AF%E5%86%85%E5%B9%95%E3%80%8B%E2%80%94%E2%80%94%E8%84%91%E5%9B%BE%E7%AC%94%E8%AE%B0/"  data-tooltip="《WebKit技术内幕》——脑图笔记">
+                
+                    <i class="fa fa-angle-left"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">PREVIOUS</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2015/10/12/%E5%9C%A8mac%E4%B8%8B%E9%85%8D%E7%BD%AEwine%E7%8E%AF%E5%A2%83%E2%80%94%E2%80%94%E8%87%AA%E5%B7%B1wine%E4%B8%80%E4%B8%AA%E5%B0%8F%E6%B8%B8%E6%88%8F/" data-tooltip="在mac下配置wine环境——自己wine一个小游戏">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">NEXT</span>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions"  href="#btn-open-shareoptions">
+                <i class="fa fa-share-alt"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://www.404forest.com/2015/10/13/%E7%8E%89%E6%B3%89%E9%80%9A%E8%BF%87ipv6%E6%9D%A5%E4%BD%BF%E7%94%A8shadowsocks/">
+                <i class="fa fa-google-plus"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://www.404forest.com/2015/10/13/%E7%8E%89%E6%B3%89%E9%80%9A%E8%BF%87ipv6%E6%9D%A5%E4%BD%BF%E7%94%A8shadowsocks/">
+                <i class="fa fa-facebook-official"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://www.404forest.com/2015/10/13/%E7%8E%89%E6%B3%89%E9%80%9A%E8%BF%87ipv6%E6%9D%A5%E4%BD%BF%E7%94%A8shadowsocks/">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </li>
+        
+            <li class="post-action">
+                <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                    <i class="fa fa-comment-o"></i>
+                </a>
+            </li>
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#">
+            
+                <i class="fa fa-list"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+            <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2025 Jin. All Rights Reserved.
+    </span>
+    <a class="copyrights" target="_blank" rel="noopener" href="http://www.beian.miit.gov.cn/">
+        浙ICP备18012561号
+    </a>
+</footer>
+
+            </div>
+        </div>
+        <div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-remove"></i>
+        </div>
+        
+            <img id="about-card-picture" src="/assets/images/ava.png"/>
+        
+            <h4 id="about-card-name">Jin</h4>
+        
+            <h5 id="about-card-bio">Interested in Web Development/Typography/Japanese.</h5>
+        
+        
+            <h5 id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                WebDeveloper
+            </h5>
+        
+        
+            <h5 id="about-card-location">
+                <i class="fa fa-map-marker"></i>
+                <br/>
+                Beijing
+            </h5>
+        
+    </div>
+</div>
+
+        <div id="cover" style="background-image:url('/assets/images/bg4.jpg');"></div>
+    </body>
+    <!--SCRIPTS-->
+
+<script src="/assets/js/script.min.js"></script>
+
+<!--SCRIPTS END-->
+
+    <script type="text/javascript">
+        var disqus_shortname = '404forest';
+        (function() {
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+
+
+    <script type="text/javascript">
+        (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+                (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+            e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+        })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+        _st('install','ZkJM8hxyxxLens-VGG__','2.0.0');
+    </script>
+
+
+</html>

@@ -1,0 +1,462 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+    
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="404Forest">
+    <title>使用 karma/mocha 全家桶为 Vue 组件编写单元测试 - 404Forest</title>
+    <meta name="author" content="Jin">
+    
+        <link rel="icon" href="/assets/images/favicon.ico">
+    
+    
+    <meta name="description" content="编写单元测试可以大大提高项目的稳定性和内心的安全感。对于功能点稳定、需长期迭代的项目，编写单元测试可以有效的减少维护成本，降低 Bug 率。最近在为公司内部的 Vue 组件库添加单元测试，配置测试环境、编写测试用例花了一些时间，略作整理。">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="使用 karma&#x2F;mocha 全家桶为 Vue 组件编写单元测试">
+<meta property="og:url" content="http://www.404forest.com/2017/02/22/use-karma-mocha-kits-to-write-unit-tests-for-vue-component/index.html">
+<meta property="og:site_name" content="404Forest">
+<meta property="og:description" content="编写单元测试可以大大提高项目的稳定性和内心的安全感。对于功能点稳定、需长期迭代的项目，编写单元测试可以有效的减少维护成本，降低 Bug 率。最近在为公司内部的 Vue 组件库添加单元测试，配置测试环境、编写测试用例花了一些时间，略作整理。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/unit-test-1.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/unit-test-6.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/unit-test-2.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/unit-test-3.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/unit-test-4.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/unit-test-5.png">
+<meta property="article:published_time" content="2017-02-23T05:03:11.000Z">
+<meta property="article:modified_time" content="2025-02-04T23:02:44.262Z">
+<meta property="article:author" content="Jin">
+<meta property="article:tag" content="vue">
+<meta property="article:tag" content="unit test">
+<meta property="article:tag" content="karma">
+<meta property="article:tag" content="mocha">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://www.404forest.com/imgs/blog/unit-test-1.png">
+<meta name="twitter:creator" content="@jin5354">
+    
+    
+    
+        <meta property="og:image" content="/assets/images/ava.png"/>
+    
+    
+    
+    
+    <!--STYLES-->
+    
+<link rel="stylesheet" href="/assets/css/style.min.css">
+
+    <!--STYLES END-->
+    
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-66492678-1']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+
+</head>
+
+    <body>
+        <div id="blog">
+            <header id="header" data-behavior="3">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <h1 class="header-title">
+        <a class="header-title-link" href="/%20">404Forest</a>
+    </h1>
+    
+        <a class="header-right-picture" href="/#about">
+            <img class="header-picture" src="/assets/images/ava.png"/>
+        </a>
+    
+</header>
+            <nav id="sidebar" data-behavior="3">
+    
+        <div class="sidebar-profile">
+            <a href="/#about">
+                
+                    <img class="sidebar-profile-picture" src="/assets/images/ava.png"/>
+                
+            </a>
+            <span class="sidebar-profile-name">Jin</span>
+        </div>
+    
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/%20"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+                    <span class="sidebar-button-desc">Home</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-archives"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+                    <span class="sidebar-button-desc">Archive</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-categories"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+                    <span class="sidebar-button-desc">Categories</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-tags"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+                    <span class="sidebar-button-desc">Tags</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link st-search-show-outputs"
+                         href="#search"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-search"></i>
+                    <span class="sidebar-button-desc">Search</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="#about"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+                    <span class="sidebar-button-desc">About</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="https://github.com/jin5354" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+                    <span class="sidebar-button-desc">GitHub</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="mailto:xiaoyanjinx@gmail.com" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-envelope-o"></i>
+                    <span class="sidebar-button-desc">Mail</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+    <div style="margin-left: 27px;">
+        <a target="_blank" rel="noopener" href="https://github.com/jin5354/404forest"><img src="https://img.shields.io/github/stars/jin5354/404forest.svg?style=social&label=Stars"></a>
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="3"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title" itemprop="headline">
+            使用 karma/mocha 全家桶为 Vue 组件编写单元测试
+        </h1>
+    
+    <div class="post-meta">
+    <time itemprop="datePublished" content="Wed Feb 22 2017 21:03:11 GMT-0800">
+	
+		    2月 22, 2017
+    	
+    </time>
+    
+        <span>in </span>
+        
+    <a class="category-link" href="/categories/Code/">Code</a>
+
+
+    
+</div>
+</div>
+    
+    <div class="main-content-wrap" style="margin-top: 60px;">索引</div>
+    <ol class="main-content-wrap toc-article"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#1-%E6%95%B4%E7%90%86%E5%AE%89%E8%A3%85-Karma-mocha-sinon-chai-%E5%85%A8%E5%AE%B6%E6%A1%B6"><span class="main-content-wrap toc-article-text">1. 整理安装 Karma + mocha + sinon + chai 全家桶</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#2-%E9%85%8D%E7%BD%AE-karma"><span class="main-content-wrap toc-article-text">2. 配置 karma</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#3-%E8%A7%84%E5%88%92%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="main-content-wrap toc-article-text">3. 规划目录结构</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#4-%E7%BC%96%E5%86%99-Vue-%E7%BB%84%E4%BB%B6%E7%9A%84%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95"><span class="main-content-wrap toc-article-text">4. 编写 Vue 组件的单元测试</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#5-%E4%B8%80%E4%BA%9B%E5%B0%8F-Tips"><span class="main-content-wrap toc-article-text">5. 一些小 Tips</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-2"><a class="main-content-wrap toc-article-link" href="#6-%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="main-content-wrap toc-article-text">6. 参考资料</span></a></li></ol>
+    <div class="post-content markdown" itemprop="articleBody">
+        <div class="main-content-wrap">
+            <p>编写单元测试可以大大提高项目的稳定性和内心的安全感。对于功能点稳定、需长期迭代的项目，编写单元测试可以有效的减少维护成本，降低 Bug 率。最近在为公司内部的 Vue 组件库添加单元测试，配置测试环境、编写测试用例花了一些时间，略作整理。</p>
+<a id="more"></a>
+<h2 id="1-整理安装-Karma-mocha-sinon-chai-全家桶"><a href="#1-整理安装-Karma-mocha-sinon-chai-全家桶" class="headerlink" title="1. 整理安装 Karma + mocha + sinon + chai 全家桶"></a>1. 整理安装 Karma + mocha + sinon + chai 全家桶</h2><p>整理一下配置测试环境所需要的依赖：</p>
+<ul>
+<li><strong>karma</strong>  //test runner，提供测试所需的浏览器环境、监测代码改变自动重测、整合持续集成等功能</li>
+<li><strong>phantomjs-prebuilt</strong> //phantomjs，在终端运行的浏览器虚拟机</li>
+<li><strong>mocha</strong>  //test framework，测试框架，运行测试</li>
+<li><strong>chai</strong>  //assertion framework, 断言库，提供多种断言，与测试框架配合使用</li>
+<li><strong>sinon</strong>  //测试辅助工具，提供 spy、stub、mock 三种测试手段，帮助捏造特定场景</li>
+<li><strong>karma-webpack</strong>  //karma 中的 webpack 插件</li>
+<li><strong>karma-mocha</strong>  //karma 中的 mocha 插件</li>
+<li><strong>karma-sinon-chai</strong>  //karma 中的 sinon-chai 插件</li>
+<li><strong>sinon-chai</strong>  //karma 中的 chai 插件</li>
+<li><strong>karma-sourcemap-loader</strong>  //karma 中的 sourcemap 插件</li>
+<li><strong>karma-phantomjs-launcher</strong>  //karma 中的 phantomjs 插件</li>
+<li><strong>karma-spec-reporter</strong>  //在终端输出测试结果</li>
+<li><strong>istanbul-instrumenter-loader</strong>  //代码覆盖率统计工具 istanbul</li>
+<li><strong>karma-coverage-istanbul-reporter</strong>  //代码覆盖率报告产出插件</li>
+</ul>
+<p>官方示例中是使用 <code>karma-coverage</code> 来统计代码覆盖率的，不过很遗憾用来测试 Vue 组件输出结果不太正常，折腾一番无果，参照其他开源项目最终替换为了 <a href="https://github.com/deepsweet/istanbul-instrumenter-loader" target="_blank" rel="external">istanbul</a> 。</p>
+<p>全家桶安装一波：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">npm i karma phantomjs-prebuilt mocha chai sinon karma-webpack karma-mocha karma-sinon-chai sinon-chai karma-sourcemap-loader karma-phantomjs-launcher karma-spec-reporter istanbul-instrumenter-loader karma-coverage-istanbul-reporter --save-dev</div></pre></td></tr></table></figure>
+<h2 id="2-配置-karma"><a href="#2-配置-karma" class="headerlink" title="2. 配置 karma"></a>2. 配置 karma</h2><p>按照 karma 的文档，运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">karma init</div></pre></td></tr></table></figure>
+<p>先后选择使用的测试框架、是否使用 require.js、浏览器环境、测试脚本存放位置、是否有需要 ignore 的文件，等等。很简单，选择完毕之后，该项目根目录下生成名为 <code>karma.conf.js</code> 文件。</p>
+<p>接下来就是设置 karma 的各项插件的配置：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span>(<span class="params">config</span>) </span>&#123;</div><div class="line">  config.set(&#123;</div><div class="line"></div><div class="line">    <span class="comment">// base path that will be used to resolve all patterns (eg. files, exclude)</span></div><div class="line">    basePath: <span class="string">''</span>,</div><div class="line"></div><div class="line">    <span class="comment">// 手动引入 karma 的各项插件，如果不显式引入，karma 也会自动寻找 karma- 开头的插件并自动引入</span></div><div class="line">    plugins: [</div><div class="line">      <span class="string">'karma-coverage-istanbul-reporter'</span>,</div><div class="line">      <span class="string">'karma-mocha'</span>,</div><div class="line">      <span class="string">'karma-sinon-chai'</span>,</div><div class="line">      <span class="string">'karma-webpack'</span>,</div><div class="line">      <span class="string">'karma-sourcemap-loader'</span>,</div><div class="line">      <span class="string">'karma-spec-reporter'</span>,</div><div class="line">      <span class="string">'karma-phantomjs-launcher'</span></div><div class="line">    ],</div><div class="line"></div><div class="line">    <span class="comment">// frameworks to use</span></div><div class="line">    <span class="comment">// available frameworks: https://npmjs.org/browse/keyword/karma-adapter</span></div><div class="line">    <span class="comment">// 设定要使用的 frameworks</span></div><div class="line">    frameworks: [<span class="string">'mocha'</span>, <span class="string">'sinon-chai'</span>],</div><div class="line"></div><div class="line">    <span class="comment">// list of files / patterns to load in the browser</span></div><div class="line">    <span class="comment">// 入口文件，按照 istanbul-instrumenter-loader 的要求来写</span></div><div class="line">    files: [<span class="string">'./test/unit/index.js'</span>],</div><div class="line"></div><div class="line">    <span class="comment">// list of files to exclude</span></div><div class="line">    exclude: [</div><div class="line">    ],</div><div class="line"></div><div class="line">    <span class="comment">// preprocess matching files before serving them to the browser</span></div><div class="line">    <span class="comment">// available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor</span></div><div class="line">    <span class="comment">// 加入 webpack 与 sourcemap 插件</span></div><div class="line">    preprocessors: &#123;</div><div class="line">      <span class="string">'./test/unit/index.js'</span>: [<span class="string">'webpack'</span>, <span class="string">'sourcemap'</span>],</div><div class="line">    &#125;,</div><div class="line"></div><div class="line">    <span class="comment">// test results reporter to use</span></div><div class="line">    <span class="comment">// possible values: 'dots', 'progress'</span></div><div class="line">    <span class="comment">// available reporters: https://npmjs.org/browse/keyword/karma-reporter</span></div><div class="line">    <span class="comment">// 设定报告输出插件： spec 和 coverage-istanbul</span></div><div class="line">    reporters: [<span class="string">'spec'</span>, <span class="string">'coverage-istanbul'</span>],</div><div class="line"></div><div class="line">    <span class="comment">// coverage-istanbul 输出配置，报告文件输出于根目录下的 coverage 文件夹内</span></div><div class="line">    coverageIstanbulReporter: &#123;</div><div class="line"></div><div class="line">       <span class="comment">// reports can be any that are listed here: https://github.com/istanbuljs/istanbul-reports/tree/590e6b0089f67b723a1fdf57bc7ccc080ff189d7/lib</span></div><div class="line">      reports: [<span class="string">'html'</span>, <span class="string">'lcovonly'</span>, <span class="string">'text-summary'</span>],</div><div class="line"></div><div class="line">       <span class="comment">// base output directory</span></div><div class="line">      dir: <span class="string">'./coverage'</span>,</div><div class="line"></div><div class="line">       <span class="comment">// if using webpack and pre-loaders, work around webpack breaking the source path</span></div><div class="line">      fixWebpackSourcePaths: <span class="literal">true</span>,</div><div class="line"></div><div class="line">       <span class="comment">// Most reporters accept additional config options. You can pass these through the `report-config` option</span></div><div class="line">      <span class="string">'report-config'</span>: &#123;</div><div class="line"></div><div class="line">        <span class="comment">// all options available at: https://github.com/istanbuljs/istanbul-reports/blob/590e6b0089f67b723a1fdf57bc7ccc080ff189d7/lib/html/index.js#L135-L137</span></div><div class="line">        html: &#123;</div><div class="line">          <span class="comment">// outputs the report in ./coverage/html</span></div><div class="line">          subdir: <span class="string">'html'</span></div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;,</div><div class="line"></div><div class="line">    <span class="comment">// web server port</span></div><div class="line">    port: <span class="number">9876</span>,</div><div class="line"></div><div class="line">    <span class="comment">// enable / disable colors in the output (reporters and logs)</span></div><div class="line">    colors: <span class="literal">true</span>,</div><div class="line"></div><div class="line">    <span class="comment">// level of logging</span></div><div class="line">    <span class="comment">// possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG</span></div><div class="line">    logLevel: config.LOG_INFO,</div><div class="line"></div><div class="line">    <span class="comment">// enable / disable watching file and executing tests whenever any file changes</span></div><div class="line">    autoWatch: <span class="literal">true</span>,</div><div class="line"></div><div class="line">    <span class="comment">// start these browsers</span></div><div class="line">    <span class="comment">// available browser launchers: https://npmjs.org/browse/keyword/karma-launcher</span></div><div class="line">    browsers: [<span class="string">'PhantomJS'</span>],</div><div class="line"></div><div class="line">    <span class="comment">// Continuous Integration mode</span></div><div class="line">    <span class="comment">// if true, Karma captures browsers, runs the tests and exits</span></div><div class="line">    singleRun: <span class="literal">false</span>,</div><div class="line"></div><div class="line">    <span class="comment">// Concurrency level</span></div><div class="line">    <span class="comment">// how many browser should be started simultaneous</span></div><div class="line">    concurrency: <span class="literal">Infinity</span>,</div><div class="line"></div><div class="line">    <span class="comment">// 设定终端上不输出 webpack 的打包信息</span></div><div class="line">    webpackMiddleware: &#123;</div><div class="line">      <span class="attr">noInfo</span>: <span class="literal">true</span></div><div class="line">    &#125;,</div><div class="line"></div><div class="line">    <span class="comment">// 用来预编译源代码的 webpack 配置，基本就是项目的 webpack 配置，但要去掉 entry 属性</span></div><div class="line">    webpack: &#123;</div><div class="line">      <span class="attr">output</span>: &#123;</div><div class="line">        <span class="attr">path</span>: __dirname + <span class="string">'/lib'</span>,</div><div class="line">        <span class="attr">filename</span>: <span class="string">'[name].js'</span>,</div><div class="line">        <span class="attr">libraryTarget</span>: <span class="string">'umd'</span></div><div class="line">      &#125;,</div><div class="line">      <span class="attr">module</span>: &#123;</div><div class="line">        <span class="attr">loaders</span>: [</div><div class="line">          &#123;</div><div class="line">            <span class="attr">test</span>: <span class="regexp">/\.js$/</span>,</div><div class="line">            <span class="attr">loader</span>: <span class="string">'babel-loader'</span>,</div><div class="line">            <span class="attr">exclude</span>: <span class="regexp">/node_modules/</span></div><div class="line">          &#125;,</div><div class="line">          <span class="comment">// 为了统计代码覆盖率，对 js 文件加入 istanbul-instrumenter-loader</span></div><div class="line">          &#123;</div><div class="line">            <span class="attr">test</span>: <span class="regexp">/\.(js)$/</span>,</div><div class="line">            <span class="attr">loader</span>: <span class="string">'istanbul-instrumenter-loader'</span>,</div><div class="line">            <span class="attr">exclude</span>: <span class="regexp">/node_modules/</span>,</div><div class="line">            <span class="attr">include</span>: <span class="regexp">/src|packages/</span>,</div><div class="line">            <span class="attr">enforce</span>: <span class="string">'post'</span>,</div><div class="line">            <span class="attr">options</span>: &#123;</div><div class="line">              <span class="attr">esModules</span>: <span class="literal">true</span></div><div class="line">            &#125;</div><div class="line">          &#125;,</div><div class="line">          &#123;</div><div class="line">            <span class="attr">test</span>: <span class="regexp">/\.(js|vue)$/</span>,</div><div class="line">            <span class="attr">loader</span>: <span class="string">'eslint-loader'</span>,</div><div class="line">            <span class="attr">exclude</span>: <span class="regexp">/node_modules/</span>,</div><div class="line">            <span class="attr">include</span>: <span class="regexp">/src|packages/</span>,</div><div class="line">            <span class="attr">enforce</span>: <span class="string">'pre'</span>,</div><div class="line">            <span class="attr">options</span>: &#123;</div><div class="line">              <span class="attr">eslint</span>: &#123;</div><div class="line">                <span class="attr">configFile</span>: <span class="string">'../.eslintrc.json'</span></div><div class="line">              &#125;</div><div class="line">            &#125;</div><div class="line">          &#125;,</div><div class="line">          &#123;</div><div class="line">            <span class="attr">test</span>: <span class="regexp">/\.vue$/</span>,</div><div class="line">            <span class="attr">loaders</span>: [&#123;</div><div class="line">              <span class="attr">loader</span>: <span class="string">'vue-loader'</span>,</div><div class="line">              <span class="attr">options</span>: &#123;</div><div class="line">                <span class="attr">postcss</span>: [autoprefixer(&#123;<span class="attr">browsers</span>: [<span class="string">'&gt; 1%'</span>, <span class="string">'ie &gt;= 9'</span>, <span class="string">'iOS &gt;= 6'</span>, <span class="string">'Android &gt;= 2.1'</span>]&#125;), px2rem(&#123;<span class="attr">remUnit</span>: <span class="number">75</span>&#125;)],</div><div class="line">                <span class="comment">// 为了统计代码覆盖率，对 vue 文件加入 istanbul-instrumenter-loader</span></div><div class="line">                preLoaders: &#123;</div><div class="line">                  <span class="attr">js</span>: <span class="string">'istanbul-instrumenter-loader?esModules=true'</span></div><div class="line">                &#125;</div><div class="line">              &#125;</div><div class="line">            &#125;]</div><div class="line">          &#125;,</div><div class="line">          &#123;</div><div class="line">            <span class="attr">test</span>: <span class="regexp">/\.(scss|sass)$/</span>,</div><div class="line">            <span class="attr">loaders</span>: [<span class="string">'style-loader'</span>, <span class="string">'css-loader'</span>, <span class="string">'sass-loader'</span>]</div><div class="line">          &#125;,</div><div class="line">          &#123;</div><div class="line">            <span class="attr">test</span>: <span class="regexp">/\.css$/</span>,</div><div class="line">            <span class="attr">loaders</span>: [<span class="string">'style-loader'</span>, <span class="string">'css-loader'</span>]</div><div class="line">          &#125;,</div><div class="line">          &#123;</div><div class="line">            <span class="attr">test</span>: <span class="regexp">/\.(eot|svg|ttf|woff|woff2|png|jpg|gif|svg)(\?t=\d+)?$/</span>,</div><div class="line">            <span class="attr">loaders</span>: [&#123;</div><div class="line">              <span class="attr">loader</span>: <span class="string">'url-loader?limit=8192&amp;name=[name]-[hash].[ext]'</span></div><div class="line">            &#125;]</div><div class="line">          &#125;</div><div class="line">        ]</div><div class="line">      &#125;,</div><div class="line">      <span class="attr">plugins</span>: [</div><div class="line">        <span class="keyword">new</span> webpack.DefinePlugin(&#123;</div><div class="line">          <span class="string">'process.env'</span>: &#123;</div><div class="line">            <span class="attr">NODE_ENV</span>: <span class="string">'"production"'</span></div><div class="line">          &#125;</div><div class="line">        &#125;)</div><div class="line">      ]</div><div class="line">    &#125;</div><div class="line">  &#125;)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="3-规划目录结构"><a href="#3-规划目录结构" class="headerlink" title="3. 规划目录结构"></a>3. 规划目录结构</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">├── src/</div><div class="line">├── packages/</div><div class="line">│</div><div class="line">├── <span class="built_in">test</span>/</div><div class="line">│   └── unit/</div><div class="line">│       ├── index.js</div><div class="line">│       └── *.spec.js</div><div class="line">└── karma.conf.js</div></pre></td></tr></table></figure>
+<p>项目源代码均处于 src 和 packages 两个文件夹下，且 src 文件夹下存在一个总入口文件，其中引入了 src 与 packages 下的全部模块。</p>
+<p>测试相关文件均放在 test/unit 文件夹下，总入口文件为 index.js，各个组件的单测文件分别为 组件名.spec.js。</p>
+<p>karma 配置文件 karma.conf.js 放置于项目根目录下。</p>
+<p>根据 <code>istanbul-instrumenter-loader</code> 文档的说明，测试总入口文件 index.js 内容如下：</p>
+<figure class="highlight qml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Polyfill fn.bind() for PhantomJS</span></div><div class="line"><span class="comment">/* eslint-disable no-extend-native */</span></div><div class="line"><span class="built_in">Function</span>.prototype.bind = <span class="built_in">require</span>(<span class="string">'function-bind'</span>)</div><div class="line"></div><div class="line"><span class="comment">// require all test files (files that ends with .spec.js)</span></div><div class="line"><span class="comment">// require 所有的测试文件 *.spec.js</span></div><div class="line"><span class="keyword">const</span> testsContext = <span class="built_in">require</span>.context(<span class="string">'.'</span>, <span class="literal">true</span>, <span class="regexp">/\.spec$/</span>)</div><div class="line">testsContext.keys().forEach(testsContext)</div><div class="line"></div><div class="line"><span class="comment">// require all src files except main.js for coverage.</span></div><div class="line"><span class="comment">// you can also change this to match only the subset of files that</span></div><div class="line"><span class="comment">// you want coverage for.</span></div><div class="line"><span class="comment">// require 需要统计覆盖率的源码文件</span></div><div class="line"><span class="keyword">const</span> srcContext = <span class="built_in">require</span>.context(<span class="string">'../../src'</span>, <span class="literal">true</span>, <span class="regexp">/^\.\/(?!main(\.js)?$)/</span>)</div><div class="line">srcContext.keys().forEach(srcContext)</div></pre></td></tr></table></figure>
+<h2 id="4-编写-Vue-组件的单元测试"><a href="#4-编写-Vue-组件的单元测试" class="headerlink" title="4. 编写 Vue 组件的单元测试"></a>4. 编写 Vue 组件的单元测试</h2><p>经过上面三步，karma 全家桶已经配置完毕，现在只需在根目录下运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">karma start karma.conf.js</div></pre></td></tr></table></figure>
+<p>即可运行 karma，并自动运行所有 test/unit/*.spec.js 的单测文件，同时监测代码改动，自动重跑测试。不过现在还没有单测文件，我们来写一个。</p>
+<p>举例一个标准的 Vue 组件：</p>
+<p><img src="/imgs/blog/unit-test-1.png" alt="unit-test-1"></p>
+<p>根据 vue <a href="https://vuejs.org/v2/guide/unit-testing.html" target="_blank" rel="external">单元测试相关的官方文档</a>，我们知道可以这样在测试环境下测试单独组件：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> Button <span class="keyword">from</span> <span class="string">'../../packages/Button/index.js'</span></div><div class="line"></div><div class="line"><span class="keyword">const</span> ButtonConstructor = Vue.extend(Button)</div><div class="line"><span class="keyword">const</span> vm = <span class="keyword">new</span> ButtonConstructor(&#123;</div><div class="line">  <span class="attr">propsData</span>: &#123;</div><div class="line">    <span class="attr">type</span>: <span class="string">'gray'</span></div><div class="line">  &#125;</div><div class="line">&#125;).$mount()</div><div class="line"></div><div class="line"><span class="built_in">console</span>.log(vm.name) <span class="comment">//'wd-button'</span></div></pre></td></tr></table></figure>
+<p>使用 Vue.extend 方法可以创建出一个组件实例，还可以直接将 prop 数据传进去。我们将这个方法封装下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// utils.js</span></div><div class="line"></div><div class="line"><span class="keyword">import</span> Vue <span class="keyword">from</span> <span class="string">'vue'</span></div><div class="line"></div><div class="line"><span class="keyword">export</span> <span class="keyword">const</span> createCompInstance = <span class="function">(<span class="params">Component, propsData</span>) =&gt;</span> &#123;</div><div class="line">  <span class="keyword">const</span> Constructor = Vue.extend(Component)</div><div class="line">  <span class="keyword">return</span> <span class="keyword">new</span> Constructor(&#123;</div><div class="line">    propsData</div><div class="line">  &#125;).$mount()</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>然后编写 Button 组件的单元测试：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Button.spec.js</span></div><div class="line"></div><div class="line"><span class="keyword">import</span> Button <span class="keyword">from</span> <span class="string">'../../packages/Button/index.js'</span></div><div class="line"><span class="keyword">import</span> &#123;createCompInstance&#125; <span class="keyword">from</span> <span class="string">'./utils.js'</span></div><div class="line"></div><div class="line">describe(<span class="string">'Button'</span>, () =&gt; &#123;</div><div class="line"></div><div class="line">  <span class="keyword">let</span> vm</div><div class="line"></div><div class="line">  it(<span class="string">'type 样式'</span>, () =&gt; &#123;</div><div class="line">    vm = createCompInstance(Button, &#123;</div><div class="line">      <span class="attr">type</span>: <span class="string">'gray'</span></div><div class="line">    &#125;)</div><div class="line">    expect(<span class="built_in">Array</span>.prototype.slice.call(vm.$el.classList)).to.include(<span class="string">'wd-button-gray'</span>)</div><div class="line">  &#125;)</div><div class="line"></div><div class="line">  it(<span class="string">'diabled 禁用态'</span>, () =&gt; &#123;</div><div class="line">    vm = createCompInstance(Button, &#123;</div><div class="line">      <span class="attr">disabled</span>: <span class="literal">true</span></div><div class="line">    &#125;)</div><div class="line">    expect(vm.$el.hasAttribute(<span class="string">'disabled'</span>)).to.be.true</div><div class="line">  &#125;)</div><div class="line"></div><div class="line">  ...</div><div class="line"></div><div class="line">&#125;)</div></pre></td></tr></table></figure>
+<p>组件创建完毕之后，结合断言库对情况进行测试。例如：当给 Button 组件传入 prop：type = ‘gray’ 时，实例的 DOM 上应该会有 ‘wd-button-gray’ 这个 Class，于是可用断言库进行判断:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">expect(<span class="built_in">Array</span>.prototype.slice.call(vm.$el.classList)).to.include(<span class="string">'wd-button-gray'</span>)</div></pre></td></tr></table></figure>
+<p>当给 Button 组件传入 prop：disabled = true 时，实例的 DOM 上应该有一个叫 disabled 的 Attribute。断言：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">expect(vm.$el.hasAttribute(<span class="string">'disabled'</span>)).to.be.true</div></pre></td></tr></table></figure>
+<p>以此类推，逐步测试各个功能点是否工作正常。如果测试未通过，即行为与预期不服，断言失败，会报错：</p>
+<p><img src="/imgs/blog/unit-test-6.png" alt="unit-test-6"></p>
+<p>如果测试通过，终端结果如下：</p>
+<p><img src="/imgs/blog/unit-test-2.png" alt="unit-test-2"></p>
+<p>src 和 packages 中源码很多，测试只写了一点点，可以看到 Coverage summary 即代码覆盖率很低。</p>
+<p>mocha 与 chai 的语法这里不再赘述，编写测试用例时需多多查看文档。</p>
+<h2 id="5-一些小-Tips"><a href="#5-一些小-Tips" class="headerlink" title="5. 一些小 Tips"></a>5. 一些小 Tips</h2><p>mocha 中涉及异步操作的测试，要使用 done 函数：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">it(<span class="string">'picker onHide 窗体隐藏回调'</span>, done =&gt; &#123;</div><div class="line">  vm = Picker(&#123;</div><div class="line">    <span class="attr">slots</span>: [&#123;</div><div class="line">      <span class="attr">type</span>: <span class="string">'data'</span>,</div><div class="line">      <span class="attr">flex</span>: <span class="number">1</span>,</div><div class="line">      <span class="attr">values</span>: [<span class="string">'北京'</span>, <span class="string">'上海'</span>, <span class="string">'广州'</span>],</div><div class="line">      <span class="attr">textAlign</span>: <span class="string">'center'</span></div><div class="line">    &#125;],</div><div class="line">    <span class="attr">onHide</span>: <span class="function">(<span class="params">instance</span>) =&gt;</span> &#123;</div><div class="line">      <span class="built_in">document</span>.body.testToken = <span class="string">'hide'</span></div><div class="line">      instance.value = <span class="literal">false</span></div><div class="line">    &#125;,</div><div class="line">  &#125;)</div><div class="line">  Vue.nextTick(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">    <span class="keyword">const</span> $btn = <span class="built_in">document</span>.querySelector(<span class="string">'.wd-picker-header-cancel'</span>)</div><div class="line">    $btn.click()</div><div class="line">    setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">      expect(<span class="built_in">document</span>.body.testToken).to.equal(<span class="string">'hide'</span>)</div><div class="line">      <span class="keyword">delete</span> <span class="built_in">document</span>.body.testToken</div><div class="line">      done()</div><div class="line">    &#125;, <span class="number">500</span>)</div><div class="line">  &#125;)</div><div class="line">&#125;)</div></pre></td></tr></table></figure>
+<p>涉及到 <code>Vue.nextTick</code> 和 <code>setTimeout</code> 等异步操作的测试，要使用 <code>done()</code> 来标记完成时间点。</p>
+<p>mocha 提供 <code>beforeEach</code> <code>afterEach</code> 等方法帮忙做些杂活；比如我想每次测试完组件的其中一个用例之后，清空一下 body 节点，防止留下残余 DOM 影响后续的操作：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">beforeEach</span><span class="params">(()</span></span> =&gt; &#123;</div><div class="line">  document<span class="selector-class">.body</span><span class="selector-class">.innerHtml</span> = <span class="string">''</span></div><div class="line">&#125;)</div></pre></td></tr></table></figure>
+<p>将测试任务集成进 npm scripts：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">//package.json</div><div class="line"></div><div class="line">"scripts": &#123;</div><div class="line">  "test": "karma start karma.conf.js --single-run",</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>为项目中的3个组件添加了单元测试，暂时写了40个测试用例，基本覆盖了文档上的全部功能点。这之后如果对组件做重构/ bug 修复/加新功能时，就不需要担心是否会影响老功能，也不需要自己手动 check，直接跑 <code>npm run test</code> 测试看结果就可以了。安全感 up。</p>
+<p><img src="/imgs/blog/unit-test-3.png" alt="unit-test-3"></p>
+<p>在项目根目录的 coverage 文件夹内可以看到输出的 html 格式代码覆盖率报告：</p>
+<p><img src="/imgs/blog/unit-test-4.png" alt="unit-test-4"></p>
+<p>点击文件可以看到更详细的说明：哪行代码测到了，哪行代码没有测到：</p>
+<p><img src="/imgs/blog/unit-test-5.png" alt="unit-test-5"></p>
+<p>图中标红的地方即为没被测到的代码，有些是在 if 分支内，有的在 watch 里，没有被执行过。另外 phantomJS 对于模拟鼠标键盘事件的能力并不强，没有提供相关的 api，所以图中的有关鼠标拖拽的事件很难模拟，没能进行测试。这些测试更适合用 E2E 测试而非单元测试来做。</p>
+<p>另外代码覆盖率有些地方算得并不准确，比如 Button/src 下的 <code>Button.vue</code> 组件，因为比较简单，没有 methods，只有几个 prop，被判断成了 0% 的覆盖率（实际上 Button 组件的5个用例已经把每个 prop 都测过一遍了）。希望未来这个工具能更新的更加准确一些。</p>
+<p>其他组件的单测日后逐渐补上。</p>
+<h2 id="6-参考资料"><a href="#6-参考资料" class="headerlink" title="6. 参考资料"></a>6. 参考资料</h2><ol>
+<li><a href="https://github.com/karma-runner/karma" target="_blank" rel="external">karma</a></li>
+<li><a href="https://github.com/mochajs/mocha" target="_blank" rel="external">mocha</a></li>
+<li><a href="https://github.com/chaijs/chai" target="_blank" rel="external">chai</a></li>
+<li><a href="https://github.com/deepsweet/istanbul-instrumenter-loader" target="_blank" rel="external">istanbul-instrumenter-loader</a></li>
+<li><a href="https://imys.net/20161110/vue-unit-test-start.html" target="_blank" rel="external">Vue单元测试起步</a></li>
+<li><a href="https://github.com/mattlewis92/karma-coverage-istanbul-reporter" target="_blank" rel="external">karma-coverage-istanbul-reporter</a></li>
+<li><a href="https://vuejs.org/v2/guide/unit-testing.html" target="_blank" rel="external">Unit Testing</a></li>
+</ol>
+
+            
+                
+
+            
+        </div>
+    </div>
+    <div class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">TAGGED IN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-none-link" href="/tags/karma/" rel="tag">karma</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/mocha/" rel="tag">mocha</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/unit-test/" rel="tag">unit test</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/vue/" rel="tag">vue</a>
+
+            </div>
+        
+        <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2017/03/29/web-dev-roadmap-part-one/"  data-tooltip="分享 - Web 开发从入门到放弃 Part One">
+                
+                    <i class="fa fa-angle-left"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">PREVIOUS</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2017/02/17/intro-to-rx/" data-tooltip="使用 Rx 流式处理数据">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">NEXT</span>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions"  href="#btn-open-shareoptions">
+                <i class="fa fa-share-alt"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://www.404forest.com/2017/02/22/use-karma-mocha-kits-to-write-unit-tests-for-vue-component/">
+                <i class="fa fa-google-plus"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://www.404forest.com/2017/02/22/use-karma-mocha-kits-to-write-unit-tests-for-vue-component/">
+                <i class="fa fa-facebook-official"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://www.404forest.com/2017/02/22/use-karma-mocha-kits-to-write-unit-tests-for-vue-component/">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </li>
+        
+            <li class="post-action">
+                <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                    <i class="fa fa-comment-o"></i>
+                </a>
+            </li>
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#">
+            
+                <i class="fa fa-list"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+            <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2025 Jin. All Rights Reserved.
+    </span>
+    <a class="copyrights" target="_blank" rel="noopener" href="http://www.beian.miit.gov.cn/">
+        浙ICP备18012561号
+    </a>
+</footer>
+
+            </div>
+        </div>
+        <div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-remove"></i>
+        </div>
+        
+            <img id="about-card-picture" src="/assets/images/ava.png"/>
+        
+            <h4 id="about-card-name">Jin</h4>
+        
+            <h5 id="about-card-bio">Interested in Web Development/Typography/Japanese.</h5>
+        
+        
+            <h5 id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                WebDeveloper
+            </h5>
+        
+        
+            <h5 id="about-card-location">
+                <i class="fa fa-map-marker"></i>
+                <br/>
+                Beijing
+            </h5>
+        
+    </div>
+</div>
+
+        <div id="cover" style="background-image:url('/assets/images/bg4.jpg');"></div>
+    </body>
+    <!--SCRIPTS-->
+
+<script src="/assets/js/script.min.js"></script>
+
+<!--SCRIPTS END-->
+
+    <script type="text/javascript">
+        var disqus_shortname = '404forest';
+        (function() {
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+
+
+    <script type="text/javascript">
+        (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+                (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+            e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+        })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+        _st('install','ZkJM8hxyxxLens-VGG__','2.0.0');
+    </script>
+
+
+</html>

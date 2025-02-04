@@ -1,0 +1,435 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+    
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="404Forest">
+    <title>常见知识点汇总（三）：XMLHttpRequest - 404Forest</title>
+    <meta name="author" content="Jin">
+    
+        <link rel="icon" href="/assets/images/favicon.ico">
+    
+    
+    <meta name="description" content="XMLHttpRequest（以下简称XMR）是一组API函数集，可被JavaScript、JScript、VBScript以及其它web浏览器内嵌的脚本语言调用，通过HTTP在浏览器和web服务器之间收发XML或其它数据。">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="常见知识点汇总（三）：XMLHttpRequest">
+<meta property="og:url" content="http://www.404forest.com/2014/12/18/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E6%B1%87%E6%80%BB%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9AXMLHttpRequest/index.html">
+<meta property="og:site_name" content="404Forest">
+<meta property="og:description" content="XMLHttpRequest（以下简称XMR）是一组API函数集，可被JavaScript、JScript、VBScript以及其它web浏览器内嵌的脚本语言调用，通过HTTP在浏览器和web服务器之间收发XML或其它数据。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2014-12-19T06:02:41.000Z">
+<meta property="article:modified_time" content="2025-02-04T23:02:44.266Z">
+<meta property="article:author" content="Jin">
+<meta property="article:tag" content="Javascript">
+<meta property="article:tag" content="Front-end-Developer-Interview-Questions">
+<meta property="article:tag" content="常见知识点汇总">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@jin5354">
+    
+    
+    
+        <meta property="og:image" content="/assets/images/ava.png"/>
+    
+    
+    
+    
+    <!--STYLES-->
+    
+<link rel="stylesheet" href="/assets/css/style.min.css">
+
+    <!--STYLES END-->
+    
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-66492678-1']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+
+</head>
+
+    <body>
+        <div id="blog">
+            <header id="header" data-behavior="3">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <h1 class="header-title">
+        <a class="header-title-link" href="/%20">404Forest</a>
+    </h1>
+    
+        <a class="header-right-picture" href="/#about">
+            <img class="header-picture" src="/assets/images/ava.png"/>
+        </a>
+    
+</header>
+            <nav id="sidebar" data-behavior="3">
+    
+        <div class="sidebar-profile">
+            <a href="/#about">
+                
+                    <img class="sidebar-profile-picture" src="/assets/images/ava.png"/>
+                
+            </a>
+            <span class="sidebar-profile-name">Jin</span>
+        </div>
+    
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/%20"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+                    <span class="sidebar-button-desc">Home</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-archives"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+                    <span class="sidebar-button-desc">Archive</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-categories"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+                    <span class="sidebar-button-desc">Categories</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-tags"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+                    <span class="sidebar-button-desc">Tags</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link st-search-show-outputs"
+                         href="#search"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-search"></i>
+                    <span class="sidebar-button-desc">Search</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="#about"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+                    <span class="sidebar-button-desc">About</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="https://github.com/jin5354" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+                    <span class="sidebar-button-desc">GitHub</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="mailto:xiaoyanjinx@gmail.com" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-envelope-o"></i>
+                    <span class="sidebar-button-desc">Mail</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+    <div style="margin-left: 27px;">
+        <a target="_blank" rel="noopener" href="https://github.com/jin5354/404forest"><img src="https://img.shields.io/github/stars/jin5354/404forest.svg?style=social&label=Stars"></a>
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="3"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title" itemprop="headline">
+            常见知识点汇总（三）：XMLHttpRequest
+        </h1>
+    
+    <div class="post-meta">
+    <time itemprop="datePublished" content="Thu Dec 18 2014 22:02:41 GMT-0800">
+	
+		    12月 18, 2014
+    	
+    </time>
+    
+        <span>in </span>
+        
+    <a class="category-link" href="/categories/Code/">Code</a>
+
+
+    
+</div>
+</div>
+    
+    <div class="main-content-wrap" style="margin-top: 60px;">索引</div>
+    <ol class="main-content-wrap toc-article"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-5"><a class="main-content-wrap toc-article-link" href="#%E5%88%9B%E5%BB%BAXHR%E5%AF%B9%E8%B1%A1"><span class="main-content-wrap toc-article-text">创建XHR对象</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-5"><a class="main-content-wrap toc-article-link" href="#XHR%E7%94%A8%E6%B3%95"><span class="main-content-wrap toc-article-text">XHR用法</span></a></li></ol>
+    <div class="post-content markdown" itemprop="articleBody">
+        <div class="main-content-wrap">
+            <p>XMLHttpRequest（以下简称XMR）是一组API函数集，可被JavaScript、JScript、VBScript以及其它web浏览器内嵌的脚本语言调用，通过HTTP在浏览器和web服务器之间收发XML或其它数据。</p>
+<a id="more"></a>
+<h5 id="创建XHR对象"><a href="#创建XHR对象" class="headerlink" title="创建XHR对象"></a>创建XHR对象</h5><ol>
+<li>IE7之前版本<br>IE5是第一款引入XHR对象的浏览器。在IE5中，XHR对象是通过MSXML库中的一个ActiveX对象实现的。因此，在IE中可能遇到三种不同版本的XHR对象，即MSXML2.XMLHttp、MSXML2.XMLHttp.3.0、MSXML2.XMLHttp.6.0。要使用MSXML库中的XHR对象，需要编写一个函数，例如：</li>
+</ol>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">createXMLHTTP</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="built_in">arguments</span>.callee.activeXString != <span class="string">"string"</span>)&#123;</div><div class="line">    	 <span class="keyword">var</span> versions = [ <span class="string">"MSXML2.XMLHttp.6.0"</span>, <span class="string">"MSXML2.XMLHttp.3.0"</span>,<span class="string">"MSXML2.XMLHttp"</span>];</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">var</span> i=<span class="number">0</span>,len=versions.length; i &lt; len; i++)&#123;</div><div class="line">            <span class="keyword">try</span> &#123;</div><div class="line">                <span class="keyword">var</span> xhr = <span class="keyword">new</span> ActiveXObject(versions[i]);</div><div class="line">                <span class="built_in">arguments</span>.callee.activeXString = versions[i];</div><div class="line">                <span class="keyword">return</span> xhr;</div><div class="line">            &#125; <span class="keyword">catch</span> (ex)&#123;</div><div class="line">                <span class="comment">//skip</span></div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ActiveXObject(<span class="built_in">arguments</span>.callee.activeXString);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这个函数会尽力根据IE中可用的MSXM库的情况创建最新版本的XHR对象。</p>
+<hr>
+<ol>
+<li>IE7+及其他浏览器</li>
+</ol>
+<p>这些浏览器都支持原生的XHR对象。在这些浏览器中创建XHR对象要像下面这样使用XMLHttpRequest构造函数：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> xhr = <span class="keyword">new</span> XMLHttpRequest();</div></pre></td></tr></table></figure></p>
+<p>若想兼容所有浏览器：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//一个兼容所有浏览器的创建XHR对象的方法：</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">createXHR</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> XMLHttpRequest != <span class="string">"undefined"</span>)&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> XMLHttpRequest();</div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">typeof</span> ActiveXObject != <span class="string">"undefined"</span>)&#123;</div><div class="line">        <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="built_in">arguments</span>.callee.activeXString != <span class="string">"string"</span>)&#123;</div><div class="line">            <span class="keyword">var</span> versions = [<span class="string">"MSXML2.XMLHttp.6.0"</span>, <span class="string">"MSXML2.XMLHttp.3.0"</span>,</div><div class="line">                            <span class="string">"MSXML2.XMLHttp"</span>];</div><div class="line"></div><div class="line">            <span class="keyword">for</span> (<span class="keyword">var</span> i=<span class="number">0</span>,len=versions.length; i &lt; len; i++)&#123;</div><div class="line">                <span class="keyword">try</span> &#123;</div><div class="line">                    <span class="keyword">var</span> xhr = <span class="keyword">new</span> ActiveXObject(versions[i]);</div><div class="line">                    <span class="built_in">arguments</span>.callee.activeXString = versions[i];</div><div class="line">                    <span class="keyword">return</span> xhr;</div><div class="line">                &#125; <span class="keyword">catch</span> (ex)&#123;</div><div class="line">                    <span class="comment">//skip</span></div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ActiveXObject(<span class="built_in">arguments</span>.callee.activeXString);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">"No XHR object available."</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h5 id="XHR用法"><a href="#XHR用法" class="headerlink" title="XHR用法"></a>XHR用法</h5><p>1.open()</p>
+<p>使用XHR对象时，要调用的第一个方法是open()，它接收3个参数：要发送的请求的类型（”get“、”post“等）、请求的URL和表示是否异步发送请求的布尔值。例：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">xhr.open(<span class="string">"get"</span>,<span class="string">"example.php"</span>,<span class="literal">false</span>);</div></pre></td></tr></table></figure></p>
+<p>这行代码会启动一个针对example.php的GET请求。URL相对于执行代码的当前页面（当然也可以使用绝对路径），调用open()方法并不会真正发送请求，而只是启动一个请求以备发送。</p>
+<p>2.send()</p>
+<p>要发送特定的请求，必须像下面这样调用send()方法：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">xhr.open(<span class="string">"get"</span>,<span class="string">"example.php"</span>,<span class="literal">false</span>);</div><div class="line">xhr.send(<span class="literal">null</span>);</div></pre></td></tr></table></figure></p>
+<p>这里的send()方法接收一个参数，即要作为请求主体发送的数据。如果不需要通过请求主体发送数据，则必须传入null，因为这个参数对于某些浏览器是必须的。调用send()之后，请求就会被分派到服务器。<br>收到响应之后，响应的数据会自动填充XHR对象的属性，相关的属性简介如下：</p>
+<ul>
+<li>responseText 作为响应主体被返回的文本</li>
+<li>responseXML 若响应的内容</li>
+<li>status 响应的HTTP状态</li>
+<li>statusText HTTP状态的说明</li>
+</ul>
+<p>在接收到响应后，第一步是检查status属性，以确保响应成功返回。建议使用检测status来决定下一步的操作，不要依赖statusText，因为后者在跨浏览器使用时不太可靠。<br>多数情况下，我们要发送异步请求。此时可以检测XHR对象的readyState属性，该属性表示请求/响应过程的当前活动阶段。这个属性可取值如下：</p>
+<ul>
+<li>0 未初始化：尚未调用open()方法。</li>
+<li>1 启动：已经调用open()方法，但尚未调用send()方法。</li>
+<li>2 发送：已经调用send()方法，但尚未接收到响应。</li>
+<li>3 接收：已经接收到部分响应数据。</li>
+<li>4 完成：已经接收到全部响应数据，而且已经可以在客户端使用了。</li>
+</ul>
+<p>每当readyState值发生变化，就会触发一次readystatechange事件，可以利用这个事件来检测每次状态变化后readyState的值，通常我们只用检测readyState值为4的阶段。必须在调用open()之前指定onreadystatechange事件处理程序才能保证跨浏览器兼容性。<br>例：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> xhr = createXHR();</div><div class="line">xhr.onreadystatechange = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">	<span class="keyword">if</span>(xhr.readyState == <span class="number">4</span>)&#123;</div><div class="line">    	<span class="keyword">if</span>((xhr.status &gt;=<span class="number">200</span> &amp;&amp; xhr.status &lt; <span class="number">300</span>) || xhr.status == <span class="number">304</span>)&#123;</div><div class="line">        	alert(xhr.responseText);</div><div class="line">        &#125;<span class="keyword">else</span>&#123;</div><div class="line">        	alert(<span class="string">"Request was unsucessful:"</span> + xhr.status);</div><div class="line">        &#125;	</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line">xhr.open(<span class="string">"get"</span>,<span class="string">"example.txt"</span>,<span class="literal">true</span>);</div><div class="line">xhr.send(<span class="literal">null</span>);</div></pre></td></tr></table></figure></p>
+<p>3.HTTP头部信息</p>
+<p>默认情况下，在发送XHR请求的同时，还会发送下列头部信息：</p>
+<ul>
+<li>Accept: 浏览器能够处理的内容类型</li>
+<li>Accept-Charset: 浏览器能够显示的字符集</li>
+<li>Accept-Encoding: 浏览器能够处理的压缩编码</li>
+<li>Accept-Language: 浏览器当前设置的语言</li>
+<li>Cookie: 当前页面设置的任何Cookie</li>
+<li>Host：发出请求的页面所在的域</li>
+<li>Referer：发出请求的页面的URL</li>
+<li>User-Agent: 浏览器的用户代理字符串</li>
+</ul>
+<p>每个HTTP请求和响应都会带有响应的头部信息，XHR对象提供了操作这两种头部信息的方法。</p>
+<ul>
+<li>setRequestHeader()</li>
+</ul>
+<p>使用setRequestHeader()方法可以设置自定义的请求头部信息。要成功发送请求头部信息，必须在调用open()方法之后且调用send()方法之前调用setRequestHeader()。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> xhr = createXHR();      </div><div class="line">xhr.open(<span class="string">"get"</span>, <span class="string">"example.php"</span>, <span class="literal">true</span>);</div><div class="line">xhr.setRequestHeader(<span class="string">"MyHeader"</span>, <span class="string">"MyValue"</span>);</div><div class="line">xhr.send(<span class="literal">null</span>);</div></pre></td></tr></table></figure>
+<ul>
+<li>getResponseHeader(), getAllResponseHeaders()</li>
+</ul>
+<p>调用XHR对象的getResponseHeader()方法并传入头部字段名称，可以取得响应的响应头部信息。<br>调用getAllResponseHeaders()方法则可以取得一个包含所有头部信息的长字符串。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> xhr3 = createXHR();      </div><div class="line">xhr3.onreadystatechange = <span class="function"><span class="keyword">function</span>(<span class="params">event</span>)</span>&#123;</div><div class="line">    <span class="keyword">if</span> (xhr3.readyState == <span class="number">4</span>)&#123;</div><div class="line">        <span class="keyword">if</span> ((xhr3.status &gt;= <span class="number">200</span> &amp;&amp; xhr3.status &lt; <span class="number">300</span>) || xhr3.status == <span class="number">304</span>)&#123;</div><div class="line">            alert(xhr3.getAllResponseHeaders());<span class="comment">//获取全部头部信息的字符串</span></div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            alert(<span class="string">"Request was unsuccessful: "</span> + xhr3.status);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line">xhr3.open(<span class="string">"get"</span>, <span class="string">"example.php"</span>, <span class="literal">true</span>);</div><div class="line">xhr3.send(<span class="literal">null</span>);</div></pre></td></tr></table></figure>
+<p>4.GET请求</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//get请求格式：xhr.open('get', 'example.php?name1=value1&amp;name2=value2', true);</span></div><div class="line"></div><div class="line"><span class="comment">//创建一个函数用于对url进行编码</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">addURLParam</span>(<span class="params">url, name, value</span>)</span>&#123;</div><div class="line">    url += (url.indexOf(<span class="string">'?'</span>)==<span class="number">-1</span> ? <span class="string">'?'</span> : <span class="string">'&amp;'</span>);</div><div class="line">    url += <span class="built_in">encodeURIComponent</span>(name) + <span class="string">'='</span> + <span class="built_in">encodeURIComponent</span>(value);</div><div class="line">    <span class="keyword">return</span> url;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">var</span> url = <span class="string">'get.php'</span>;</div><div class="line">url = addURLParam(url, <span class="string">'name'</span>, <span class="string">'Alvin'</span>);</div><div class="line">url = addURLParam(url, <span class="string">'age'</span>, <span class="string">'23'</span>);</div><div class="line"></div><div class="line"><span class="keyword">var</span> xhr4 = createXHR();     </div><div class="line">xhr4.onreadystatechange = <span class="function"><span class="keyword">function</span>(<span class="params">event</span>)</span>&#123;</div><div class="line">    <span class="keyword">if</span> (xhr4.readyState == <span class="number">4</span>)&#123;</div><div class="line">        <span class="keyword">if</span> ((xhr4.status &gt;= <span class="number">200</span> &amp;&amp; xhr4.status &lt; <span class="number">300</span>) || xhr4.status == <span class="number">304</span>)&#123;</div><div class="line">            alert(xhr4.responseText);</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            alert(<span class="string">"Request was unsuccessful: "</span> + xhr4.status);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line">xhr4.open(<span class="string">'get'</span>, url, <span class="literal">false</span>);</div><div class="line">xhr4.send(<span class="literal">null</span>);</div></pre></td></tr></table></figure>
+<p>5.POST请求</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> xhr5 = createXHR();        </div><div class="line">xhr5.onreadystatechange = <span class="function"><span class="keyword">function</span>(<span class="params">event</span>)</span>&#123;</div><div class="line">    <span class="keyword">if</span> (xhr5.readyState == <span class="number">4</span>)&#123;</div><div class="line">        <span class="keyword">if</span> ((xhr5.status &gt;= <span class="number">200</span> &amp;&amp; xhr5.status &lt; <span class="number">300</span>) || xhr5.status == <span class="number">304</span>)&#123;</div><div class="line">            alert(xhr5.responseText);</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            alert(<span class="string">"Request was unsuccessful: "</span> + xhr5.status);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">xhr5.open(<span class="string">"post"</span>, <span class="string">"postexample.php"</span>, <span class="literal">true</span>);</div><div class="line"></div><div class="line"><span class="comment">//模拟浏览器行为，所有由浏览器发出的post请求都将'content-type'头部设置为'application/x-www-form-urlencoded'</span></div><div class="line">xhr5.setRequestHeader(<span class="string">"Content-Type"</span>, <span class="string">"application/x-www-form-urlencoded"</span>);        </div><div class="line">xhr5.send(<span class="string">'name=alvin&amp;age=23'</span>);</div></pre></td></tr></table></figure>
+            
+                
+
+            
+        </div>
+    </div>
+    <div class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">TAGGED IN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-none-link" href="/tags/Front-end-Developer-Interview-Questions/" rel="tag">Front-end-Developer-Interview-Questions</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/Javascript/" rel="tag">Javascript</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E6%B1%87%E6%80%BB/" rel="tag">常见知识点汇总</a>
+
+            </div>
+        
+        <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2014/12/19/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E6%B1%87%E6%80%BB%EF%BC%88%E5%9B%9B%EF%BC%89%EF%BC%9AJSON/"  data-tooltip="常见知识点汇总（四）：JSON">
+                
+                    <i class="fa fa-angle-left"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">PREVIOUS</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2014/12/17/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E6%B1%87%E6%80%BB%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E4%BA%8B%E4%BB%B6/" data-tooltip="常见知识点汇总（二）：事件">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">NEXT</span>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions"  href="#btn-open-shareoptions">
+                <i class="fa fa-share-alt"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://www.404forest.com/2014/12/18/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E6%B1%87%E6%80%BB%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9AXMLHttpRequest/">
+                <i class="fa fa-google-plus"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://www.404forest.com/2014/12/18/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E6%B1%87%E6%80%BB%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9AXMLHttpRequest/">
+                <i class="fa fa-facebook-official"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://www.404forest.com/2014/12/18/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E6%B1%87%E6%80%BB%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9AXMLHttpRequest/">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </li>
+        
+            <li class="post-action">
+                <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                    <i class="fa fa-comment-o"></i>
+                </a>
+            </li>
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#">
+            
+                <i class="fa fa-list"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+            <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2025 Jin. All Rights Reserved.
+    </span>
+    <a class="copyrights" target="_blank" rel="noopener" href="http://www.beian.miit.gov.cn/">
+        浙ICP备18012561号
+    </a>
+</footer>
+
+            </div>
+        </div>
+        <div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-remove"></i>
+        </div>
+        
+            <img id="about-card-picture" src="/assets/images/ava.png"/>
+        
+            <h4 id="about-card-name">Jin</h4>
+        
+            <h5 id="about-card-bio">Interested in Web Development/Typography/Japanese.</h5>
+        
+        
+            <h5 id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                WebDeveloper
+            </h5>
+        
+        
+            <h5 id="about-card-location">
+                <i class="fa fa-map-marker"></i>
+                <br/>
+                Beijing
+            </h5>
+        
+    </div>
+</div>
+
+        <div id="cover" style="background-image:url('/assets/images/bg4.jpg');"></div>
+    </body>
+    <!--SCRIPTS-->
+
+<script src="/assets/js/script.min.js"></script>
+
+<!--SCRIPTS END-->
+
+    <script type="text/javascript">
+        var disqus_shortname = '404forest';
+        (function() {
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+
+
+    <script type="text/javascript">
+        (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+                (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+            e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+        })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+        _st('install','ZkJM8hxyxxLens-VGG__','2.0.0');
+    </script>
+
+
+</html>

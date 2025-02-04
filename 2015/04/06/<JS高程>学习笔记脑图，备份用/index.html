@@ -1,0 +1,425 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+    
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="404Forest">
+    <title>&lt;JS高程&gt;学习笔记脑图，备份用 - 404Forest</title>
+    <meta name="author" content="Jin">
+    
+        <link rel="icon" href="/assets/images/favicon.ico">
+    
+    
+    <meta name="description" content="分享一下，都是在百度脑图上边看书边绘制的。如果有新内容，会修订，有的地方需要详述就单开一个post。">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="&lt;JS高程&gt;学习笔记脑图，备份用">
+<meta property="og:url" content="http://www.404forest.com/2015/04/06/%3CJS%E9%AB%98%E7%A8%8B%3E%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E8%84%91%E5%9B%BE%EF%BC%8C%E5%A4%87%E4%BB%BD%E7%94%A8/index.html">
+<meta property="og:site_name" content="404Forest">
+<meta property="og:description" content="分享一下，都是在百度脑图上边看书边绘制的。如果有新内容，会修订，有的地方需要详述就单开一个post。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/qiniu/DOM.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/qiniu/DOM2%E4%B8%8EDOM3.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/qiniu/DOM%E6%89%A9%E5%B1%95.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/qiniu/Window%E5%AF%B9%E8%B1%A1.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/qiniu/%E4%BA%8B%E4%BB%B6.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/qiniu/%E8%A1%A8%E5%8D%95%E8%84%9A%E6%9C%AC.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/qiniu/Canvas.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/qiniu/XML.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/qiniu/HTML5%E8%84%9A%E6%9C%AC%E7%BC%96%E7%A8%8B.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/qiniu/%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%E4%B8%8E%E8%B0%83%E8%AF%95.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/qiniu/JSON.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/qiniu/Ajax%E4%B8%8EComet.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/qiniu/%E9%AB%98%E7%BA%A7%E6%8A%80%E5%B7%A7.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/qiniu/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/qiniu/%E7%A6%BB%E7%BA%BF%E5%BA%94%E7%94%A8%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%AD%98%E5%82%A8.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/qiniu/%E6%96%B0%E5%9E%8BAPI.png">
+<meta property="article:published_time" content="2015-04-07T04:38:00.000Z">
+<meta property="article:modified_time" content="2025-02-04T23:02:44.253Z">
+<meta property="article:author" content="Jin">
+<meta property="article:tag" content="脑图">
+<meta property="article:tag" content="Javascript">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://www.404forest.com/imgs/blog/qiniu/DOM.png">
+<meta name="twitter:creator" content="@jin5354">
+    
+    
+    
+        <meta property="og:image" content="/assets/images/ava.png"/>
+    
+    
+    
+    
+    <!--STYLES-->
+    
+<link rel="stylesheet" href="/assets/css/style.min.css">
+
+    <!--STYLES END-->
+    
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-66492678-1']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+
+</head>
+
+    <body>
+        <div id="blog">
+            <header id="header" data-behavior="3">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <h1 class="header-title">
+        <a class="header-title-link" href="/%20">404Forest</a>
+    </h1>
+    
+        <a class="header-right-picture" href="/#about">
+            <img class="header-picture" src="/assets/images/ava.png"/>
+        </a>
+    
+</header>
+            <nav id="sidebar" data-behavior="3">
+    
+        <div class="sidebar-profile">
+            <a href="/#about">
+                
+                    <img class="sidebar-profile-picture" src="/assets/images/ava.png"/>
+                
+            </a>
+            <span class="sidebar-profile-name">Jin</span>
+        </div>
+    
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/%20"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+                    <span class="sidebar-button-desc">Home</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-archives"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+                    <span class="sidebar-button-desc">Archive</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-categories"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+                    <span class="sidebar-button-desc">Categories</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-tags"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+                    <span class="sidebar-button-desc">Tags</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link st-search-show-outputs"
+                         href="#search"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-search"></i>
+                    <span class="sidebar-button-desc">Search</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="#about"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+                    <span class="sidebar-button-desc">About</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="https://github.com/jin5354" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+                    <span class="sidebar-button-desc">GitHub</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="mailto:xiaoyanjinx@gmail.com" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-envelope-o"></i>
+                    <span class="sidebar-button-desc">Mail</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+    <div style="margin-left: 27px;">
+        <a target="_blank" rel="noopener" href="https://github.com/jin5354/404forest"><img src="https://img.shields.io/github/stars/jin5354/404forest.svg?style=social&label=Stars"></a>
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="3"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title" itemprop="headline">
+            &lt;JS高程&gt;学习笔记脑图，备份用
+        </h1>
+    
+    <div class="post-meta">
+    <time itemprop="datePublished" content="Mon Apr 06 2015 21:38:00 GMT-0700">
+	
+		    4月 06, 2015
+    	
+    </time>
+    
+        <span>in </span>
+        
+    <a class="category-link" href="/categories/Code/">Code</a>
+
+
+    
+</div>
+</div>
+    
+    <div class="main-content-wrap" style="margin-top: 60px;">索引</div>
+    
+    <div class="post-content markdown" itemprop="articleBody">
+        <div class="main-content-wrap">
+            <p>分享一下，都是在百度脑图上边看书边绘制的。如果有新内容，会修订，有的地方需要详述就单开一个post。</p>
+<a id="more"></a>
+<p>DOM：</p>
+<p><img src="/imgs/blog/qiniu/DOM.png" alt="DOM"></p>
+<p>DOM2与DOM3：</p>
+<p><img src="/imgs/blog/qiniu/DOM2与DOM3.png" alt="DOM2与DOM3"></p>
+<p>DOM扩展：</p>
+<p><img src="/imgs/blog/qiniu/DOM扩展.png" alt="DOM扩展"></p>
+<p>window对象：</p>
+<p><img src="/imgs/blog/qiniu/Window对象.png" alt="window对象"></p>
+<p>事件：</p>
+<p><img src="/imgs/blog/qiniu/事件.png" alt="事件"></p>
+<p>表单脚本：</p>
+<p><img src="/imgs/blog/qiniu/表单脚本.png" alt="表单脚本"></p>
+<p>Canvas：</p>
+<p><img src="/imgs/blog/qiniu/Canvas.png" alt="Canvas"></p>
+<p>XML（未完、待补）：</p>
+<p><img src="/imgs/blog/qiniu/XML.png" alt="XML"></p>
+<p>HTML5脚本编程：</p>
+<p><img src="/imgs/blog/qiniu/HTML5脚本编程.png" alt="HTML5脚本编程"></p>
+<p>错误处理与调试：</p>
+<p><img src="/imgs/blog/qiniu/错误处理与调试.png" alt="错误处理与调试"></p>
+<p>JSON：</p>
+<p><img src="/imgs/blog/qiniu/JSON.png" alt="JSON"></p>
+<p>Ajax与Comet：</p>
+<p><img src="/imgs/blog/qiniu/Ajax与Comet.png" alt="Ajax与Comet"></p>
+<p>高级技巧：</p>
+<p><img src="/imgs/blog/qiniu/高级技巧.png" alt="高级技巧"></p>
+<p>最佳实践</p>
+<p><img src="/imgs/blog/qiniu/最佳实践.png" alt="最佳实践"></p>
+<p>离线应用与客户端存储</p>
+<p><img src="/imgs/blog/qiniu/离线应用与客户端存储.png" alt="离线应用与客户端存储"></p>
+<p>新型API</p>
+<p><img src="/imgs/blog/qiniu/新型API.png" alt="新型API"></p>
+
+            
+                
+
+            
+        </div>
+    </div>
+    <div class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">TAGGED IN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-none-link" href="/tags/Javascript/" rel="tag">Javascript</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/%E8%84%91%E5%9B%BE/" rel="tag">脑图</a>
+
+            </div>
+        
+        <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2015/04/11/JS%E4%B8%AD%E7%9A%84%E6%A8%A1%E5%9D%97%E8%A7%84%E8%8C%83/"  data-tooltip="JS中的模块规范">
+                
+                    <i class="fa fa-angle-left"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">PREVIOUS</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2015/04/06/JS%E8%87%AA%E6%88%91%E6%A2%B3%E7%90%86%EF%BC%9A%E5%88%9B%E5%BB%BA%E5%AF%B9%E8%B1%A1%E4%B8%8E%E7%BB%A7%E6%89%BF/" data-tooltip="JS自我梳理：创建对象与继承">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">NEXT</span>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions"  href="#btn-open-shareoptions">
+                <i class="fa fa-share-alt"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://www.404forest.com/2015/04/06/%3CJS%E9%AB%98%E7%A8%8B%3E%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E8%84%91%E5%9B%BE%EF%BC%8C%E5%A4%87%E4%BB%BD%E7%94%A8/">
+                <i class="fa fa-google-plus"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://www.404forest.com/2015/04/06/%3CJS%E9%AB%98%E7%A8%8B%3E%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E8%84%91%E5%9B%BE%EF%BC%8C%E5%A4%87%E4%BB%BD%E7%94%A8/">
+                <i class="fa fa-facebook-official"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://www.404forest.com/2015/04/06/%3CJS%E9%AB%98%E7%A8%8B%3E%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E8%84%91%E5%9B%BE%EF%BC%8C%E5%A4%87%E4%BB%BD%E7%94%A8/">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </li>
+        
+            <li class="post-action">
+                <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                    <i class="fa fa-comment-o"></i>
+                </a>
+            </li>
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#">
+            
+                <i class="fa fa-list"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+            <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2025 Jin. All Rights Reserved.
+    </span>
+    <a class="copyrights" target="_blank" rel="noopener" href="http://www.beian.miit.gov.cn/">
+        浙ICP备18012561号
+    </a>
+</footer>
+
+            </div>
+        </div>
+        <div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-remove"></i>
+        </div>
+        
+            <img id="about-card-picture" src="/assets/images/ava.png"/>
+        
+            <h4 id="about-card-name">Jin</h4>
+        
+            <h5 id="about-card-bio">Interested in Web Development/Typography/Japanese.</h5>
+        
+        
+            <h5 id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                WebDeveloper
+            </h5>
+        
+        
+            <h5 id="about-card-location">
+                <i class="fa fa-map-marker"></i>
+                <br/>
+                Beijing
+            </h5>
+        
+    </div>
+</div>
+
+        <div id="cover" style="background-image:url('/assets/images/bg4.jpg');"></div>
+    </body>
+    <!--SCRIPTS-->
+
+<script src="/assets/js/script.min.js"></script>
+
+<!--SCRIPTS END-->
+
+    <script type="text/javascript">
+        var disqus_shortname = '404forest';
+        (function() {
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+
+
+    <script type="text/javascript">
+        (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+                (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+            e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+        })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+        _st('install','ZkJM8hxyxxLens-VGG__','2.0.0');
+    </script>
+
+
+</html>

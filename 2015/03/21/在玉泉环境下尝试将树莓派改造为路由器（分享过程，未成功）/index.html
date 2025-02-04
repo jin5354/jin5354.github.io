@@ -1,0 +1,436 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+    
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="404Forest">
+    <title>在玉泉环境下尝试将树莓派改造为路由器（分享过程，未成功） - 404Forest</title>
+    <meta name="author" content="Jin">
+    
+        <link rel="icon" href="/assets/images/favicon.ico">
+    
+    
+    <meta name="description" content="几天前曾经想把手头的树莓派2B改造为无线路由器，实现寝室内多设备无线上网。由于奇葩的玉泉寝室网络，我踩了无数的坑，最终差在最后一步NAT上。由于这方面知识薄弱，今天把成功部分记载下来，期望以后有机会能实现。">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="在玉泉环境下尝试将树莓派改造为路由器（分享过程，未成功）">
+<meta property="og:url" content="http://www.404forest.com/2015/03/21/%E5%9C%A8%E7%8E%89%E6%B3%89%E7%8E%AF%E5%A2%83%E4%B8%8B%E5%B0%9D%E8%AF%95%E5%B0%86%E6%A0%91%E8%8E%93%E6%B4%BE%E6%94%B9%E9%80%A0%E4%B8%BA%E8%B7%AF%E7%94%B1%E5%99%A8%EF%BC%88%E5%88%86%E4%BA%AB%E8%BF%87%E7%A8%8B%EF%BC%8C%E6%9C%AA%E6%88%90%E5%8A%9F%EF%BC%89/index.html">
+<meta property="og:site_name" content="404Forest">
+<meta property="og:description" content="几天前曾经想把手头的树莓派2B改造为无线路由器，实现寝室内多设备无线上网。由于奇葩的玉泉寝室网络，我踩了无数的坑，最终差在最后一步NAT上。由于这方面知识薄弱，今天把成功部分记载下来，期望以后有机会能实现。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2015-03-21T16:21:00.000Z">
+<meta property="article:modified_time" content="2025-02-04T23:02:44.265Z">
+<meta property="article:author" content="Jin">
+<meta property="article:tag" content="Raspberry Pi">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@jin5354">
+    
+    
+    
+        <meta property="og:image" content="/assets/images/ava.png"/>
+    
+    
+    
+    
+    <!--STYLES-->
+    
+<link rel="stylesheet" href="/assets/css/style.min.css">
+
+    <!--STYLES END-->
+    
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-66492678-1']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+
+</head>
+
+    <body>
+        <div id="blog">
+            <header id="header" data-behavior="3">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <h1 class="header-title">
+        <a class="header-title-link" href="/%20">404Forest</a>
+    </h1>
+    
+        <a class="header-right-picture" href="/#about">
+            <img class="header-picture" src="/assets/images/ava.png"/>
+        </a>
+    
+</header>
+            <nav id="sidebar" data-behavior="3">
+    
+        <div class="sidebar-profile">
+            <a href="/#about">
+                
+                    <img class="sidebar-profile-picture" src="/assets/images/ava.png"/>
+                
+            </a>
+            <span class="sidebar-profile-name">Jin</span>
+        </div>
+    
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/%20"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+                    <span class="sidebar-button-desc">Home</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-archives"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+                    <span class="sidebar-button-desc">Archive</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-categories"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+                    <span class="sidebar-button-desc">Categories</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-tags"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+                    <span class="sidebar-button-desc">Tags</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link st-search-show-outputs"
+                         href="#search"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-search"></i>
+                    <span class="sidebar-button-desc">Search</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="#about"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+                    <span class="sidebar-button-desc">About</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="https://github.com/jin5354" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+                    <span class="sidebar-button-desc">GitHub</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="mailto:xiaoyanjinx@gmail.com" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-envelope-o"></i>
+                    <span class="sidebar-button-desc">Mail</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+    <div style="margin-left: 27px;">
+        <a target="_blank" rel="noopener" href="https://github.com/jin5354/404forest"><img src="https://img.shields.io/github/stars/jin5354/404forest.svg?style=social&label=Stars"></a>
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="3"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title" itemprop="headline">
+            在玉泉环境下尝试将树莓派改造为路由器（分享过程，未成功）
+        </h1>
+    
+    <div class="post-meta">
+    <time itemprop="datePublished" content="Sat Mar 21 2015 09:21:00 GMT-0700">
+	
+		    3月 21, 2015
+    	
+    </time>
+    
+        <span>in </span>
+        
+    <a class="category-link" href="/categories/Code/">Code</a>
+
+
+    
+</div>
+</div>
+    
+    <div class="main-content-wrap" style="margin-top: 60px;">索引</div>
+    <ol class="main-content-wrap toc-article"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-6"><a class="main-content-wrap toc-article-link" href="#%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%EF%BC%9A%E8%AE%A9%E6%A0%91%E8%8E%93%E6%B4%BE%E8%BF%9E%E6%8E%A5%E5%86%85%E7%BD%91"><span class="main-content-wrap toc-article-text">第一阶段：让树莓派连接内网</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-6"><a class="main-content-wrap toc-article-link" href="#%E7%AC%AC%E4%BA%8C%E9%98%B6%E6%AE%B5%EF%BC%9A%E8%AE%A9%E6%A0%91%E8%8E%93%E6%B4%BE%E4%BD%BF%E7%94%A8VPN%E6%96%B9%E5%BC%8F%E8%BF%9E%E6%8E%A5%E5%A4%96%E7%BD%91"><span class="main-content-wrap toc-article-text">第二阶段：让树莓派使用VPN方式连接外网</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-6"><a class="main-content-wrap toc-article-link" href="#%E7%AC%AC%E4%B8%89%E9%98%B6%E6%AE%B5%EF%BC%9A%E8%AE%A9%E6%A0%91%E8%8E%93%E6%B4%BE%E9%80%9A%E8%BF%87%E6%97%A0%E7%BA%BF%E7%BD%91%E5%8D%A1%E5%85%B1%E4%BA%AB%E7%BD%91%E7%BB%9C"><span class="main-content-wrap toc-article-text">第三阶段：让树莓派通过无线网卡共享网络</span></a></li></ol>
+    <div class="post-content markdown" itemprop="articleBody">
+        <div class="main-content-wrap">
+            <p>几天前曾经想把手头的树莓派2B改造为无线路由器，实现寝室内多设备无线上网。由于奇葩的玉泉寝室网络，我踩了无数的坑，最终差在最后一步NAT上。由于这方面知识薄弱，今天把成功部分记载下来，期望以后有机会能实现。</p>
+<a id="more"></a>
+<p>在玉泉寝室有线上网主要分为两种：闪讯和VPN。闪讯帐号部分可以pppoe拨号，多数不可以。我的帐号属于不可以的类型，所以打算让树莓派先使用VPN连接上有线网络，再通过一个无线网卡将信号发射出来。</p>
+<p>本文所述适合于浙江大学玉泉校区寝室网络，树莓派系统为Raspbian。</p>
+<h6 id="第一阶段：让树莓派连接内网"><a href="#第一阶段：让树莓派连接内网" class="headerlink" title="第一阶段：让树莓派连接内网"></a>第一阶段：让树莓派连接内网</h6><p>由于寝室内使用静态ip绑定，每个人的静态ip都绑定了网卡MAC地址，所以先设置静态ip和mac地址。（如果你直接使用树莓派网卡MAC进行申请就无需修改）。</p>
+<ol>
+<li>设置mac地址<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="selector-tag">sudo</span> <span class="selector-tag">ifconfig</span> <span class="selector-tag">eth0</span> <span class="selector-tag">down</span> <span class="selector-tag">hw</span> <span class="selector-tag">ether</span> <span class="selector-tag">xx</span><span class="selector-pseudo">:xx</span><span class="selector-pseudo">:xx</span><span class="selector-pseudo">:xx</span><span class="selector-pseudo">:xx</span><span class="selector-pseudo">:xx</span></div><div class="line"><span class="selector-tag">sudo</span> <span class="selector-tag">ifconfig</span> <span class="selector-tag">eth0</span> <span class="selector-tag">up</span></div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>运行后使用ifconfig可以看到修改结果。</p>
+<p>2.设置静态ip、网关等。此时需要修改/etc/network/interfaces，修改前先进行备份：<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pi<span class="meta">@raspberry</span>:sudo cp <span class="regexp">/etc/</span>network<span class="regexp">/interfaces /</span>etc<span class="regexp">/network/</span>interfaces.sav</div></pre></td></tr></table></figure></p>
+<p>打开文件：<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pi<span class="variable">@raspberry</span><span class="symbol">:sudo</span> nano /etc/network/interfaces</div></pre></td></tr></table></figure></p>
+<p>关闭DHCP，将此行注释掉：<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">iface</span> eth0 inet dhcp</div></pre></td></tr></table></figure></p>
+<p>修改为：<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="selector-id">#iface</span> eth0 inet dhcp</div></pre></td></tr></table></figure></p>
+<p>接下来进行更详细的修改：<br><figure class="highlight lsl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"># The loopback interface</div><div class="line"> auto lo</div><div class="line"> iface lo inet loopback</div><div class="line"> auto eth0</div><div class="line"> iface eth0 inet static</div><div class="line"> #your static IP</div><div class="line"> address <span class="number">192.168</span><span class="number">.1</span><span class="number">.118</span>  <span class="comment">//修改为你的静态ip</span></div><div class="line"> #your gateway IP</div><div class="line"> gateway <span class="number">192.168</span><span class="number">.1</span><span class="number">.1</span>	<span class="comment">//修改为你的网关</span></div><div class="line"> netmask <span class="number">255.255</span><span class="number">.255</span><span class="number">.0</span>	</div><div class="line"> #your network address <span class="string">"family"</span></div><div class="line"> network <span class="number">192.168</span><span class="number">.1</span><span class="number">.0</span>	<span class="comment">//修改到同一域下</span></div><div class="line"> broadcast <span class="number">192.168</span><span class="number">.1</span><span class="number">.255</span></div></pre></td></tr></table></figure></p>
+<p>修改后重启网络:<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pi<span class="variable">@raspberry</span><span class="symbol">:sudo</span> /etc/init.d/networking restart</div></pre></td></tr></table></figure></p>
+<p>设置DNS，在/etc/resolv.conf中添加一行<code>nameserver 10.10.0.21</code>保存退出。</p>
+<p>此时用ifconfig可以查看修改成没成功，正常的话可以ping通10.10.0.21、www.cc98.org，已经可以上内网了。并且至少在校园范围内已经可以使用ssh进行连接了。</p>
+<h6 id="第二阶段：让树莓派使用VPN方式连接外网"><a href="#第二阶段：让树莓派使用VPN方式连接外网" class="headerlink" title="第二阶段：让树莓派使用VPN方式连接外网"></a>第二阶段：让树莓派使用VPN方式连接外网</h6><p>如果你的闪讯帐号支持pppoe，那么你可以自行下载pppoe有关包进行连接，本文以下讲述的是l2tp方式连接外网。</p>
+<p>1.下载<a href="http://pan.baidu.com/share/link?shareid=335708&amp;uk=2752223697" target="_blank" rel="external">libpcap0.8, ppp, xl2tpd, zjuvpn</a>四个软件包，使用scp命令或者U盘复制到树莓派内。</p>
+<p>2.按照顺序安装四个软件包：<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">sudo dpkg –<span class="selector-tag">i</span> libpcap0.<span class="number">8</span>_1.<span class="number">3.0</span>-<span class="number">1</span>_armhf<span class="selector-class">.deb</span></div><div class="line">sudo dpkg –<span class="selector-tag">i</span> ppp_2.<span class="number">4.5</span>-<span class="number">5.1</span>_armhf<span class="selector-class">.deb</span></div><div class="line">sudo dpkg –<span class="selector-tag">i</span> xl2tpd_1.<span class="number">3.1</span>+dfsg-<span class="number">1</span>_armhf<span class="selector-class">.deb</span></div><div class="line">tar –zxvf zjuvpn-<span class="number">8.2</span><span class="selector-class">.tar</span><span class="selector-class">.gz</span> –C /</div></pre></td></tr></table></figure></p>
+<p>执行：<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">sudo</span> zjuvpn –c</div></pre></td></tr></table></figure></p>
+<p>按照提示输入vpn的用户名和密码就可以连接上外网了。</p>
+<h6 id="第三阶段：让树莓派通过无线网卡共享网络"><a href="#第三阶段：让树莓派通过无线网卡共享网络" class="headerlink" title="第三阶段：让树莓派通过无线网卡共享网络"></a>第三阶段：让树莓派通过无线网卡共享网络</h6><p>此阶段主要参考<a href="http://wangye.org/blog/archives/845/" target="_blank" rel="external">将树莓派Raspberry Pi设置为无线路由器(WiFi热点AP,RTL8188CUS芯片)</a>这篇文章，我的无线网卡也是RTL8188CUS芯片的。要多走一步兼容性措施。</p>
+<ol>
+<li>安装hotspot(hostapd)<figure class="highlight armasm"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="symbol">sudo</span> apt-<span class="meta">get</span> install <span class="keyword">bridge-utils </span>hostapd</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p><strong>需要注意的是官方提供的程序不兼容RTL8188CUS芯片的无线网卡，不过Edimax团队为我们专门编译了兼容的版本，下面的操作需要替换hostapd为兼容版本。</strong><br>如果你的网卡芯片为RTL8188CUS，需要执行下述指令：<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">wget <span class="string">http:</span><span class="comment">//www.daveconroy.com/wp3/wp-content/uploads/2013/07/hostapd.zip</span></div><div class="line">unzip hostapd.zip </div><div class="line">sudo mv <span class="regexp">/usr/</span>sbin<span class="regexp">/hostapd /</span>usr<span class="regexp">/sbin/</span>hostapd.bak</div><div class="line">sudo mv hostapd <span class="regexp">/usr/</span>sbin/hostapd.edimax </div><div class="line">sudo ln -sf <span class="regexp">/usr/</span>sbin<span class="regexp">/hostapd.edimax /</span>usr<span class="regexp">/sbin/</span>hostapd </div><div class="line">sudo chown root.root <span class="regexp">/usr/</span>sbin/hostapd </div><div class="line">sudo chmod <span class="number">755</span> <span class="regexp">/usr/</span>sbin/hostapd</div></pre></td></tr></table></figure></p>
+<ol>
+<li>以路由方案设置WiFi热点</li>
+</ol>
+<p>安装必备程序udhcpd，udhcpd主要为连接到WiFi的设备自动分配IP地址。<br><figure class="highlight actionscript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo apt-<span class="keyword">get</span> install udhcpd</div></pre></td></tr></table></figure></p>
+<p>配置udhcpd，编辑/etc/udhcpd.conf：<br><figure class="highlight lsl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">start <span class="number">192.168</span><span class="number">.42</span><span class="number">.2</span> # This is the range of IPs that the hostspot will give to client devices.</div><div class="line">end <span class="number">192.168</span><span class="number">.42</span><span class="number">.20</span></div><div class="line">interface wlan0 # The device uDHCP listens on.</div><div class="line">remaining yes</div><div class="line">opt dns <span class="number">8.8</span><span class="number">.8</span><span class="number">.8</span> <span class="number">4.2</span><span class="number">.2</span><span class="number">.2</span> # The DNS servers client devices will use.</div><div class="line">opt subnet <span class="number">255.255</span><span class="number">.255</span><span class="number">.0</span></div><div class="line">opt router <span class="number">192.168</span><span class="number">.42</span><span class="number">.1</span> # The Pi's IP address on wlan0 which we will set up shortly.</div><div class="line">opt lease <span class="number">864000</span> # <span class="number">10</span> day DHCP lease time in seconds</div></pre></td></tr></table></figure></p>
+<p>编辑/etc/default/udhcpd并且将下面这行注释掉，以使DHCP Server正常工作：<br><figure class="highlight autoit"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#DHCPD_ENABLED=<span class="string">"no"</span></span></div></pre></td></tr></table></figure></p>
+<p>配置无线网卡，给无线网卡设置一个IP地址：<br><figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="selector-tag">sudo</span> <span class="selector-tag">ifconfig</span> <span class="selector-tag">wlan0</span> 192<span class="selector-class">.168</span><span class="selector-class">.42</span><span class="selector-class">.1</span></div></pre></td></tr></table></figure></p>
+<p>为了下次启动仍然有效，配置/etc/network/interfaces文件：<br><figure class="highlight awk"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo nano <span class="regexp">/etc/</span>network<span class="regexp">/interfaces</span></div></pre></td></tr></table></figure></p>
+<p>注释掉所有的关于无线网卡的部分，最后应该变成下面所示：<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="selector-id">#wpa-roam</span> /etc/wpa_supplicant/wpa_supplicant<span class="selector-class">.conf</span></div><div class="line"><span class="selector-id">#iface</span> default inet dhcp</div></pre></td></tr></table></figure></p>
+<p>注意保留allow-hotplug wlan0，英文原文是不保留的，但是我操作下来发现如果不保留这段的话，无线网卡有时无法正常配置IP，最后无线网卡IP的配置信息如下:<br><figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="selector-tag">allow-hotplug</span> <span class="selector-tag">wlan0</span></div><div class="line"><span class="selector-tag">iface</span> <span class="selector-tag">wlan0</span> <span class="selector-tag">inet</span> <span class="selector-tag">static</span></div><div class="line">  <span class="selector-tag">address</span> 192<span class="selector-class">.168</span><span class="selector-class">.42</span><span class="selector-class">.1</span></div><div class="line">  <span class="selector-tag">netmask</span> 255<span class="selector-class">.255</span><span class="selector-class">.255</span><span class="selector-class">.0</span></div></pre></td></tr></table></figure></p>
+<p>编辑hostapd配置:<br><figure class="highlight awk"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo nano <span class="regexp">/etc/</span>hostapd<span class="regexp">/hostapd.conf</span></div></pre></td></tr></table></figure></p>
+<p>内容如下：<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="attr">interface</span>=wlan0</div><div class="line"><span class="attr">driver</span>=rtl871xdrv</div><div class="line"><span class="attr">ssid</span>=My_SSID_Name//改为自定义ssid</div><div class="line"><span class="attr">hw_mode</span>=g</div><div class="line"><span class="attr">channel</span>=<span class="number">6</span></div><div class="line"><span class="attr">macaddr_acl</span>=<span class="number">0</span></div><div class="line"><span class="attr">auth_algs</span>=<span class="number">1</span></div><div class="line"><span class="attr">ignore_broadcast_ssid</span>=<span class="number">0</span></div><div class="line"><span class="attr">wpa</span>=<span class="number">2</span></div><div class="line"><span class="attr">wpa_passphrase</span>=MYPASSWORD//设置密码</div><div class="line"><span class="attr">wpa_key_mgmt</span>=WPA-PSK</div><div class="line"><span class="attr">wpa_pairwise</span>=TKIP</div><div class="line"><span class="attr">rsn_pairwise</span>=CCMP</div></pre></td></tr></table></figure></p>
+<p>启动IP转向功能以便于开通NAT:<br><figure class="highlight dos"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo sh -c "<span class="built_in">echo</span> <span class="number">1</span> &gt; /proc/sys/<span class="built_in">net</span>/ipv4/ip_forward"</div></pre></td></tr></table></figure></p>
+<p>配置iptables防火墙<br><figure class="highlight matlab"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">sudo iptables -t nat -A POSTROUTING -o eth0 -<span class="built_in">j</span> MASQUERADE</div><div class="line">sudo iptables -A FORWARD -<span class="built_in">i</span> eth0 -o wlan0 -m state --state RELATED,ESTABLISHED -<span class="built_in">j</span> ACCEPT</div><div class="line">sudo iptables -A FORWARD -<span class="built_in">i</span> wlan0 -o eth0 -<span class="built_in">j</span> ACCEPT</div></pre></td></tr></table></figure></p>
+<p>到这里路由的NAT功能已经被启用，保存iptables以便于下次使用<br><figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo <span class="keyword">sh </span>-c <span class="string">"iptables-save &gt; /etc/iptables.ipv4.nat"</span></div></pre></td></tr></table></figure></p>
+<p>编辑/etc/network/interfaces然后在最后加上下面这行以使每次启动都自动加载iptables配置：<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">up iptables-restore &lt; /etc/iptables<span class="selector-class">.ipv4</span><span class="selector-class">.nat</span></div></pre></td></tr></table></figure></p>
+<p>重启并测试hostapd<br><figure class="highlight ebnf"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">sudo reboot</span></div></pre></td></tr></table></figure></p>
+<p>重启完成后，使用下面的命令测试是否正确：<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo hostapd -<span class="selector-tag">dd</span> /etc/hostapd/hostapd.conf</div></pre></td></tr></table></figure></p>
+<p>果没有错误的话，你这时应该能搜索到你所配置的无线信号。然后Ctrl+C退出这个测试。</p>
+<p>如果一切正常的话，我们可以设置hostapd的配置文件路径了。<br><figure class="highlight gradle"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo nano <span class="regexp">/etc/</span><span class="keyword">default</span><span class="regexp">/hostapd</span></div></pre></td></tr></table></figure></p>
+<p>去掉注释符号并改动下面这行为我们的配置文件路径：<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="attr">DAEMON_CONF</span>=<span class="string">"/etc/hostapd/hostapd.conf"</span></div></pre></td></tr></table></figure></p>
+<p>启动相应软件<br><figure class="highlight crmsh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo service hostapd <span class="literal">start</span></div><div class="line">sudo service udhcpd <span class="literal">start</span></div></pre></td></tr></table></figure></p>
+<p>当我执行到这一步的时候，其他设备可以搜索到树莓派的无线信号，也可以连接上，但是不能上网。此时查看hostapd的日志，wpa的四次握手已经通过，设备与树莓派的连接是没有问题的。</p>
+<p>自我感觉问题应该是出在L2TP上，原文作者没有用l2tp，直接在eth0和wlan0间做NAT。实际上在使用l2tp拨号之后，又新生成了ppp0，应该对ppp0再进行一些设置，这方面我懂得知识很少，没能解决。:(</p>
+<p>操作的时候足足花了一个晚上加一个上午，出现各种各样奇怪的问题，有的地方是自己马虎，有的地方是奇怪的错误……</p>
+<p>比如按照原文设置加入的那些启动项，有的重启后并没有生效，还需要自己手动再敲一遍。随后<code>sudo /etc/init.d/networking restart</code>的时候会出错，连续输入两遍才能成功……</p>
+<p>参考资料：</p>
+<ul>
+<li><a href="http://blog.sina.com.cn/s/blog_7f54e3d80101gygf.html" target="_blank" rel="external">树莓派使用静态IP&amp;VPN连接网络</a></li>
+<li><a href="http://www.cnblogs.com/chaojibianbianbian/archive/2013/03/02/2939760.html" target="_blank" rel="external">设置RPi的mac地址，静态ip地址，dns服务器地址等。比较普通的上内网的方法。</a></li>
+<li><a href="http://elinux.org/RPi_Setting_up_a_static_IP_in_Debian" target="_blank" rel="external">RPi Setting up a static IP in Debian</a></li>
+<li><a href="http://blog.sina.com.cn/s/blog_7362afc40101ae5q.html" target="_blank" rel="external">浙江大学 树莓派（Raspberry Pi）沙拉烹饪指南2——互联网恢恢，树莓派不漏（For Windows）</a></li>
+<li><a href="http://wangye.org/blog/archives/845/" target="_blank" rel="external">将树莓派Raspberry Pi设置为无线路由器(WiFi热点AP,RTL8188CUS芯片)</a></li>
+</ul>
+
+            
+                
+
+            
+        </div>
+    </div>
+    <div class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">TAGGED IN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-none-link" href="/tags/Raspberry-Pi/" rel="tag">Raspberry Pi</a>
+
+            </div>
+        
+        <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2015/03/21/JS%E8%87%AA%E6%88%91%E6%A2%B3%E7%90%86%EF%BC%9A%E9%97%AD%E5%8C%85%E3%80%81%E7%A7%81%E6%9C%89%E5%8F%98%E9%87%8F/"  data-tooltip="JS自我梳理：闭包、私有变量">
+                
+                    <i class="fa fa-angle-left"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">PREVIOUS</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2015/03/18/%E8%80%81%E7%94%9F%E5%B8%B8%E8%B0%88%E2%80%94%E2%80%94BFC%E4%B8%8Ehaslayout/" data-tooltip="老生常谈——BFC与haslayout">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">NEXT</span>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions"  href="#btn-open-shareoptions">
+                <i class="fa fa-share-alt"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://www.404forest.com/2015/03/21/%E5%9C%A8%E7%8E%89%E6%B3%89%E7%8E%AF%E5%A2%83%E4%B8%8B%E5%B0%9D%E8%AF%95%E5%B0%86%E6%A0%91%E8%8E%93%E6%B4%BE%E6%94%B9%E9%80%A0%E4%B8%BA%E8%B7%AF%E7%94%B1%E5%99%A8%EF%BC%88%E5%88%86%E4%BA%AB%E8%BF%87%E7%A8%8B%EF%BC%8C%E6%9C%AA%E6%88%90%E5%8A%9F%EF%BC%89/">
+                <i class="fa fa-google-plus"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://www.404forest.com/2015/03/21/%E5%9C%A8%E7%8E%89%E6%B3%89%E7%8E%AF%E5%A2%83%E4%B8%8B%E5%B0%9D%E8%AF%95%E5%B0%86%E6%A0%91%E8%8E%93%E6%B4%BE%E6%94%B9%E9%80%A0%E4%B8%BA%E8%B7%AF%E7%94%B1%E5%99%A8%EF%BC%88%E5%88%86%E4%BA%AB%E8%BF%87%E7%A8%8B%EF%BC%8C%E6%9C%AA%E6%88%90%E5%8A%9F%EF%BC%89/">
+                <i class="fa fa-facebook-official"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://www.404forest.com/2015/03/21/%E5%9C%A8%E7%8E%89%E6%B3%89%E7%8E%AF%E5%A2%83%E4%B8%8B%E5%B0%9D%E8%AF%95%E5%B0%86%E6%A0%91%E8%8E%93%E6%B4%BE%E6%94%B9%E9%80%A0%E4%B8%BA%E8%B7%AF%E7%94%B1%E5%99%A8%EF%BC%88%E5%88%86%E4%BA%AB%E8%BF%87%E7%A8%8B%EF%BC%8C%E6%9C%AA%E6%88%90%E5%8A%9F%EF%BC%89/">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </li>
+        
+            <li class="post-action">
+                <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                    <i class="fa fa-comment-o"></i>
+                </a>
+            </li>
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#">
+            
+                <i class="fa fa-list"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+            <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2025 Jin. All Rights Reserved.
+    </span>
+    <a class="copyrights" target="_blank" rel="noopener" href="http://www.beian.miit.gov.cn/">
+        浙ICP备18012561号
+    </a>
+</footer>
+
+            </div>
+        </div>
+        <div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-remove"></i>
+        </div>
+        
+            <img id="about-card-picture" src="/assets/images/ava.png"/>
+        
+            <h4 id="about-card-name">Jin</h4>
+        
+            <h5 id="about-card-bio">Interested in Web Development/Typography/Japanese.</h5>
+        
+        
+            <h5 id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                WebDeveloper
+            </h5>
+        
+        
+            <h5 id="about-card-location">
+                <i class="fa fa-map-marker"></i>
+                <br/>
+                Beijing
+            </h5>
+        
+    </div>
+</div>
+
+        <div id="cover" style="background-image:url('/assets/images/bg4.jpg');"></div>
+    </body>
+    <!--SCRIPTS-->
+
+<script src="/assets/js/script.min.js"></script>
+
+<!--SCRIPTS END-->
+
+    <script type="text/javascript">
+        var disqus_shortname = '404forest';
+        (function() {
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+
+
+    <script type="text/javascript">
+        (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+                (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+            e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+        })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+        _st('install','ZkJM8hxyxxLens-VGG__','2.0.0');
+    </script>
+
+
+</html>

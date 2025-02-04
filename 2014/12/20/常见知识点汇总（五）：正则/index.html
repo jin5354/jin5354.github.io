@@ -1,0 +1,500 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+    
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="404Forest">
+    <title>常见知识点汇总（五）：正则 - 404Forest</title>
+    <meta name="author" content="Jin">
+    
+        <link rel="icon" href="/assets/images/favicon.ico">
+    
+    
+    <meta name="description" content="正则表达式是一个描述字符模式的对象。 Javascript的RegExp类表示正则表达式，String和RegExp都定义了方法，后者使用正则表达式进行强大的模式匹配和文本检索与替换功能。">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="常见知识点汇总（五）：正则">
+<meta property="og:url" content="http://www.404forest.com/2014/12/20/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E6%B1%87%E6%80%BB%EF%BC%88%E4%BA%94%EF%BC%89%EF%BC%9A%E6%AD%A3%E5%88%99/index.html">
+<meta property="og:site_name" content="404Forest">
+<meta property="og:description" content="正则表达式是一个描述字符模式的对象。 Javascript的RegExp类表示正则表达式，String和RegExp都定义了方法，后者使用正则表达式进行强大的模式匹配和文本检索与替换功能。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2014-12-21T03:24:41.000Z">
+<meta property="article:modified_time" content="2025-02-04T23:02:44.266Z">
+<meta property="article:author" content="Jin">
+<meta property="article:tag" content="Javascript">
+<meta property="article:tag" content="Front-end-Developer-Interview-Questions">
+<meta property="article:tag" content="常见知识点汇总">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@jin5354">
+    
+    
+    
+        <meta property="og:image" content="/assets/images/ava.png"/>
+    
+    
+    
+    
+    <!--STYLES-->
+    
+<link rel="stylesheet" href="/assets/css/style.min.css">
+
+    <!--STYLES END-->
+    
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-66492678-1']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+
+</head>
+
+    <body>
+        <div id="blog">
+            <header id="header" data-behavior="3">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <h1 class="header-title">
+        <a class="header-title-link" href="/%20">404Forest</a>
+    </h1>
+    
+        <a class="header-right-picture" href="/#about">
+            <img class="header-picture" src="/assets/images/ava.png"/>
+        </a>
+    
+</header>
+            <nav id="sidebar" data-behavior="3">
+    
+        <div class="sidebar-profile">
+            <a href="/#about">
+                
+                    <img class="sidebar-profile-picture" src="/assets/images/ava.png"/>
+                
+            </a>
+            <span class="sidebar-profile-name">Jin</span>
+        </div>
+    
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/%20"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+                    <span class="sidebar-button-desc">Home</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-archives"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+                    <span class="sidebar-button-desc">Archive</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-categories"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+                    <span class="sidebar-button-desc">Categories</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-tags"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+                    <span class="sidebar-button-desc">Tags</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link st-search-show-outputs"
+                         href="#search"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-search"></i>
+                    <span class="sidebar-button-desc">Search</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="#about"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+                    <span class="sidebar-button-desc">About</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="https://github.com/jin5354" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+                    <span class="sidebar-button-desc">GitHub</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="mailto:xiaoyanjinx@gmail.com" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-envelope-o"></i>
+                    <span class="sidebar-button-desc">Mail</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+    <div style="margin-left: 27px;">
+        <a target="_blank" rel="noopener" href="https://github.com/jin5354/404forest"><img src="https://img.shields.io/github/stars/jin5354/404forest.svg?style=social&label=Stars"></a>
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="3"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title" itemprop="headline">
+            常见知识点汇总（五）：正则
+        </h1>
+    
+    <div class="post-meta">
+    <time itemprop="datePublished" content="Sat Dec 20 2014 19:24:41 GMT-0800">
+	
+		    12月 20, 2014
+    	
+    </time>
+    
+        <span>in </span>
+        
+    <a class="category-link" href="/categories/Code/">Code</a>
+
+
+    
+</div>
+</div>
+    
+    <div class="main-content-wrap" style="margin-top: 60px;">索引</div>
+    <ol class="main-content-wrap toc-article"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-5"><a class="main-content-wrap toc-article-link" href="#%E5%AE%9A%E4%B9%89"><span class="main-content-wrap toc-article-text">定义</span></a><ol class="main-content-wrap toc-article-child"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-6"><a class="main-content-wrap toc-article-link" href="#%E7%9B%B4%E6%8E%A5%E9%87%8F%E5%AD%97%E7%AC%A6"><span class="main-content-wrap toc-article-text">直接量字符</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-6"><a class="main-content-wrap toc-article-link" href="#%E5%AD%97%E7%AC%A6%E7%B1%BB"><span class="main-content-wrap toc-article-text">字符类</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-6"><a class="main-content-wrap toc-article-link" href="#%E9%87%8D%E5%A4%8D"><span class="main-content-wrap toc-article-text">重复</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-6"><a class="main-content-wrap toc-article-link" href="#%E9%80%89%E6%8B%A9%E3%80%81%E5%88%86%E7%BB%84%E3%80%81%E5%BC%95%E7%94%A8"><span class="main-content-wrap toc-article-text">选择、分组、引用</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-6"><a class="main-content-wrap toc-article-link" href="#%E6%8C%87%E5%AE%9A%E5%8C%B9%E9%85%8D%E4%BD%8D%E7%BD%AE%EF%BC%9A"><span class="main-content-wrap toc-article-text">指定匹配位置：</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-6"><a class="main-content-wrap toc-article-link" href="#%E4%BF%AE%E9%A5%B0%E7%AC%A6"><span class="main-content-wrap toc-article-text">修饰符</span></a></li></ol></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-5"><a class="main-content-wrap toc-article-link" href="#%E7%94%A8%E4%BA%8E%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8D%E7%9A%84String-%E6%96%B9%E6%B3%95"><span class="main-content-wrap toc-article-text">用于模式匹配的String()方法</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-5"><a class="main-content-wrap toc-article-link" href="#%E7%94%A8%E4%BA%8E%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8DRegExp%E5%AF%B9%E8%B1%A1%E6%96%B9%E6%B3%95"><span class="main-content-wrap toc-article-text">用于模式匹配RegExp对象方法</span></a></li></ol>
+    <div class="post-content markdown" itemprop="articleBody">
+        <div class="main-content-wrap">
+            <p>正则表达式是一个描述字符模式的对象。</p>
+<p>Javascript的RegExp类表示正则表达式，String和RegExp都定义了方法，后者使用正则表达式进行强大的模式匹配和文本检索与替换功能。</p>
+<a id="more"></a>
+<h5 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h5><p>可以使用RegExp()构造函数来创建RegExp对象，不过RegExp对象更多的是通过一种特殊的直接量语法来创建。</p>
+<p>正则表达式直接量定义为包含在一对斜杠(/)之间的字符，如：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> pattern = <span class="regexp">/s$/</span>;</div></pre></td></tr></table></figure>
+<p>若使用构造函数：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> pattern = <span class="keyword">new</span> <span class="built_in">RegExp</span>(<span class="string">"s$"</span>);</div></pre></td></tr></table></figure>
+<p>正则表达式的模式规则是由一个字符序列组成的。包括所有字母和数字在内，大多数的字符都是按照直接量仅描述待匹配的字符的。/java/可以匹配任何带有”java“子串的字符串。除此之外，正则表达式中还可以含有其它具有具体特殊语义的字符。</p>
+<h6 id="直接量字符"><a href="#直接量字符" class="headerlink" title="直接量字符"></a>直接量字符</h6><p>正则表达式中所有字母和数字都是按照字面含义进行匹配的。非字母的字符匹配需要通过\作为前缀进行转义。如下：</p>
+<ul>
+<li>字符 匹配</li>
+<li>字母和数字字符 自身</li>
+<li>\o NUL字符\u0000</li>
+<li>\t 制表符\u0009</li>
+<li>\n 换行符\u000A</li>
+<li>\v 垂直制表符\u000B</li>
+<li>\f 换页符\u000C</li>
+<li>\r 回车符\u000D</li>
+<li>\xnn 由十六进制数nn指定的拉丁字符，例如\x0A等价于\n</li>
+<li>\uxxxx 由十六进制数xxxx指定的Unicode字符，例如\u0009等价于\t</li>
+<li>\cX 控制字符^X，例如，\cJ等价于换行符\n</li>
+</ul>
+<p>此外还有一些标点符号有特殊含义：</p>
+<p>^$.*+?=!:|\/()[]{}</p>
+<p>若想匹配这些字符的直接量也要使用前缀\，其他标点符号如@、引号则没有特殊含义。</p>
+<p>如果不记得哪些标点符号需要反斜线转义，可以在每个标点符号之前都加上反斜线。</p>
+<h6 id="字符类"><a href="#字符类" class="headerlink" title="字符类"></a>字符类</h6><p>将直接量字符单独放进方括号内就组成了字符类。一个字符类可以匹配它所包含的任意字符。/[abc]/可以匹配”a”、”b”、”c”中任意一个。^符号可以否定字符类。/[^abc]/匹配非”a”、”b”、”c”的任意字符。字符类使用连字符来表示字符范围。</p>
+<ul>
+<li>字符 匹配</li>
+<li>[] 方括号内任意字符</li>
+<li>[^] 不在方括号内的任意字符</li>
+<li>. 除换行符和其他Unicode行终止符之外的任意字符</li>
+<li>\w 任何ASC2字符组成的单词，等价于[a-zA-Z0-9]</li>
+<li>\W 任何不是ASC2字符组成的单词，等价于[^a-zA-Z0-9]</li>
+<li>\s 任何Unicode空白符</li>
+<li>\S 任何非Unicode空白符的字符</li>
+<li>\d 任何ASC2数字，等同于[0-9]</li>
+<li>\D 除了ASC2数字外的其他字符，等同于[^0-9]</li>
+<li>[\b] 退格直接量</li>
+</ul>
+<h6 id="重复"><a href="#重复" class="headerlink" title="重复"></a>重复</h6><ul>
+<li>字符 含义</li>
+<li>{n,m} 匹配前一项至少n次但不能超过m次</li>
+<li>{n,} 匹配前一项至少n次</li>
+<li>{n} 匹配前一项n次</li>
+<li>? 匹配前一项0或1次，等价于{0,1}</li>
+<li>+ 匹配前一项1或多次，等价于{1,}</li>
+<li>* 匹配前一项0多多次，等价于{0,}</li>
+</ul>
+<p>例：</p>
+<ul>
+<li>/\d{2,4}/ 匹配2~4个数字</li>
+<li>/\w{3}\d?/ 匹配3个单词后加1个可选数字</li>
+<li>/\s+java\s+/ 匹配前后可带有1或多个空格的字符串”java”</li>
+<li>/[^(]*/ 匹配一个或多个非左括号的字符</li>
+</ul>
+<p>上表列出的匹配重复字符为贪婪匹配，为尽可能多的匹配；非贪婪匹配只需要在待匹配的字符后跟随一个问号即可。”??”,”+?”,”*?”,”{1,5}?”。</p>
+<p>例：</p>
+<p>/a+/及/a+?/都可以匹配1个或多个连续的字母a，当字符串为”aaa”时，/a+/会匹配3个字符，/a+?/会匹配1个字符。</p>
+<h6 id="选择、分组、引用"><a href="#选择、分组、引用" class="headerlink" title="选择、分组、引用"></a>选择、分组、引用</h6><p><strong>| 用于分隔供选择的字符</strong></p>
+<p>/ab|cd|ef/ 可以匹配”ab”、”cd”、”ef”。</p>
+<p>注意：选择项的匹配顺序是从左到右，直到发现了匹配项。如果左边的符合匹配，就忽略右边的匹配项。</p>
+<p>/a|ab/匹配”ab”时，只匹配第一个字符。</p>
+<p><strong>()圆括号的作用：</strong></p>
+<ol>
+<li><p>把单独项组合成子表达式</p>
+<p> /java(script)?/ 加上圆括号可以对”script”应用?操作</p>
+</li>
+<li><p>定义子模式</p>
+</li>
+<li><p>允许同一正则表达式的后部引用前面的子表达式。这是通过在字符”\”后加一位或多为数字来实现的。</p>
+</li>
+</ol>
+<p>例如：</p>
+<p>/[‘“][^’”]*[‘“]/ 匹配位于单引号或双引号之内的0个或多个字符，但并不要求两个引号匹配。</p>
+<p>/([‘“])[^’”]*\1/ 匹配位于单引号或双引号之内的0个或多个字符，同时要求两个引号匹配。</p>
+<p>如果使用(?:)那么意味着仅仅用于分组，引用并不带有数字编号。</p>
+<h6 id="指定匹配位置："><a href="#指定匹配位置：" class="headerlink" title="指定匹配位置："></a>指定匹配位置：</h6><p>正则表达式中的锚字符：</p>
+<ul>
+<li>^ 匹配字符串的开头，在多行检索中，匹配一行的开头</li>
+<li>$ 匹配字符串的结尾，在多行检索中，匹配一行的结尾</li>
+<li>\b 匹配一个单词的边界，简言之，就是位于字符\w和\W之间的位置，或位于字符\w和字符串的开头或者结尾之间的位置</li>
+<li>\B 匹配非单词边界的位置</li>
+<li>(?=p) 零宽正向先行断言，要求接下来的字符都与p匹配，但不能包括匹配p的那些字符</li>
+<li>(?!p) 零宽负向先行断言，要求接下来的字符不与p匹配</li>
+</ul>
+<p>例如：</p>
+<p>/[Jj]ava([Ss]cript)?(?=\:))/ 可以匹配”JavaScript:”，不能匹配”Java”;</p>
+<p>/Java(?! Script)([A-Z]\w*)/ 可以匹配”Java”猴跟随一个大写字母和任意多个ASC2单词，但Java后面不能跟随Script。</p>
+<h6 id="修饰符"><a href="#修饰符" class="headerlink" title="修饰符"></a>修饰符</h6><p>修饰符放在第二条/之后。</p>
+<ul>
+<li>i 执行不区分大小写的匹配</li>
+<li>g 执行一个全局匹配，简言之，即找到所有的匹配，而不是在找到第一个之后就停止。</li>
+<li>m 多行匹配模式，^匹配一行的开头和字符串的开头，$匹配行的结束和字符串的结束。</li>
+</ul>
+<h5 id="用于模式匹配的String-方法"><a href="#用于模式匹配的String-方法" class="headerlink" title="用于模式匹配的String()方法"></a>用于模式匹配的String()方法</h5><ul>
+<li><p>search()，参数为一个正则表达式，返回第一个与之匹配的子串的起始位置，如果找不到匹配的子串，它将返回-1.</p>
+  <figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="string">"JavaScript"</span>.search(<span class="regexp">/script/i</span>) <span class="comment">//返回4</span></div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>search()方法不支持全局检索，忽略修饰符g。</p>
+<ul>
+<li><p>replace()方法用以执行检索和替换操作。第一个参数是正则表达式，第二个参数是要进行替换的字符串。</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">//将所有不区分大小写的javascript都替换成大小写正确的Javascript</div><div class="line">text.replace(/javascript/gi, &quot;JavaScript&quot;);</div></pre></td></tr></table></figure>
+</li>
+<li><p>match()方法是最常用的String正则表达式方法。它的唯一参数就是一个正则表达式(或通过RegExp()构造函数将其转换为正则表达式)，返回的是一个由匹配结果组成的数组。如果该正则表达式设置了修饰符g，则该方法返回的数组包含字符串中的所有匹配结果。</p>
+  <figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="string">"1 plus 2 equals 3"</span>.match(<span class="regexp">/\d+/g</span>) <span class="comment">// 返回["1", "2", "3"]</span></div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>如果正则没有设置修饰符g，match()不会全局检索，而是只检索第一个匹配，返回一个数组。数组的第一个元素就是匹配的字符串，余下的元素则是正则表达式中用圆括号括起来的子表达式。</p>
+<ul>
+<li><p>最后一个是split()，可以将调用它的字符串拆分为一个子串组成的数组，使用的分隔符是split()的参数。如：</p>
+  <figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="string">"123,456,789"</span>.split(<span class="string">","</span>); <span class="comment">//返回["123","456","789"];</span></div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>split()的参数也可以是一个正则表达式，例如可以指定分隔符，允许两边留有任意多的空白符。</p>
+<pre><code><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="string">"1, 2, 3, 4, 5"</span>.split(<span class="regexp">/\s*,\s*/</span>); <span class="comment">//返回["1","2","3","4","5"]</span></div></pre></td></tr></table></figure>
+</code></pre><h5 id="用于模式匹配RegExp对象方法"><a href="#用于模式匹配RegExp对象方法" class="headerlink" title="用于模式匹配RegExp对象方法"></a>用于模式匹配RegExp对象方法</h5><p>RegExp对象也可以通过RegExp()构造函数生成。它包括一个或者两个字符串参数。第一个参数是正则表达式的内容，第二个参数是标志（可选），例如：g, i, m等。注意，需要转义时用\代替\。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> zipcode = <span class="keyword">new</span> <span class="built_in">RegExp</span>(<span class="string">"\\d&#123;5&#125;"</span>, <span class="string">"g"</span>);</div></pre></td></tr></table></figure>
+<p>RegExp对象定义了两个用于执行模式匹配操作的方法。</p>
+<p>第一个方就是exec()方法，类似于match()方法。不同于match()的是，exec()方法无论是否有 g 标志，它都只返回同样的数组array。array的第一个元素array[0]储存完全匹配的字符串，随后的元素一次储存与子字符类想匹配的子字符串。当模式有 g 标志的时候，exec()方法执行一次以后，会自动将RegExp对象的一个特殊属性lastIndex置为此次匹配的字符串的最后一个字母的后一个位置。</p>
+<p>当同一个正则表达式再次执行的时候，会在lastIndex位置开始查找，而不是0位置开始查找。如果exec()没有找到匹配的字符串，它将自动将lastIndex置为0。这个特殊的方法，可以很方便的循环遍历整个字符串，以找到所有匹配的子字符串。当然，你也可以在找到最后一个匹配子字符串以前的任意时刻将lastIndex置为0，然后用该RegExp对象执行另外的字符串。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> pattern = <span class="regexp">/Java/g</span>; </div><div class="line">    <span class="keyword">var</span> text = <span class="string">"JavaScript is more fun than Java!"</span>; </div><div class="line">    <span class="keyword">var</span> result; </div><div class="line">    <span class="keyword">while</span>((result = pattern.exec(text)) != <span class="literal">null</span>) </div><div class="line">    &#123; </div><div class="line">        alert(<span class="string">"Matched '"</span> + result[<span class="number">0</span>] + <span class="string">"'"</span> + <span class="string">" at position "</span> + result.index + <span class="string">"; next search begins at "</span> + pattern.lastIndex); </div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>RegExp对象的另外一个执行匹配的方法是test()，它要比exec()简单的多。它只有一个字符串作为唯一的参数，返回true或者在没有找到匹配字符串是返回null。当RegExp有g标志时，test()与exec()对lastIndex执行同样的操作。</p>
+
+            
+                
+
+            
+        </div>
+    </div>
+    <div class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">TAGGED IN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-none-link" href="/tags/Front-end-Developer-Interview-Questions/" rel="tag">Front-end-Developer-Interview-Questions</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/Javascript/" rel="tag">Javascript</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E6%B1%87%E6%80%BB/" rel="tag">常见知识点汇总</a>
+
+            </div>
+        
+        <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2015/01/28/%E5%A6%82%E4%BD%95%E5%8C%BA%E5%88%86js%E4%B8%AD%E7%9A%84%E5%90%84%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/"  data-tooltip="如何区分js中的各种数据类型">
+                
+                    <i class="fa fa-angle-left"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">PREVIOUS</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2014/12/19/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E6%B1%87%E6%80%BB%EF%BC%88%E5%9B%9B%EF%BC%89%EF%BC%9AJSON/" data-tooltip="常见知识点汇总（四）：JSON">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">NEXT</span>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions"  href="#btn-open-shareoptions">
+                <i class="fa fa-share-alt"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://www.404forest.com/2014/12/20/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E6%B1%87%E6%80%BB%EF%BC%88%E4%BA%94%EF%BC%89%EF%BC%9A%E6%AD%A3%E5%88%99/">
+                <i class="fa fa-google-plus"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://www.404forest.com/2014/12/20/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E6%B1%87%E6%80%BB%EF%BC%88%E4%BA%94%EF%BC%89%EF%BC%9A%E6%AD%A3%E5%88%99/">
+                <i class="fa fa-facebook-official"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://www.404forest.com/2014/12/20/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E6%B1%87%E6%80%BB%EF%BC%88%E4%BA%94%EF%BC%89%EF%BC%9A%E6%AD%A3%E5%88%99/">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </li>
+        
+            <li class="post-action">
+                <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                    <i class="fa fa-comment-o"></i>
+                </a>
+            </li>
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#">
+            
+                <i class="fa fa-list"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+            <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2025 Jin. All Rights Reserved.
+    </span>
+    <a class="copyrights" target="_blank" rel="noopener" href="http://www.beian.miit.gov.cn/">
+        浙ICP备18012561号
+    </a>
+</footer>
+
+            </div>
+        </div>
+        <div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-remove"></i>
+        </div>
+        
+            <img id="about-card-picture" src="/assets/images/ava.png"/>
+        
+            <h4 id="about-card-name">Jin</h4>
+        
+            <h5 id="about-card-bio">Interested in Web Development/Typography/Japanese.</h5>
+        
+        
+            <h5 id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                WebDeveloper
+            </h5>
+        
+        
+            <h5 id="about-card-location">
+                <i class="fa fa-map-marker"></i>
+                <br/>
+                Beijing
+            </h5>
+        
+    </div>
+</div>
+
+        <div id="cover" style="background-image:url('/assets/images/bg4.jpg');"></div>
+    </body>
+    <!--SCRIPTS-->
+
+<script src="/assets/js/script.min.js"></script>
+
+<!--SCRIPTS END-->
+
+    <script type="text/javascript">
+        var disqus_shortname = '404forest';
+        (function() {
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+
+
+    <script type="text/javascript">
+        (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+                (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+            e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+        })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+        _st('install','ZkJM8hxyxxLens-VGG__','2.0.0');
+    </script>
+
+
+</html>

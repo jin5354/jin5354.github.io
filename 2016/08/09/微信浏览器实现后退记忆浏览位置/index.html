@@ -1,0 +1,432 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+    
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="404Forest">
+    <title>微信浏览器实现后退记忆浏览位置 - 404Forest</title>
+    <meta name="author" content="Jin">
+    
+        <link rel="icon" href="/assets/images/favicon.ico">
+    
+    
+    <meta name="description" content="不知道你有没有注意过，当点击浏览器工具栏上的后退按钮，亦或是在移动设备上触发浏览器的后退键，浏览器会在当前窗口打开前一个页面，不同浏览器“打开”前一个页面的方式是不同的。chrome 浏览器点击后退按钮时，会准确返回到前一个页面离开时的状态，连 input 中输入的字都会还原，而微信浏览器的行为则大不一样。">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="微信浏览器实现后退记忆浏览位置">
+<meta property="og:url" content="http://www.404forest.com/2016/08/09/%E5%BE%AE%E4%BF%A1%E6%B5%8F%E8%A7%88%E5%99%A8%E5%AE%9E%E7%8E%B0%E5%90%8E%E9%80%80%E8%AE%B0%E5%BF%86%E6%B5%8F%E8%A7%88%E4%BD%8D%E7%BD%AE/index.html">
+<meta property="og:site_name" content="404Forest">
+<meta property="og:description" content="不知道你有没有注意过，当点击浏览器工具栏上的后退按钮，亦或是在移动设备上触发浏览器的后退键，浏览器会在当前窗口打开前一个页面，不同浏览器“打开”前一个页面的方式是不同的。chrome 浏览器点击后退按钮时，会准确返回到前一个页面离开时的状态，连 input 中输入的字都会还原，而微信浏览器的行为则大不一样。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/historyback1.png">
+<meta property="og:image" content="http://www.404forest.com/imgs/blog/historyback2.png">
+<meta property="article:published_time" content="2016-08-09T22:00:11.000Z">
+<meta property="article:modified_time" content="2025-02-04T23:02:44.267Z">
+<meta property="article:author" content="Jin">
+<meta property="article:tag" content="微信浏览器">
+<meta property="article:tag" content="historyBack">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://www.404forest.com/imgs/blog/historyback1.png">
+<meta name="twitter:creator" content="@jin5354">
+    
+    
+    
+        <meta property="og:image" content="/assets/images/ava.png"/>
+    
+    
+    
+    
+    <!--STYLES-->
+    
+<link rel="stylesheet" href="/assets/css/style.min.css">
+
+    <!--STYLES END-->
+    
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-66492678-1']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+
+</head>
+
+    <body>
+        <div id="blog">
+            <header id="header" data-behavior="3">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <h1 class="header-title">
+        <a class="header-title-link" href="/%20">404Forest</a>
+    </h1>
+    
+        <a class="header-right-picture" href="/#about">
+            <img class="header-picture" src="/assets/images/ava.png"/>
+        </a>
+    
+</header>
+            <nav id="sidebar" data-behavior="3">
+    
+        <div class="sidebar-profile">
+            <a href="/#about">
+                
+                    <img class="sidebar-profile-picture" src="/assets/images/ava.png"/>
+                
+            </a>
+            <span class="sidebar-profile-name">Jin</span>
+        </div>
+    
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/%20"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+                    <span class="sidebar-button-desc">Home</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-archives"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+                    <span class="sidebar-button-desc">Archive</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-categories"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+                    <span class="sidebar-button-desc">Categories</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-tags"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+                    <span class="sidebar-button-desc">Tags</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link st-search-show-outputs"
+                         href="#search"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-search"></i>
+                    <span class="sidebar-button-desc">Search</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="#about"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+                    <span class="sidebar-button-desc">About</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="https://github.com/jin5354" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+                    <span class="sidebar-button-desc">GitHub</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="mailto:xiaoyanjinx@gmail.com" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-envelope-o"></i>
+                    <span class="sidebar-button-desc">Mail</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+    <div style="margin-left: 27px;">
+        <a target="_blank" rel="noopener" href="https://github.com/jin5354/404forest"><img src="https://img.shields.io/github/stars/jin5354/404forest.svg?style=social&label=Stars"></a>
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="3"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title" itemprop="headline">
+            微信浏览器实现后退记忆浏览位置
+        </h1>
+    
+    <div class="post-meta">
+    <time itemprop="datePublished" content="Tue Aug 09 2016 15:00:11 GMT-0700">
+	
+		    8月 09, 2016
+    	
+    </time>
+    
+        <span>in </span>
+        
+    <a class="category-link" href="/categories/Code/">Code</a>
+
+
+    
+</div>
+</div>
+    
+    <div class="main-content-wrap" style="margin-top: 60px;">索引</div>
+    <ol class="main-content-wrap toc-article"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#%E8%83%8C%E6%99%AF"><span class="main-content-wrap toc-article-text">背景</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#%E6%80%9D%E8%B7%AF"><span class="main-content-wrap toc-article-text">思路</span></a><ol class="main-content-wrap toc-article-child"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-4"><a class="main-content-wrap toc-article-link" href="#%E5%88%A4%E6%96%AD%E9%A1%B5%E9%9D%A2%E6%9D%A5%E6%BA%90"><span class="main-content-wrap toc-article-text">判断页面来源</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-4"><a class="main-content-wrap toc-article-link" href="#%E5%A6%82%E4%BD%95%E7%BC%93%E5%AD%98"><span class="main-content-wrap toc-article-text">如何缓存</span></a></li></ol></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#%E6%80%9D%E8%B7%AF-1"><span class="main-content-wrap toc-article-text">思路</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#tips"><span class="main-content-wrap toc-article-text">tips</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#%E5%8F%82%E8%80%83"><span class="main-content-wrap toc-article-text">参考</span></a></li></ol>
+    <div class="post-content markdown" itemprop="articleBody">
+        <div class="main-content-wrap">
+            <p>不知道你有没有注意过，当点击浏览器工具栏上的后退按钮，亦或是在移动设备上触发浏览器的后退键，浏览器会在当前窗口打开前一个页面，不同浏览器“打开”前一个页面的方式是不同的。chrome 浏览器点击后退按钮时，会准确返回到前一个页面离开时的状态，连 input 中输入的字都会还原，而微信浏览器的行为则大不一样。</p>
+<a id="more"></a>
+<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>当触发浏览器的后退按钮时，用户希望页面能返回到与上次离开时分毫不差的状态，这样便可继续浏览与操作；然而这并不是所有浏览器都能做到的。在移动端对浏览器做测试，结果如下：</p>
+<table>
+<thead>
+<tr>
+<th>浏览器</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>移动端 chrome</td>
+<td>全部使用缓存，不发送新请求，不执行 js，准确返回到上次浏览位置（ bfcache ）</td>
+</tr>
+<tr>
+<td>移动端 safari</td>
+<td>全部使用缓存，不发送新请求，不执行 js，准确返回到上次浏览位置（ bfcache ）</td>
+</tr>
+<tr>
+<td>ios 微信浏览器</td>
+<td>重新请求页面本体，图片 / js / css 等没有改变的静态资源使用缓存（有小几率重新请求页面上全部的图片资源），重新执行 js，尝试返回到上次浏览位置</td>
+</tr>
+<tr>
+<td>安卓微信浏览器</td>
+<td>不重新请求页面本体，图片 / js / css 等没有改变的静态资源使用缓存（有小几率重新请求页面上全部的图片资源），重新执行 js，尝试返回到上次浏览位置</td>
+</tr>
+</tbody>
+</table>
+<p><br><br>对于静态页面，在微信浏览器中点击后退，可以返回到离开时浏览位置。然而对于带有下拉加载的页面，微信浏览器就做不到了：微信浏览器要重新执行 js，页面要重新渲染。举个例子：离开页面时可能下滑加载了好几页，offsetTop 到了10000多，点击后退后，页面重新渲染，回到了初始状态，页面总高度可能也就6000，这时微信浏览器尝试回到 offsetTop 10000，只能回到页面最底部；往往这时又会触发下滑加载的逻辑，页面会再吐出一些数据，体验就很差劲了。</p>
+<p>相比之下，chrome 和 safari 因为具有 BFcache，页面前进时会把页面状态完整保存在内存里，后退时直接取缓存，不用做任何操作，即可完美实现“后退时返回到上次浏览位置”。</p>
+<p>调查了一下其他大型网站，如京东、今日头条、饿了么、腾讯新闻等，都没有对微信浏览器中的这个问题做出修复；我司大部分流量来自于微信浏览器，这个问题一定要克服，所以就需要自己写逻辑了，让微信浏览器也能实现后退时准确返回到上次浏览位置。</p>
+<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><p>将问题简化一下，则为“后退时，使上一个页面准确返回到上次浏览位置”。由于JS要重新执行，所以可以在 JS 中加两部分的逻辑：一是在页面前进时，将当前状态缓存下来；二是后退到该页面时，取出状态并手动复原。</p>
+<p>这种方案的难点有两个：</p>
+<ol>
+<li>当 JS 执行时，如何判断此次进入是后退进入，还是非后退进入（地址栏输入网址进入/刷新进入/从其他页面跳进来）？</li>
+<li>如何缓存数据？该缓存哪些数据？</li>
+</ol>
+<h4 id="判断页面来源"><a href="#判断页面来源" class="headerlink" title="判断页面来源"></a>判断页面来源</h4><p>起初打算使用 document.referrer 来判断，后来经过实际测试，发现在“后退”场景下 document.referrer 不能返回正确的结果。比如，A 页面跳转到 B 页面，B 页面的 document.referrer 为 A；A 页面跳转到 B 页面跳转到 C 页面，再后退到 B 页面，这时查看 B 页面的 document.referrer，发现还是 A ….恩，这条路是走不通的。</p>
+<p>随后考虑根据浏览器的一个特性——“后退时 URL 不会改变”来实现判断。这个特性是：如果你从 A URL 跳转到了 B 页面，那么点击后退，再次访问的一定是同样的 A URL。在用户点击链接，跳转离开页面之前（比如写在 unload 事件里），改变 URL，如将 A 变成 A#token，这样从 B 页面后退时，访问的就是 A#token；在 JS 中再加一段逻辑，判断 token 是否存在，即可得知是否是后退进入。</p>
+<p>经过测试，这种方法很稳定，但是改变 hash 有两个不可忽视的缺点：一个 URL 只能有一个 hash，如果页面的业务逻辑代码需要操作 hash，那么很容易出现冲突的现象。二是修改 hash 会将当前 url 推入 history 栈，那么用户在连续后退时会出现这种情况：B 页面 –&gt;  A#token –&gt; A，A#token 状态下点击后退到 A，用户会觉得“咦这次后退怎么没反应”，体验也不是很好。</p>
+<p>再次思考，除了 hash 以外改变URL的方式——那就是html5中新出的historyAPI了。通过history.replace这个API，可以方便的修改URL，同时还不会影响history栈，简直完美。可惜查看兼容性：ios兼容良好，安卓4.1+开始支持historyAPI。</p>
+<p>虽然安卓4.1-的用户已经很少了，但是能解决的问题就要尽量解决。不能用historyAPI，还有别的办法吗？这时，我注意到了安卓微信浏览器的一个特性：后退时不会重新请求页面本体。利用这个特点，可以将token整合在服务器端返回的html中。由于我做的项目前后端中间存在一个PHP层，那么使用php在页面中打入一个时间戳timestamp；每次执行JS时，获取页面上的时间戳，并试图与缓存中的时间戳进行比较（若缓存中无时间戳则将本次获得的时间戳写入）；若为后退进入，则比对结果则为相同；若非后退进入，则获取到的时间戳必大于缓存中保存的时间戳。</p>
+<h4 id="如何缓存"><a href="#如何缓存" class="headerlink" title="如何缓存"></a>如何缓存</h4><p>我们要实现的是“缓存状态并还原”，说起来容易做起来难。比如这个页面有个下滑加载，当前加载到第3页了，那么当你后退回来时，不但页面样式要立刻还原为第3页的状态，还要保证接下来下滑出来的是第4页，而不是第1页。</p>
+<p>由于项目中模块化做的不错，每个页面基本都是一个独立的模块，并且模块中一般划分为init、render（构建并渲染HTML字符串）、bindEvent（绑定事件）几部分，相关变量均为模块的私有参数。所以使用了简单粗暴的方式：直接将DOM结构与需要保存的状态参数（例如当前看到第几页）缓存入sessionStorage中。页面init时会检测是否为后退进入，非后退进入则依次调用render、bindEvent，后退进入则不再调用render，直接取缓存的DOM填入页面，并将上下文变量还原，再执行一遍bindEvent，最后调用scrollTo，将滚动条定位到离开时浏览到的位置。</p>
+<h3 id="思路-1"><a href="#思路-1" class="headerlink" title="思路"></a>思路</h3><p>离开页面时：</p>
+<p><img src="/imgs/blog/historyback1.png" alt="historyBack1"></p>
+<p>进入页面时：</p>
+<p><img src="/imgs/blog/historyback2.png" alt="historyBack2"></p>
+<h3 id="tips"><a href="#tips" class="headerlink" title="tips"></a>tips</h3><p>beforeunload事件被微信浏览器阉割掉了，完全不能使用。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/History" target="_blank" rel="external">History - Web APIs | MDN</a></li>
+<li><a href="http://hzxiaosheng.bitbucket.org/work/2015/09/23/refresh-webpage-on-history-back-for-mobile-browser-and-webview.html" target="_blank" rel="external">H5浏览器和webview后退刷新方案</a></li>
+<li><a href="http://www.w3ctech.com/topic/1588" target="_blank" rel="external">【译】别再丢用户与应用程序的状态了，赶紧用 Page Visibility 吧</a></li>
+</ol>
+
+            
+                
+
+            
+        </div>
+    </div>
+    <div class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">TAGGED IN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-none-link" href="/tags/historyBack/" rel="tag">historyBack</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/%E5%BE%AE%E4%BF%A1%E6%B5%8F%E8%A7%88%E5%99%A8/" rel="tag">微信浏览器</a>
+
+            </div>
+        
+        <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2016/08/15/%E4%BD%BF%E7%94%A8%20requestAnimationFrame%20%E5%AE%9E%E7%8E%B0%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E4%B8%8E%E6%87%92%E6%89%A7%E8%A1%8C/"  data-tooltip="使用 requestAnimationFrame 实现性能优化与懒执行">
+                
+                    <i class="fa fa-angle-left"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">PREVIOUS</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2016/07/12/AngularJS%E5%8D%B3%E5%AD%A6%E5%8D%B3%E7%94%A8%20%E2%80%94%E2%80%94%20%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" data-tooltip="AngularJS即学即用 —— 读书笔记">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">NEXT</span>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions"  href="#btn-open-shareoptions">
+                <i class="fa fa-share-alt"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://www.404forest.com/2016/08/09/%E5%BE%AE%E4%BF%A1%E6%B5%8F%E8%A7%88%E5%99%A8%E5%AE%9E%E7%8E%B0%E5%90%8E%E9%80%80%E8%AE%B0%E5%BF%86%E6%B5%8F%E8%A7%88%E4%BD%8D%E7%BD%AE/">
+                <i class="fa fa-google-plus"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://www.404forest.com/2016/08/09/%E5%BE%AE%E4%BF%A1%E6%B5%8F%E8%A7%88%E5%99%A8%E5%AE%9E%E7%8E%B0%E5%90%8E%E9%80%80%E8%AE%B0%E5%BF%86%E6%B5%8F%E8%A7%88%E4%BD%8D%E7%BD%AE/">
+                <i class="fa fa-facebook-official"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://www.404forest.com/2016/08/09/%E5%BE%AE%E4%BF%A1%E6%B5%8F%E8%A7%88%E5%99%A8%E5%AE%9E%E7%8E%B0%E5%90%8E%E9%80%80%E8%AE%B0%E5%BF%86%E6%B5%8F%E8%A7%88%E4%BD%8D%E7%BD%AE/">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </li>
+        
+            <li class="post-action">
+                <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                    <i class="fa fa-comment-o"></i>
+                </a>
+            </li>
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#">
+            
+                <i class="fa fa-list"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+            <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2025 Jin. All Rights Reserved.
+    </span>
+    <a class="copyrights" target="_blank" rel="noopener" href="http://www.beian.miit.gov.cn/">
+        浙ICP备18012561号
+    </a>
+</footer>
+
+            </div>
+        </div>
+        <div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-remove"></i>
+        </div>
+        
+            <img id="about-card-picture" src="/assets/images/ava.png"/>
+        
+            <h4 id="about-card-name">Jin</h4>
+        
+            <h5 id="about-card-bio">Interested in Web Development/Typography/Japanese.</h5>
+        
+        
+            <h5 id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                WebDeveloper
+            </h5>
+        
+        
+            <h5 id="about-card-location">
+                <i class="fa fa-map-marker"></i>
+                <br/>
+                Beijing
+            </h5>
+        
+    </div>
+</div>
+
+        <div id="cover" style="background-image:url('/assets/images/bg4.jpg');"></div>
+    </body>
+    <!--SCRIPTS-->
+
+<script src="/assets/js/script.min.js"></script>
+
+<!--SCRIPTS END-->
+
+    <script type="text/javascript">
+        var disqus_shortname = '404forest';
+        (function() {
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+
+
+    <script type="text/javascript">
+        (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+                (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+            e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+        })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+        _st('install','ZkJM8hxyxxLens-VGG__','2.0.0');
+    </script>
+
+
+</html>

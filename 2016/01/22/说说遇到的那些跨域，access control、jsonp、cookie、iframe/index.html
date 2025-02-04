@@ -1,0 +1,405 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+    
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="404Forest">
+    <title>说说遇到的那些跨域，access control、jsonp、cookie、iframe - 404Forest</title>
+    <meta name="author" content="Jin">
+    
+        <link rel="icon" href="/assets/images/favicon.ico">
+    
+    
+    <meta name="description" content="想当年在学生时代时，自己一个人抱着前端书啃，写demo，也没个后端搭档，自然也没实际遇到过什么跨域问题，看书上讲的跨域问题和解决方案都是囫囵吞枣。现在工作了，各种跨域问题接触了个七七八八，今天再拎出来说一说。本文不求全，只说一些实用方案。">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="说说遇到的那些跨域，access control、jsonp、cookie、iframe">
+<meta property="og:url" content="http://www.404forest.com/2016/01/22/%E8%AF%B4%E8%AF%B4%E9%81%87%E5%88%B0%E7%9A%84%E9%82%A3%E4%BA%9B%E8%B7%A8%E5%9F%9F%EF%BC%8Caccess%20control%E3%80%81jsonp%E3%80%81cookie%E3%80%81iframe/index.html">
+<meta property="og:site_name" content="404Forest">
+<meta property="og:description" content="想当年在学生时代时，自己一个人抱着前端书啃，写demo，也没个后端搭档，自然也没实际遇到过什么跨域问题，看书上讲的跨域问题和解决方案都是囫囵吞枣。现在工作了，各种跨域问题接触了个七七八八，今天再拎出来说一说。本文不求全，只说一些实用方案。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2016-01-22T18:38:21.000Z">
+<meta property="article:modified_time" content="2025-02-04T23:02:44.269Z">
+<meta property="article:author" content="Jin">
+<meta property="article:tag" content="javascript">
+<meta property="article:tag" content="跨域">
+<meta property="article:tag" content="CORS">
+<meta property="article:tag" content="jsonp">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@jin5354">
+    
+    
+    
+        <meta property="og:image" content="/assets/images/ava.png"/>
+    
+    
+    
+    
+    <!--STYLES-->
+    
+<link rel="stylesheet" href="/assets/css/style.min.css">
+
+    <!--STYLES END-->
+    
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-66492678-1']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+
+</head>
+
+    <body>
+        <div id="blog">
+            <header id="header" data-behavior="3">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <h1 class="header-title">
+        <a class="header-title-link" href="/%20">404Forest</a>
+    </h1>
+    
+        <a class="header-right-picture" href="/#about">
+            <img class="header-picture" src="/assets/images/ava.png"/>
+        </a>
+    
+</header>
+            <nav id="sidebar" data-behavior="3">
+    
+        <div class="sidebar-profile">
+            <a href="/#about">
+                
+                    <img class="sidebar-profile-picture" src="/assets/images/ava.png"/>
+                
+            </a>
+            <span class="sidebar-profile-name">Jin</span>
+        </div>
+    
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/%20"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+                    <span class="sidebar-button-desc">Home</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-archives"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+                    <span class="sidebar-button-desc">Archive</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-categories"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+                    <span class="sidebar-button-desc">Categories</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-tags"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+                    <span class="sidebar-button-desc">Tags</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link st-search-show-outputs"
+                         href="#search"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-search"></i>
+                    <span class="sidebar-button-desc">Search</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="#about"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+                    <span class="sidebar-button-desc">About</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="https://github.com/jin5354" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+                    <span class="sidebar-button-desc">GitHub</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="mailto:xiaoyanjinx@gmail.com" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-envelope-o"></i>
+                    <span class="sidebar-button-desc">Mail</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+    <div style="margin-left: 27px;">
+        <a target="_blank" rel="noopener" href="https://github.com/jin5354/404forest"><img src="https://img.shields.io/github/stars/jin5354/404forest.svg?style=social&label=Stars"></a>
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="3"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title" itemprop="headline">
+            说说遇到的那些跨域，access control、jsonp、cookie、iframe
+        </h1>
+    
+    <div class="post-meta">
+    <time itemprop="datePublished" content="Fri Jan 22 2016 10:38:21 GMT-0800">
+	
+		    1月 22, 2016
+    	
+    </time>
+    
+        <span>in </span>
+        
+    <a class="category-link" href="/categories/Code/">Code</a>
+
+
+    
+</div>
+</div>
+    
+    <div class="main-content-wrap" style="margin-top: 60px;">索引</div>
+    <ol class="main-content-wrap toc-article"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%90%8C%E6%BA%90%EF%BC%88%E5%9F%9F%E3%80%81origin%EF%BC%89%E7%AD%96%E7%95%A5%EF%BC%9F"><span class="main-content-wrap toc-article-text">什么是同源（域、origin）策略？</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#%E8%B5%84%E6%BA%90%E8%AF%B7%E6%B1%82%E8%B7%A8%E5%9F%9F"><span class="main-content-wrap toc-article-text">资源请求跨域</span></a><ol class="main-content-wrap toc-article-child"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-4"><a class="main-content-wrap toc-article-link" href="#%E4%BD%BF%E7%94%A8CORS"><span class="main-content-wrap toc-article-text">使用CORS</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-4"><a class="main-content-wrap toc-article-link" href="#%E4%BD%BF%E7%94%A8jsonp"><span class="main-content-wrap toc-article-text">使用jsonp</span></a></li></ol></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#cookie-%E8%B7%A8%E5%9F%9F%E6%93%8D%E4%BD%9C"><span class="main-content-wrap toc-article-text">cookie 跨域操作</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#iframe-%E6%95%B0%E6%8D%AE%E4%BC%A0%E9%80%92"><span class="main-content-wrap toc-article-text">iframe 数据传递</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-3"><a class="main-content-wrap toc-article-link" href="#%E5%85%B6%E4%BB%96"><span class="main-content-wrap toc-article-text">其他</span></a></li></ol>
+    <div class="post-content markdown" itemprop="articleBody">
+        <div class="main-content-wrap">
+            <p>想当年在学生时代时，自己一个人抱着前端书啃，写demo，也没个后端搭档，自然也没实际遇到过什么跨域问题，看书上讲的跨域问题和解决方案都是囫囵吞枣。现在工作了，各种跨域问题接触了个七七八八，今天再拎出来说一说。本文不求全，只说一些实用方案。</p>
+<a id="more"></a>
+<h3 id="什么是同源（域、origin）策略？"><a href="#什么是同源（域、origin）策略？" class="headerlink" title="什么是同源（域、origin）策略？"></a>什么是同源（域、origin）策略？</h3><p>如果两个页面拥有相同的协议（protocol），端口（如果指定），和主机，那么这两个页面就属于同一个源（origin）。</p>
+<p>下表给出了相对<a href="http://store.company.com/dir/page.html同源检测的示例" target="_blank" rel="external">http://store.company.com/dir/page.html同源检测的示例</a>:</p>
+<p>URL 结果  原因<br><a href="http://store.company.com/dir2/other.html" target="_blank" rel="external">http://store.company.com/dir2/other.html</a>  成功<br><a href="http://store.company.com/dir/inner/another.html" target="_blank" rel="external">http://store.company.com/dir/inner/another.html</a> 成功<br><a href="https://store.company.com/secure.html" target="_blank" rel="external">https://store.company.com/secure.html</a> 失败  协议不同<br><a href="http://store.company.com:81/dir/etc.html" target="_blank" rel="external">http://store.company.com:81/dir/etc.html</a>  失败  端口不同<br><a href="http://news.company.com/dir/other.html" target="_blank" rel="external">http://news.company.com/dir/other.html</a>  失败  主机名不同</p>
+<h3 id="资源请求跨域"><a href="#资源请求跨域" class="headerlink" title="资源请求跨域"></a>资源请求跨域</h3><h4 id="使用CORS"><a href="#使用CORS" class="headerlink" title="使用CORS"></a>使用CORS</h4><p>CORS背后的基本思想就是使用自定义的HTTP头部让浏览器与服务器进行沟通，从而决定请求或响应是应该成功还是失败。</p>
+<p>服务器端需要支持CORS，通过配置Access-Control-Allow-Origin来实现。</p>
+<p>浏览器在发起请求时要注意语法：比如在使用XHR时，URL路径应使用绝对路径而非相对路径。IE9及以下浏览器应换用XDomainRequest进行跨域操作。</p>
+<p>iconfont字体文件若缓存在cdn上，会出现跨域问题，可以使用这种方式解决。</p>
+<h4 id="使用jsonp"><a href="#使用jsonp" class="headerlink" title="使用jsonp"></a>使用jsonp</h4><p>当使用ajax请求跨域内容时，jsonp是最流行、最实用的解决方案。jsonp利用了script标签可以引入外部js资源的特点。</p>
+<p>服务器端需要支持jsonp。返回一个由指定callback函数名包裹的json数据。例：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="selector-tag">callback</span>(&#123;</div><div class="line">  <span class="attribute">data</span>: <span class="string">'test'</span>,</div><div class="line">  result: <span class="string">'0'</span></div><div class="line">&#125;)</div></pre></td></tr></table></figure>
+<p>jsonp的执行方式是：动态生成一个script标签，将url填入src中，将script标签append入body。由于script标签下载js资源无跨域限制，所以数据得到下载。随后由本地定义的callback函数对数据进行处理。</p>
+<p>如果使用jsonp或zepto等库，其$.ajax方法均对jsonp做了处理，我们指定数据类型为jsonp后可以直接使用，免去了我们手动生成插入script标签的过程。</p>
+<h3 id="cookie-跨域操作"><a href="#cookie-跨域操作" class="headerlink" title="cookie 跨域操作"></a>cookie 跨域操作</h3><p>跨顶级域名的cookie操作需要一定的hack手段，可以参考<a href="http://www.admin10000.com/document/291.html" target="_blank" rel="external">这里</a>;</p>
+<p>通过在创建cookie时设置domain参数，二级域名网页中可以直接写入顶级域名的cookie。例如，在a.404forest.com中可以直接读写404forest.com的cookie。可以通过将cookie写入公共的父域，实现跨子域名cookie读写。</p>
+<h3 id="iframe-数据传递"><a href="#iframe-数据传递" class="headerlink" title="iframe 数据传递"></a>iframe 数据传递</h3><p>跨顶级域名的iframe跨域操作需要一定的hack手段，可以参考<a href="http://www.cnblogs.com/snandy/p/3900016.html" target="_blank" rel="external">这里</a>;</p>
+<p>如果iframe跨自域名，需要先将父子iframe的document.domain均设置为相同的父级域名。随后父页面通过iframe的contentDocument或document属性访问到文档对象，进而可以取得子页面的信息；子页面可以通过parent访问到父页面。</p>
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><p>上面几种均是自己用过的，整理一些其他方案：</p>
+<p>使用window.name来进行跨域：window对象有个name属性，该属性有个特征：即在一个窗口(window)的生命周期内,窗口载入的所有的页面都是共享一个window.name的，每个页面对window.name都有读写的权限，window.name是持久存在一个窗口载入过的所有页面中的。</p>
+<p>使用HTML5的window.postMessage方法跨域：</p>
+<p>window.postMessage(message,targetOrigin) 方法是html5新引进的特性，可以使用它来向其它的window对象发送消息，无论这个window对象是属于同源或不同源，目前IE8+、FireFox、Chrome、Opera等浏览器都已经支持window.postMessage方法。</p>
+<p>参考资料：</p>
+<ol>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/Security/Same-origin_policyV" target="_blank" rel="external">JavaScript 的同源策略</a></li>
+<li><a href="http://www.cnblogs.com/skylar/p/4094509.html" target="_blank" rel="external">js中各种跨域问题实战小结（一）</a></li>
+<li><a href="http://www.cnblogs.com/snandy/p/3900016.html" target="_blank" rel="external">跨域iframe的高度自适应</a></li>
+<li><a href="http://www.admin10000.com/document/291.html" target="_blank" rel="external">关于Cookie跨域的问题</a></li>
+</ol>
+
+            
+                
+
+            
+        </div>
+    </div>
+    <div class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">TAGGED IN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-none-link" href="/tags/CORS/" rel="tag">CORS</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/javascript/" rel="tag">javascript</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/jsonp/" rel="tag">jsonp</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/%E8%B7%A8%E5%9F%9F/" rel="tag">跨域</a>
+
+            </div>
+        
+        <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2016/01/22/%E8%AF%A1%E5%BC%82%E7%9A%84%E5%AD%97%E5%8F%B7%E5%BC%82%E5%8F%98%E7%8E%B0%E8%B1%A1%E2%80%94%E2%80%94%E4%BD%A0%E7%9F%A5%E9%81%93font%20boosting%E5%90%97%EF%BC%9F/"  data-tooltip="诡异的字号异变现象——你知道font boosting吗？">
+                
+                    <i class="fa fa-angle-left"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">PREVIOUS</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2016/01/20/%E6%89%93%E9%80%A0%E4%B8%80%E5%A5%97%E4%B8%93%E7%94%A8%E7%9A%84iconfont/" data-tooltip="打造一套专用的iconfont">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">NEXT</span>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions"  href="#btn-open-shareoptions">
+                <i class="fa fa-share-alt"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://www.404forest.com/2016/01/22/%E8%AF%B4%E8%AF%B4%E9%81%87%E5%88%B0%E7%9A%84%E9%82%A3%E4%BA%9B%E8%B7%A8%E5%9F%9F%EF%BC%8Caccess%20control%E3%80%81jsonp%E3%80%81cookie%E3%80%81iframe/">
+                <i class="fa fa-google-plus"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://www.404forest.com/2016/01/22/%E8%AF%B4%E8%AF%B4%E9%81%87%E5%88%B0%E7%9A%84%E9%82%A3%E4%BA%9B%E8%B7%A8%E5%9F%9F%EF%BC%8Caccess%20control%E3%80%81jsonp%E3%80%81cookie%E3%80%81iframe/">
+                <i class="fa fa-facebook-official"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://www.404forest.com/2016/01/22/%E8%AF%B4%E8%AF%B4%E9%81%87%E5%88%B0%E7%9A%84%E9%82%A3%E4%BA%9B%E8%B7%A8%E5%9F%9F%EF%BC%8Caccess%20control%E3%80%81jsonp%E3%80%81cookie%E3%80%81iframe/">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </li>
+        
+            <li class="post-action">
+                <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                    <i class="fa fa-comment-o"></i>
+                </a>
+            </li>
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#">
+            
+                <i class="fa fa-list"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+            <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2025 Jin. All Rights Reserved.
+    </span>
+    <a class="copyrights" target="_blank" rel="noopener" href="http://www.beian.miit.gov.cn/">
+        浙ICP备18012561号
+    </a>
+</footer>
+
+            </div>
+        </div>
+        <div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-remove"></i>
+        </div>
+        
+            <img id="about-card-picture" src="/assets/images/ava.png"/>
+        
+            <h4 id="about-card-name">Jin</h4>
+        
+            <h5 id="about-card-bio">Interested in Web Development/Typography/Japanese.</h5>
+        
+        
+            <h5 id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                WebDeveloper
+            </h5>
+        
+        
+            <h5 id="about-card-location">
+                <i class="fa fa-map-marker"></i>
+                <br/>
+                Beijing
+            </h5>
+        
+    </div>
+</div>
+
+        <div id="cover" style="background-image:url('/assets/images/bg4.jpg');"></div>
+    </body>
+    <!--SCRIPTS-->
+
+<script src="/assets/js/script.min.js"></script>
+
+<!--SCRIPTS END-->
+
+    <script type="text/javascript">
+        var disqus_shortname = '404forest';
+        (function() {
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+
+
+    <script type="text/javascript">
+        (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+                (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+            e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+        })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+        _st('install','ZkJM8hxyxxLens-VGG__','2.0.0');
+    </script>
+
+
+</html>

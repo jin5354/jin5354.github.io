@@ -1,0 +1,431 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+    
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="404Forest">
+    <title>谈谈网页中的Animation - 404Forest</title>
+    <meta name="author" content="Jin">
+    
+        <link rel="icon" href="/assets/images/favicon.ico">
+    
+    
+    <meta name="description" content="一个有关 Animation 的小小分享。">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="谈谈网页中的Animation">
+<meta property="og:url" content="http://www.404forest.com/2015/08/24/%E8%B0%88%E8%B0%88%E7%BD%91%E9%A1%B5%E4%B8%AD%E7%9A%84Animation/index.html">
+<meta property="og:site_name" content="404Forest">
+<meta property="og:description" content="一个有关 Animation 的小小分享。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2015-08-25T03:47:41.000Z">
+<meta property="article:modified_time" content="2025-02-04T23:02:44.269Z">
+<meta property="article:author" content="Jin">
+<meta property="article:tag" content="Javascript">
+<meta property="article:tag" content="html">
+<meta property="article:tag" content="css">
+<meta property="article:tag" content="canvas">
+<meta property="article:tag" content="Animation">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@jin5354">
+    
+    
+    
+        <meta property="og:image" content="/assets/images/ava.png"/>
+    
+    
+    
+    
+    <!--STYLES-->
+    
+<link rel="stylesheet" href="/assets/css/style.min.css">
+
+    <!--STYLES END-->
+    
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-66492678-1']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+
+</head>
+
+    <body>
+        <div id="blog">
+            <header id="header" data-behavior="3">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <h1 class="header-title">
+        <a class="header-title-link" href="/%20">404Forest</a>
+    </h1>
+    
+        <a class="header-right-picture" href="/#about">
+            <img class="header-picture" src="/assets/images/ava.png"/>
+        </a>
+    
+</header>
+            <nav id="sidebar" data-behavior="3">
+    
+        <div class="sidebar-profile">
+            <a href="/#about">
+                
+                    <img class="sidebar-profile-picture" src="/assets/images/ava.png"/>
+                
+            </a>
+            <span class="sidebar-profile-name">Jin</span>
+        </div>
+    
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/%20"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+                    <span class="sidebar-button-desc">Home</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-archives"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+                    <span class="sidebar-button-desc">Archive</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-categories"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+                    <span class="sidebar-button-desc">Categories</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="/all-tags"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+                    <span class="sidebar-button-desc">Tags</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link st-search-show-outputs"
+                         href="#search"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-search"></i>
+                    <span class="sidebar-button-desc">Search</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link "
+                         href="#about"
+                        
+                    >
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+                    <span class="sidebar-button-desc">About</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+        <ul class="sidebar-buttons">
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="https://github.com/jin5354" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+                    <span class="sidebar-button-desc">GitHub</span>
+                </a>
+        </li>
+        
+            <li class="sidebar-button">
+                
+                    <a  class="sidebar-button-link " href="mailto:xiaoyanjinx@gmail.com" target="_blank">
+                
+                    <i class="sidebar-button-icon fa fa-lg fa-envelope-o"></i>
+                    <span class="sidebar-button-desc">Mail</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+    <div style="margin-left: 27px;">
+        <a target="_blank" rel="noopener" href="https://github.com/jin5354/404forest"><img src="https://img.shields.io/github/stars/jin5354/404forest.svg?style=social&label=Stars"></a>
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="3"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title" itemprop="headline">
+            谈谈网页中的Animation
+        </h1>
+    
+    <div class="post-meta">
+    <time itemprop="datePublished" content="Mon Aug 24 2015 20:47:41 GMT-0700">
+	
+		    8月 24, 2015
+    	
+    </time>
+    
+        <span>in </span>
+        
+    <a class="category-link" href="/categories/Code/">Code</a>
+
+
+    
+</div>
+</div>
+    
+    <div class="main-content-wrap" style="margin-top: 60px;">索引</div>
+    <ol class="main-content-wrap toc-article"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-5"><a class="main-content-wrap toc-article-link" href="#%E6%B5%8F%E8%A7%88%E5%99%A8%E4%B8%AD%E7%9A%84%E5%8A%A8%E7%94%BB%E7%B1%BB%E5%9E%8B"><span class="main-content-wrap toc-article-text">浏览器中的动画类型</span></a><ol class="main-content-wrap toc-article-child"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-6"><a class="main-content-wrap toc-article-link" href="#%E5%A3%B0%E6%98%8E%E5%BC%8F"><span class="main-content-wrap toc-article-text">声明式</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-6"><a class="main-content-wrap toc-article-link" href="#%E5%91%BD%E4%BB%A4%E5%BC%8F"><span class="main-content-wrap toc-article-text">命令式</span></a></li></ol></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-5"><a class="main-content-wrap toc-article-link" href="#%E5%B8%B8%E8%A7%81%E7%9A%84%E4%B8%A4%E7%A7%8D-JavaScript-%E5%8A%A8%E7%94%BB%E7%AE%97%E6%B3%95"><span class="main-content-wrap toc-article-text">常见的两种 JavaScript 动画算法</span></a><ol class="main-content-wrap toc-article-child"><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-6"><a class="main-content-wrap toc-article-link" href="#%E5%9F%BA%E4%BA%8E%E5%B8%A7%E7%9A%84%E5%8A%A8%E7%94%BB%E7%AE%97%E6%B3%95%EF%BC%88Frame-based%EF%BC%89"><span class="main-content-wrap toc-article-text">基于帧的动画算法（Frame-based）</span></a></li><li class="main-content-wrap toc-article-item main-content-wrap toc-article-level-6"><a class="main-content-wrap toc-article-link" href="#%E5%9F%BA%E4%BA%8E%E6%97%B6%E9%97%B4%E7%9A%84%E5%8A%A8%E7%94%BB%E7%AE%97%E6%B3%95-Time-based"><span class="main-content-wrap toc-article-text">基于时间的动画算法(Time-based)</span></a></li></ol></li></ol>
+    <div class="post-content markdown" itemprop="articleBody">
+        <div class="main-content-wrap">
+            <p>一个有关 Animation 的小小分享。</p>
+<a id="more"></a>
+<iframe src="//slides.com/jin5354/css3-animations/embed" width="576" height="420" scrolling="no" frameborder="0" webkitallowfullscreen="" mozallowfullscreen="" allowfullscreen></iframe>
+
+<h5 id="浏览器中的动画类型"><a href="#浏览器中的动画类型" class="headerlink" title="浏览器中的动画类型"></a>浏览器中的动画类型</h5><h6 id="声明式"><a href="#声明式" class="headerlink" title="声明式"></a>声明式</h6><p>声明式动画，如 CSS3 Animation。 CSS3中的动画大多以 Animation 和 Transition 的形式来组成。</p>
+<p>优点：</p>
+<ul>
+<li>动画与应用分离，易于维护</li>
+<li>计算消耗小</li>
+<li>GPU硬件加速</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>受限于 cubic-bezier 曲线或 keyframes， 动画控制能力弱</li>
+<li>只能满足基本的动画效果</li>
+</ul>
+<h6 id="命令式"><a href="#命令式" class="headerlink" title="命令式"></a>命令式</h6><p>命令式动画，如 Javascript 动画、Canvas、WebGL 动画。主要特点是显式调用动画函数。</p>
+<p>优点：</p>
+<ul>
+<li>可以进行逐帧控制，实现一些高级动画效果，如物理模拟</li>
+<li>JavsScript 动画可兼容低等级浏览器</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>JavaScript 动画性能易出现问题，Canvas 和 WebGL 动画可以使用GPU加速，性能还不错</li>
+<li>耦合</li>
+<li>Canvas、WebGL 可以实现像素级绘制与图像分析</li>
+</ul>
+<h5 id="常见的两种-JavaScript-动画算法"><a href="#常见的两种-JavaScript-动画算法" class="headerlink" title="常见的两种 JavaScript 动画算法"></a>常见的两种 JavaScript 动画算法</h5><h6 id="基于帧的动画算法（Frame-based）"><a href="#基于帧的动画算法（Frame-based）" class="headerlink" title="基于帧的动画算法（Frame-based）"></a>基于帧的动画算法（Frame-based）</h6><ul>
+<li>使用浏览器的定时器 (setInterval/setTimeout)</li>
+<li>以一定时间间隔执行动画函数</li>
+<li>时间间隔决定FPS，当时间间隔为(1000/60)毫秒时，FPS为60</li>
+<li>JS定时器存在精度问题</li>
+<li>性能问题，帧间隔不可控</li>
+</ul>
+<p>示例代码：</p>
+<p>方块下移400像素，时长1秒</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">window</span>.onload = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  </div><div class="line">  <span class="keyword">var</span> div1 = <span class="built_in">document</span>.getElementById(<span class="string">'test1'</span>);</div><div class="line">  </div><div class="line">  <span class="keyword">var</span> top = <span class="number">0</span>;</div><div class="line">  <span class="keyword">var</span> endTime;</div><div class="line">  <span class="keyword">var</span> startTime = <span class="built_in">Date</span>.now();</div><div class="line">  <span class="keyword">var</span> ani1 = setInterval(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="keyword">if</span>(top &lt;= <span class="number">400</span>)&#123;</div><div class="line">      div1.style.top = top + <span class="string">'px'</span>; </div><div class="line">      top += <span class="number">400</span>/<span class="number">60</span>;  </div><div class="line">    &#125;<span class="keyword">else</span> &#123;</div><div class="line">      clearInterval(ani1);</div><div class="line">      endTime = <span class="built_in">Date</span>.now();</div><div class="line">      <span class="built_in">console</span>.log(endTime - startTime);</div><div class="line">    &#125;</div><div class="line">  &#125;, <span class="number">1000</span>/<span class="number">60</span>);</div><div class="line"></div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>可以看到这个动画的执行过程是：<br>每1/60秒执行1次，每次移动400/60像素，共移动400像素。如果帧间隔能稳定在1/60秒，那么总执行时长就是稳定1秒。<br>可惜帧间隔是无法稳定的，当你执行别的操作（比如点点面板显示按钮触发一下重绘）还会带来严重的性能损失。最终动画总执行时长总是略多于1秒，性能损失严重时可能达到1.5 ~ 2秒。</p>
+<h6 id="基于时间的动画算法-Time-based"><a href="#基于时间的动画算法-Time-based" class="headerlink" title="基于时间的动画算法(Time-based)"></a>基于时间的动画算法(Time-based)</h6><ul>
+<li>“弃帧保时”</li>
+<li>依然可以使用setInterval()/setTimeout()</li>
+<li>根据动画已进行时间计算进度，由进度决定动画状态</li>
+<li>终态处理</li>
+<li>保证时间准确</li>
+</ul>
+<p>示例代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">window</span>.onload = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  </div><div class="line">  <span class="keyword">var</span> div1 = <span class="built_in">document</span>.getElementById(<span class="string">'test1'</span>);</div><div class="line">  </div><div class="line">  <span class="keyword">var</span> top = <span class="number">0</span>;</div><div class="line">  <span class="keyword">var</span> start = <span class="literal">null</span>;</div><div class="line">  <span class="keyword">var</span> ani1 = setInterval(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="keyword">if</span>(!start) &#123;start = <span class="built_in">Date</span>.now();&#125;</div><div class="line">    <span class="keyword">var</span> progress = <span class="built_in">Date</span>.now() - start;</div><div class="line">    <span class="keyword">if</span>(progress &lt;= <span class="number">1000</span>)&#123;</div><div class="line">      div1.style.top = progress/<span class="number">1000</span>*<span class="number">400</span> + <span class="string">'px'</span>;  </div><div class="line">    &#125;<span class="keyword">else</span> &#123;</div><div class="line">      div1.style.top = <span class="string">'400px'</span>;  </div><div class="line">      clearInterval(ani1);</div><div class="line">      <span class="built_in">console</span>.log(progress);</div><div class="line">    &#125;</div><div class="line">  &#125;, <span class="number">1000</span>/<span class="number">60</span>);</div><div class="line"></div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个动画的执行过程：</p>
+<p>每1/60秒执行一次，执行时先算出此时刻的动画已进行时长，折算为动画进行百分比，根据百分比决定移动位置。<br>由于是基于时间的动画算法，执行总时长一定是1秒（误差非常小）。</p>
+<p>进化版：使用<strong>requestAnimationFrame</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">window</span>.onload = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  </div><div class="line">  <span class="keyword">var</span> div1 = <span class="built_in">document</span>.getElementById(<span class="string">'test1'</span>);</div><div class="line">  <span class="keyword">var</span> div2 = <span class="built_in">document</span>.getElementById(<span class="string">'test2'</span>);</div><div class="line">  </div><div class="line">  <span class="keyword">var</span> top = <span class="number">0</span>;</div><div class="line">  <span class="keyword">var</span> start = <span class="literal">null</span>;</div><div class="line">  <span class="keyword">var</span> ani1 = setInterval(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="keyword">if</span>(!start) &#123;start = <span class="built_in">Date</span>.now();&#125;</div><div class="line">    <span class="keyword">var</span> progress = <span class="built_in">Date</span>.now() - start;</div><div class="line">    <span class="keyword">if</span>(progress &lt;= <span class="number">1000</span>)&#123;</div><div class="line">      div1.style.top = progress/<span class="number">1000</span>*<span class="number">400</span> + <span class="string">'px'</span>;   </div><div class="line">    &#125;<span class="keyword">else</span> &#123;</div><div class="line">      div1.style.top = <span class="string">'400px'</span>;  </div><div class="line">      clearInterval(ani1);</div><div class="line">      <span class="built_in">console</span>.log(progress);</div><div class="line">    &#125;</div><div class="line">  &#125;, <span class="number">1000</span>/<span class="number">60</span>);</div><div class="line">  </div><div class="line">  </div><div class="line">  <span class="keyword">var</span> start2 = <span class="literal">null</span>;</div><div class="line">  <span class="function"><span class="keyword">function</span> <span class="title">step</span>(<span class="params">timestamp</span>) </span>&#123;</div><div class="line">    <span class="keyword">if</span> (!start2) start2 = timestamp;</div><div class="line">    <span class="keyword">var</span> progress = timestamp - start2;</div><div class="line">    div2.style.top = progress/<span class="number">1000</span>*<span class="number">400</span> + <span class="string">"px"</span>;</div><div class="line">    <span class="keyword">if</span> (progress &lt;= <span class="number">1000</span>) &#123;</div><div class="line">      <span class="built_in">window</span>.requestAnimationFrame(step);</div><div class="line">    &#125;<span class="keyword">else</span>&#123;</div><div class="line">      div2.style.top = <span class="string">'400px'</span>; </div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="built_in">window</span>.requestAnimationFrame(step);</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>使用 requestAnimationFrame 浏览器可以优化并行的动画动作，更合理的重新排列动作序列，并把能够合并的动作放在一个渲染周期内完成，从而呈现出更流畅的动画效果。</p>
+<p>对比动画可以看到，不使用 requestAnimationFrame 的动画可能存在颠簸效果，使用 requestAnimationFrame 的动画更加平滑。</p>
+
+            
+                
+
+            
+        </div>
+    </div>
+    <div class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">TAGGED IN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-none-link" href="/tags/Animation/" rel="tag">Animation</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/Javascript/" rel="tag">Javascript</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/canvas/" rel="tag">canvas</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/css/" rel="tag">css</a> <a class="tag tag--primary tag--small t-none-link" href="/tags/html/" rel="tag">html</a>
+
+            </div>
+        
+        <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2015/09/06/%E3%80%8AHTTP%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E3%80%8B%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E5%90%84%E7%AB%A0%E8%84%91%E5%9B%BE/"  data-tooltip="《HTTP权威指南》笔记——各章脑图">
+                
+                    <i class="fa fa-angle-left"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">PREVIOUS</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2015/07/18/%E8%B0%88%E8%B0%88%E5%B1%85%E4%B8%AD%E4%B8%8Eflexbox/" data-tooltip="谈谈居中与flexbox(7.18修订~)">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">NEXT</span>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions"  href="#btn-open-shareoptions">
+                <i class="fa fa-share-alt"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://www.404forest.com/2015/08/24/%E8%B0%88%E8%B0%88%E7%BD%91%E9%A1%B5%E4%B8%AD%E7%9A%84Animation/">
+                <i class="fa fa-google-plus"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://www.404forest.com/2015/08/24/%E8%B0%88%E8%B0%88%E7%BD%91%E9%A1%B5%E4%B8%AD%E7%9A%84Animation/">
+                <i class="fa fa-facebook-official"></i>
+            </a>
+        </li>
+        <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://www.404forest.com/2015/08/24/%E8%B0%88%E8%B0%88%E7%BD%91%E9%A1%B5%E4%B8%AD%E7%9A%84Animation/">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </li>
+        
+            <li class="post-action">
+                <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                    <i class="fa fa-comment-o"></i>
+                </a>
+            </li>
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#">
+            
+                <i class="fa fa-list"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+            <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2025 Jin. All Rights Reserved.
+    </span>
+    <a class="copyrights" target="_blank" rel="noopener" href="http://www.beian.miit.gov.cn/">
+        浙ICP备18012561号
+    </a>
+</footer>
+
+            </div>
+        </div>
+        <div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-remove"></i>
+        </div>
+        
+            <img id="about-card-picture" src="/assets/images/ava.png"/>
+        
+            <h4 id="about-card-name">Jin</h4>
+        
+            <h5 id="about-card-bio">Interested in Web Development/Typography/Japanese.</h5>
+        
+        
+            <h5 id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                WebDeveloper
+            </h5>
+        
+        
+            <h5 id="about-card-location">
+                <i class="fa fa-map-marker"></i>
+                <br/>
+                Beijing
+            </h5>
+        
+    </div>
+</div>
+
+        <div id="cover" style="background-image:url('/assets/images/bg4.jpg');"></div>
+    </body>
+    <!--SCRIPTS-->
+
+<script src="/assets/js/script.min.js"></script>
+
+<!--SCRIPTS END-->
+
+    <script type="text/javascript">
+        var disqus_shortname = '404forest';
+        (function() {
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+
+
+    <script type="text/javascript">
+        (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+                (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+            e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+        })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+        _st('install','ZkJM8hxyxxLens-VGG__','2.0.0');
+    </script>
+
+
+</html>
